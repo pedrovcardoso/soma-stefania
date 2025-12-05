@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #003399;
+  --color-secondary: #0066CC;
+  --color-accent: #0099FF;
+  --color-background: #FFFFFF;
+  --color-surface: #F5F5F5;
+  --color-text: #1A1A1A;
+  --color-text-secondary: #666666;
+  --color-border: #E0E0E0;
+  --color-error: #DC3545;
+  --color-succzess: #28A745;
+  --color-warning: #FFC107;
+  --font-primary: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Courier New', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: #F0F4F8;
+  color: var(--color-text);
+  overflow: hidden;
+}
+
+.tab-content-hidden {
+  display: none;
+  pointer-events: none;
+}
+
+.tab-content-visible {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-active {
+  border-radius: 8px 8px 0 0 !important;
+  position: relative;
+  margin-bottom: -1px;
+  background-color: #f0f4f8;
+  border: 1px solid var(--color-border);
+  border-bottom-color: var(--color-background);
+  z-index: 10;
+}
+
+.tab-active::before,
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  width: 10px;
+  height: 10px;
+}
+
+.tab-active::before {
+  left: -10px;
+  border-bottom-right-radius: 10px;
+  border-width: 0 1px 1px 0;
+  border-style: solid;
+  border-color: var(--color-border);
+  box-shadow: 4px 2px 0 0 #f0f4f8;
+}
+
+.tab-active::after {
+  right: -10px;
+  border-bottom-left-radius: 10px;
+  border-width: 0 0 1px 1px;
+  border-style: solid;
+  border-color: var(--color-border);
+  box-shadow: -4px 2px 0 0 #f0f4f8;
+}
