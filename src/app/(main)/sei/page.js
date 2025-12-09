@@ -3,7 +3,8 @@
 import { useState, useEffect, Fragment } from 'react';
 import { MdSearch, MdMoreVert, MdLaunch, MdCalendarToday, MdExpandMore } from 'react-icons/md';
 import FilterPanel from '@/components/ui/FilterPanel';
-import { getSeiProcesses } from '@/services/seiService';
+import { getSeiProcesses } from '@/services/mockData';
+import useTabStore from '@/store/useTabStore';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, subWeeks, startOfMonth, endOfMonth, subMonths } from 'date-fns';
@@ -24,6 +25,7 @@ export default function SeiPage() {
   const [activeView, setActiveView] = useState('table');
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const addTab = useTabStore((state) => state.addTab);
 
   // Estados de Filtro
   const [filters, setFilters] = useState({
@@ -251,12 +253,16 @@ export default function SeiPage() {
                             {/* Processo */}
                             <td className="px-6 py-4 align-top">
                               <div className="flex flex-col">
-                                <a
-                                  href={`/sei/${row.id}`} // Mocking ID routing, ideally assumes row.id matches routing param
-                                  className="font-bold text-blue-600 hover:text-blue-800 hover:underline font-mono text-xs flex items-center gap-1 w-fit"
+                                <button
+                                  onClick={() => addTab({
+                                    id: `sei-${row.id}`,
+                                    title: row.sei_number,
+                                    path: `/sei/${row.id}`
+                                  })}
+                                  className="font-bold text-blue-600 hover:text-blue-800 hover:underline font-mono text-xs flex items-center gap-1 w-fit text-left"
                                 >
                                   {row.sei_number} <MdLaunch size={10} />
-                                </a>
+                                </button>
                                 <span className="text-xs text-slate-400 mt-0.5">{row.type}</span>
                               </div>
                             </td>

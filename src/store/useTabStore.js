@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import useHistoryStore from './useHistoryStore'
 
 const useTabStore = create((set) => ({
   tabs: [],
@@ -10,6 +11,19 @@ const useTabStore = create((set) => ({
       if (existingTab) {
         return { activeTabId: tab.id }
       }
+      const historyItem = {
+        id: tab.id,
+        process: tab.title, // Adapting structure to match history item expectations
+        title: tab.title,
+        path: tab.path,
+        pinned: false,
+        favorited: false,
+        // accessedAt is handled by store
+      };
+
+      // Auto-log to history
+      useHistoryStore.getState().addToHistory(historyItem);
+
       return {
         tabs: [...state.tabs, tab],
         activeTabId: tab.id,

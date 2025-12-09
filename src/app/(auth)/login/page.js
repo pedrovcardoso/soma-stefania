@@ -19,7 +19,7 @@ export default function LoginPage() {
         const timePart = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
         const newToast = {
-            id: crypto.randomUUID(),
+            id: Math.random().toString(36).substring(2) + Date.now().toString(36),
             message,
             variant,
             timestamp: `${datePart} ${timePart}`

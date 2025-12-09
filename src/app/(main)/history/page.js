@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useMemo, Fragment } from 'react';
-import { mockRecentAccesses } from '@/services/mockData';
 import useTabStore from '@/store/useTabStore';
+import useHistoryStore from '@/store/useHistoryStore';
 import FilterPanel from '@/components/ui/FilterPanel';
 
 // --- DEPENDÊNCIAS ---
@@ -41,10 +41,7 @@ const normalizeText = (text) =>
 
 export default function HistoryPage() {
   const addTab = useTabStore((state) => state.addTab);
-
-  const [historyItems, setHistoryItems] = useState(() =>
-    mockRecentAccesses.sort((a, b) => new Date(b.accessedAt) - new Date(a.accessedAt))
-  );
+  const { historyItems, removeFromHistory, togglePin, toggleFavorite, clearHistory } = useHistoryStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     pageType: 'all',
@@ -73,28 +70,14 @@ export default function HistoryPage() {
     setSearchTerm('');
   };
 
-  const handleAccessClick = (access) => addTab({ id: `history-${access.id}`, title: access.process, path: access.path || `/sei/${access.process}` });
-  const handleDeleteItem = (idToDelete) => setHistoryItems(prev => prev.filter(item => item.id !== idToDelete));
-  const handleTogglePin = (idToToggle) => setHistoryItems(prev => prev.map(item => item.id === idToToggle ? { ...item, pinned: !item.pinned } : item));
-  const handleToggleFavorite = (idToToggle) => setHistoryItems(prev => prev.map(item => item.id === idToToggle ? { ...item, favorited: !item.favorited } : item));
+  const handleAccessClick = (access) => addTab({ id: access.id, title: access.title, path: access.path || `/sei/${access.id}` });
+  const handleDeleteItem = (idToDelete) => removeFromHistory(idToDelete);
+  const handleTogglePin = (idToToggle) => togglePin(idToToggle);
+  const handleToggleFavorite = (idToToggle) => toggleFavorite(idToToggle);
   const handleShare = (process) => alert(`Compartilhar: ${process}\n(Funcionalidade pendente)`);
 
   const handleClearHistory = (period) => {
-    // CORRIGIDO: Lógica agora preserva apenas os itens fixados (pinned)
-    setHistoryItems(prev => {
-      if (period === 'all') {
-        return prev.filter(item => item.pinned);
-      }
-
-      const now = new Date();
-      let startDate;
-      if (period === 'day') startDate = startOfDay(now);
-      else if (period === 'week') startDate = startOfDay(subWeeks(now, 1));
-      else if (period === 'month') startDate = startOfDay(subMonths(now, 1));
-
-      // Mantém um item se ele estiver fixado OU se for de antes do período de limpeza
-      return prev.filter(item => item.pinned || new Date(item.accessedAt) < startDate);
-    });
+    clearHistory(period);
   };
 
   const groupedHistory = useMemo(() => {

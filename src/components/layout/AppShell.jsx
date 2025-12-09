@@ -20,8 +20,18 @@ export default function AppShell({ children }) {
       Object.entries(currentTheme).forEach(([key, value]) => {
         root.style.setProperty(key, value)
       })
+
+      // Enforce Static URL
+      const enforceStaticUrl = () => {
+        if (window.location.pathname !== '/main' && !window.location.pathname.includes('/login')) {
+          window.history.replaceState(null, '', '/main');
+        }
+      };
+
+      enforceStaticUrl();
+      // Listen for updates (though replaceState doesn't trigger popstate, we mainly care about initial load and tab switches if they caused route changes)
     }
-  }, [currentTheme])
+  }, [currentTheme, activeTabId])
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
