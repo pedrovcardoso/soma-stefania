@@ -1,15 +1,15 @@
-export async function generateStaticParams() {
-  return [
-    { id: "1" },
-    { id: "2" },
-    { id: "3" },
-  ];
-}
-
-export default function Page({ params }) {
+export default function SEIPage() {
   return (
-    <div>
-      <h1>Página SEI {params.id}</h1>
+    <div className="p-4 sm:p-6 md:p-8 bg-slate-50 min-h-full font-sans">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-8">
+          <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">SEI</h1>
+          <p className="text-slate-500 mt-2">Processo XXX.</p>
+        </header>
+        <div className="bg-white p-6 rounded-lg border border-gray-200">
+          <p className="text-gray-600">Mais detalhes do processo.</p>
+        </div>
+      </div>
     </div>
-  );
+  )
 }

@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useMemo, Fragment } from 'react';
-import { mockRecentAccesses } from '@/services/mockData'; 
+import { mockRecentAccesses } from '@/services/mockData';
 import useTabStore from '@/store/useTabStore';
+import FilterPanel from '@/components/ui/FilterPanel';
 
 // --- DEPENDÊNCIAS ---
 import { DayPicker } from 'react-day-picker';
@@ -14,7 +15,7 @@ import { Menu, Popover, Transition } from '@headlessui/react';
 // --- ÍCONES ---
 import {
   MdSearch, MdClose, MdBarChart, MdLanguage, MdDescription,
-  MdDeleteSweep, MdHistory, MdFilterList, MdMoreVert, MdCalendarToday, 
+  MdDeleteSweep, MdHistory, MdFilterList, MdMoreVert, MdCalendarToday,
   MdExpandMore, MdRefresh, MdPushPin, MdLaunch, MdShare, MdFavorite, MdFavoriteBorder
 } from 'react-icons/md';
 
@@ -33,15 +34,15 @@ const getPageInfo = (path) => {
   return PAGE_TYPES.default;
 };
 const formatFullDateTime = (date) => new Date(date).toLocaleString('pt-BR', {
-    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
 });
-const normalizeText = (text) => 
-    text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const normalizeText = (text) =>
+  text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 export default function HistoryPage() {
   const addTab = useTabStore((state) => state.addTab);
 
-  const [historyItems, setHistoryItems] = useState(() => 
+  const [historyItems, setHistoryItems] = useState(() =>
     mockRecentAccesses.sort((a, b) => new Date(b.accessedAt) - new Date(a.accessedAt))
   );
   const [searchTerm, setSearchTerm] = useState('');
@@ -77,20 +78,20 @@ export default function HistoryPage() {
   const handleTogglePin = (idToToggle) => setHistoryItems(prev => prev.map(item => item.id === idToToggle ? { ...item, pinned: !item.pinned } : item));
   const handleToggleFavorite = (idToToggle) => setHistoryItems(prev => prev.map(item => item.id === idToToggle ? { ...item, favorited: !item.favorited } : item));
   const handleShare = (process) => alert(`Compartilhar: ${process}\n(Funcionalidade pendente)`);
-  
+
   const handleClearHistory = (period) => {
     // CORRIGIDO: Lógica agora preserva apenas os itens fixados (pinned)
     setHistoryItems(prev => {
       if (period === 'all') {
         return prev.filter(item => item.pinned);
       }
-      
+
       const now = new Date();
       let startDate;
       if (period === 'day') startDate = startOfDay(now);
       else if (period === 'week') startDate = startOfDay(subWeeks(now, 1));
       else if (period === 'month') startDate = startOfDay(subMonths(now, 1));
-      
+
       // Mantém um item se ele estiver fixado OU se for de antes do período de limpeza
       return prev.filter(item => item.pinned || new Date(item.accessedAt) < startDate);
     });
@@ -121,31 +122,31 @@ export default function HistoryPage() {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 bg-slate-50 min-h-full font-sans">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8"><h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Histórico de Atividades</h1><p className="text-slate-500 mt-2">Revise, filtre e acesse rapidamente suas atividades recentes.</p></header>
-        
-        <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm mb-8">
-            <div className="flex items-center justify-between mb-4"><h2 className="text-sm font-bold text-slate-700 flex items-center gap-2"><MdFilterList />PAINEL DE FILTROS</h2><button onClick={clearFilters} className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors"><MdRefresh size={16} /> Limpar</button></div>
-            <div className="flex flex-wrap gap-4 items-end">
-                <div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Filtrar por Tipo</label><div className="relative mt-1">
-                      <select value={filters.pageType} onChange={(e) => handleFilterChange('pageType', e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8"><option value="all">Todos os tipos</option><option value="dashboard">Dashboard</option><option value="sei">Processos SEI</option><option value="documents">Documentos</option></select>
-                      <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div></div>
-                <div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Filtrar por Período</label><div className="relative mt-1">
-                      <select value={filters.datePreset} onChange={(e) => handleDatePresetChange(e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8"><option value="all">Qualquer data</option><option value="today">Hoje</option><option value="thisWeek">Esta Semana</option><option value="lastWeek">Semana Passada</option><option value="thisMonth">Este Mês</option><option value="lastMonth">Mês Passado</option><option value="specific">Período Específico...</option></select>
-                      <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div></div>
-                {filters.datePreset === 'specific' && (<div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Datas</label><Popover className="relative mt-1">
-                      <Popover.Button className="w-full flex items-center justify-between p-2 text-sm text-left bg-white border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500"><span className='flex items-center gap-2 text-slate-700'><MdCalendarToday className="text-slate-400" />{filters.dateRange.from ? `${format(filters.dateRange.from, 'dd/MM/yy')} - ${filters.dateRange.to ? format(filters.dateRange.to, 'dd/MM/yy') : ''}` : 'Selecione...'}</span><MdExpandMore className="text-slate-400" /></Popover.Button>
-                      <Transition as={Fragment} enter="transition ease-out duration-200" enterFrom="opacity-0 translate-y-1" enterTo="opacity-100 translate-y-0" leave="transition ease-in duration-150" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-1"><Popover.Panel className="absolute z-20 mt-1 bg-white border rounded-md shadow-lg"><DayPicker mode="range" selected={filters.dateRange} onSelect={(range) => handleFilterChange('dateRange', range)} locale={ptBR} className="p-2" captionLayout="dropdown-buttons" fromYear={2020} toYear={new Date().getFullYear()} /></Popover.Panel></Transition>
-                </Popover></div>)}
-                <div className="flex items-center gap-4">
-                  <label htmlFor="isPinnedFilter" className="flex items-center gap-2 p-2 border border-slate-300 rounded-md cursor-pointer hover:bg-slate-50 transition-colors"><input id="isPinnedFilter" type="checkbox" checked={filters.isPinned} onChange={(e) => handleFilterChange('isPinned', e.target.checked)} className="h-4 w-4 rounded border-slate-400 text-blue-600 focus:ring-blue-500" /><span className="text-sm text-slate-700">Somente fixado no histórico</span></label>
-                  <label htmlFor="isFavoritedFilter" className="flex items-center gap-2 p-2 border border-slate-300 rounded-md cursor-pointer hover:bg-slate-50 transition-colors"><input id="isFavoritedFilter" type="checkbox" checked={filters.isFavorited} onChange={(e) => handleFilterChange('isFavorited', e.target.checked)} className="h-4 w-4 rounded border-slate-400 text-blue-600 focus:ring-blue-500" /><span className="text-sm text-slate-700">Somente favoritos</span></label>
-                </div>
-            </div>
-        </div>
-        
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-8">
+          <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Histórico de Atividades</h1>
+          <p className="text-slate-500 mt-2">Revise, filtre e acesse rapidamente suas atividades recentes.</p>
+        </header>
+
+        <FilterPanel onClear={clearFilters}>
+          <div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Filtrar por Tipo</label><div className="relative mt-1">
+            <select value={filters.pageType} onChange={(e) => handleFilterChange('pageType', e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8 bg-slate-50 outline-none"><option value="all">Todos os tipos</option><option value="dashboard">Dashboard</option><option value="sei">Processos SEI</option><option value="documents">Documentos</option></select>
+            <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div></div>
+          <div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Filtrar por Período</label><div className="relative mt-1">
+            <select value={filters.datePreset} onChange={(e) => handleDatePresetChange(e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8 bg-slate-50 outline-none"><option value="all">Qualquer data</option><option value="today">Hoje</option><option value="thisWeek">Esta Semana</option><option value="lastWeek">Semana Passada</option><option value="thisMonth">Este Mês</option><option value="lastMonth">Mês Passado</option><option value="specific">Período Específico...</option></select>
+            <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div></div>
+          {filters.datePreset === 'specific' && (<div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Datas</label><Popover className="relative mt-1">
+            <Popover.Button className="w-full flex items-center justify-between p-2 text-sm text-left bg-slate-50 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"><span className='flex items-center gap-2 text-slate-700'><MdCalendarToday className="text-slate-400" />{filters.dateRange.from ? `${format(filters.dateRange.from, 'dd/MM/yy')} - ${filters.dateRange.to ? format(filters.dateRange.to, 'dd/MM/yy') : ''}` : 'Selecione...'}</span><MdExpandMore className="text-slate-400" /></Popover.Button>
+            <Transition as={Fragment} enter="transition ease-out duration-200" enterFrom="opacity-0 translate-y-1" enterTo="opacity-100 translate-y-0" leave="transition ease-in duration-150" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-1"><Popover.Panel className="absolute z-20 mt-1 bg-white border rounded-md shadow-lg"><DayPicker mode="range" selected={filters.dateRange} onSelect={(range) => handleFilterChange('dateRange', range)} locale={ptBR} className="p-2" captionLayout="dropdown-buttons" fromYear={2020} toYear={new Date().getFullYear()} /></Popover.Panel></Transition>
+          </Popover></div>)}
+          <div className="flex items-center gap-4">
+            <label htmlFor="isPinnedFilter" className="flex items-center gap-2 p-2 border border-slate-300 rounded-md cursor-pointer hover:bg-slate-50 transition-colors"><input id="isPinnedFilter" type="checkbox" checked={filters.isPinned} onChange={(e) => handleFilterChange('isPinned', e.target.checked)} className="h-4 w-4 rounded border-slate-400 text-blue-600 focus:ring-blue-500" /><span className="text-sm text-slate-700">Somente fixado no histórico</span></label>
+            <label htmlFor="isFavoritedFilter" className="flex items-center gap-2 p-2 border border-slate-300 rounded-md cursor-pointer hover:bg-slate-50 transition-colors"><input id="isFavoritedFilter" type="checkbox" checked={filters.isFavorited} onChange={(e) => handleFilterChange('isFavorited', e.target.checked)} className="h-4 w-4 rounded border-slate-400 text-blue-600 focus:ring-blue-500" /><span className="text-sm text-slate-700">Somente favoritos</span></label>
+          </div>
+        </FilterPanel>
+
         <div className="flex flex-col sm:flex-row gap-4 items-center mb-6">
           <div className="relative w-full"><MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Buscar no histórico por nome ou título..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" /></div>
           <Menu as="div" className="relative w-full sm:w-auto"><Menu.Button className="w-full flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"><MdDeleteSweep size={18} /><span>Limpar Histórico</span><MdExpandMore /></Menu.Button>
@@ -154,32 +155,32 @@ export default function HistoryPage() {
             </Transition>
           </Menu>
         </div>
-        
+
         <div className="space-y-8">
           {Object.entries(groupedHistory).map(([groupName, items]) => items.length > 0 && (
-              <section key={groupName}><h2 className="text-sm font-bold uppercase text-slate-500 tracking-wider pb-2 border-b-2 border-slate-200 mb-4">{groupName}</h2><ul>{items.map(access => (
-                    <li key={access.id} className="relative py-3 group"><div className="absolute top-5 left-4 -ml-px h-full w-0.5 bg-slate-200"></div><div className="relative flex items-center space-x-4">
-                        <div className="relative z-10 flex items-center justify-center w-8 h-8 bg-white rounded-full ring-4 ring-slate-50">{React.cloneElement(getPageInfo(access.path || '').icon, { size: 20 })}</div>
-                        <div className="flex-1 min-w-0 bg-white p-4 rounded-lg border border-slate-200 shadow-sm group-hover:border-blue-300 transition-all"><div className="flex justify-between items-center gap-2">
-                            <div className="flex-1 min-w-0"><p className="text-xs text-slate-500 mb-1">{formatFullDateTime(access.accessedAt)}</p><button onClick={() => handleAccessClick(access)} className="text-left w-full"><h3 className="text-md font-semibold text-slate-800 hover:underline underline-offset-2 truncate">{access.process}</h3></button><p className="text-sm text-slate-600 mt-1 truncate">{access.title}</p></div>
-                            <div className="flex items-center flex-shrink-0">
-                                {/* CORRIGIDO: Tamanho e rotação do pin */}
-                                <button onClick={() => handleTogglePin(access.id)} title={access.pinned ? 'Desafixar do histórico' : 'Fixar no histórico'} className="p-1.5"><MdPushPin className={`w-4 h-4 rotate-45 transition-all ${access.pinned ? 'text-slate-600 opacity-100' : 'text-slate-300 opacity-40 group-hover:opacity-80'}`} /></button>
-                                <Menu as="div" className="relative"><Menu.Button className="p-1.5 text-slate-500 rounded-full hover:bg-slate-100"><MdMoreVert size={20} /></Menu.Button>
-                                  <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
-                                      <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-20"><div className="p-1">
-                                          <Menu.Item>{({ active }) => (<button onClick={() => handleAccessClick(access)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdLaunch className="mr-2"/> Acessar</button>)}</Menu.Item>
-                                          <Menu.Item>{({ active }) => (<button onClick={() => handleShare(access.process)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdShare className="mr-2"/> Compartilhar</button>)}</Menu.Item>
-                                          <Menu.Item>{({ active }) => (<button onClick={() => handleToggleFavorite(access.id)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}>{access.favorited ? <MdFavorite className="mr-2"/> : <MdFavoriteBorder className="mr-2" />} {access.favorited ? 'Remover dos favoritos' : 'Favoritar'}</button>)}</Menu.Item>
-                                          <Menu.Item>{({ active }) => (<button onClick={() => handleDeleteItem(access.id)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdClose className="mr-2"/> Excluir</button>)}</Menu.Item>
-                                      </div></Menu.Items>
-                                  </Transition>
-                                </Menu>
-                            </div>
-                        </div></div>
-                    </div></li>
-                ))}</ul></section>
-            ))}
+            <section key={groupName}><h2 className="text-sm font-bold uppercase text-slate-500 tracking-wider pb-2 border-b-2 border-slate-200 mb-4">{groupName}</h2><ul>{items.map(access => (
+              <li key={access.id} className="relative py-3 group"><div className="absolute top-5 left-4 -ml-px h-full w-0.5 bg-slate-200"></div><div className="relative flex items-center space-x-4">
+                <div className="relative z-10 flex items-center justify-center w-8 h-8 bg-white rounded-full ring-4 ring-slate-50">{React.cloneElement(getPageInfo(access.path || '').icon, { size: 20 })}</div>
+                <div className="flex-1 min-w-0 bg-white p-4 rounded-lg border border-slate-200 shadow-sm group-hover:border-blue-300 transition-all"><div className="flex justify-between items-center gap-2">
+                  <div className="flex-1 min-w-0"><p className="text-xs text-slate-500 mb-1">{formatFullDateTime(access.accessedAt)}</p><button onClick={() => handleAccessClick(access)} className="text-left w-full"><h3 className="text-md font-semibold text-slate-800 hover:underline underline-offset-2 truncate">{access.process}</h3></button><p className="text-sm text-slate-600 mt-1 truncate">{access.title}</p></div>
+                  <div className="flex items-center flex-shrink-0">
+                    {/* CORRIGIDO: Tamanho e rotação do pin */}
+                    <button onClick={() => handleTogglePin(access.id)} title={access.pinned ? 'Desafixar do histórico' : 'Fixar no histórico'} className="p-1.5"><MdPushPin className={`w-4 h-4 rotate-45 transition-all ${access.pinned ? 'text-slate-600 opacity-100' : 'text-slate-300 opacity-40 group-hover:opacity-80'}`} /></button>
+                    <Menu as="div" className="relative"><Menu.Button className="p-1.5 text-slate-500 rounded-full hover:bg-slate-100"><MdMoreVert size={20} /></Menu.Button>
+                      <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
+                        <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-20"><div className="p-1">
+                          <Menu.Item>{({ active }) => (<button onClick={() => handleAccessClick(access)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdLaunch className="mr-2" /> Acessar</button>)}</Menu.Item>
+                          <Menu.Item>{({ active }) => (<button onClick={() => handleShare(access.process)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdShare className="mr-2" /> Compartilhar</button>)}</Menu.Item>
+                          <Menu.Item>{({ active }) => (<button onClick={() => handleToggleFavorite(access.id)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}>{access.favorited ? <MdFavorite className="mr-2" /> : <MdFavoriteBorder className="mr-2" />} {access.favorited ? 'Remover dos favoritos' : 'Favoritar'}</button>)}</Menu.Item>
+                          <Menu.Item>{({ active }) => (<button onClick={() => handleDeleteItem(access.id)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdClose className="mr-2" /> Excluir</button>)}</Menu.Item>
+                        </div></Menu.Items>
+                      </Transition>
+                    </Menu>
+                  </div>
+                </div></div>
+              </div></li>
+            ))}</ul></section>
+          ))}
           {Object.values(groupedHistory).every(g => g.length === 0) && (<div className="text-center py-16"><h3 className="text-lg font-semibold text-slate-800">Nenhum resultado encontrado</h3><p className="mt-1 text-sm text-slate-500">Ajuste os filtros ou o termo de busca.</p></div>)}
         </div>
       </div>

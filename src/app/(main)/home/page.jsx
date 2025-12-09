@@ -259,8 +259,8 @@ const HomePage = () => {
         }
       `}</style>
 
-      <div className="flex h-full flex-col overflow-y-auto bg-slate-100 text-slate-800">
-        <div className="w-full max-w-7xl mx-auto p-6 md:p-10 lg:p-14">
+      <div className="flex h-full flex-col overflow-y-auto bg-slate-50 text-slate-800 font-sans">
+        <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
 
           {/* --- HERO SECTION --- */}
           <section className="flex flex-col lg:flex-row items-center justify-between gap-10 mb-16 mt-4">
