@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import useTabStore from '@/store/useTabStore'
 import useSidebarStore from '@/store/useSidebarStore'
-import useRecentAccessesStore from '@/store/useRecentAccessesStore'
-import { 
+import useHistoryStore from '@/store/useHistoryStore'
+import {
   MdBarChart,
   MdLanguage,
   MdDescription,
@@ -31,8 +31,24 @@ export default function Sidebar() {
   const activeTabId = useTabStore((state) => state.activeTabId)
   const sidebarWidth = useSidebarStore((state) => state.sidebarWidth)
   const setSidebarWidth = useSidebarStore((state) => state.setSidebarWidth)
-  const recentAccesses = useRecentAccessesStore((state) => state.recentAccesses)
-  const togglePin = useRecentAccessesStore((state) => state.togglePin)
+  const { historyItems, togglePin } = useHistoryStore()
+
+  // Filter and Sort Logic
+  const recentAccesses = historyItems
+    .filter(item => {
+      // Filter out main menu items if they appear in history (e.g. Dashboard, Favorites)
+      // Only show SEI processes or Documents
+      const isSei = item.path?.startsWith('/sei') || (item.id && item.id.toString().startsWith('sei-'));
+      const isDoc = item.path?.startsWith('/documents');
+      return isSei || isDoc;
+    })
+    .sort((a, b) => {
+      // Pinned first
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      // Then by date
+      return new Date(b.accessedAt) - new Date(a.accessedAt);
+    });
   const [visibleRecentCount, setVisibleRecentCount] = useState(MAX_VISIBLE_RECENT)
   const recentSectionRef = useRef(null)
   const sidebarRef = useRef(null)
@@ -48,18 +64,18 @@ export default function Sidebar() {
       const menuItemsEl = container.querySelector('.menu-items')
       const recentHeaderEl = container.querySelector('.recent-header')
       const recentListEl = container.querySelector('.recent-list')
-      
+
       if (!menuItemsEl || !recentHeaderEl) return
 
       const containerHeight = container.clientHeight
       const menuHeight = menuItemsEl.scrollHeight
       const headerHeight = recentHeaderEl.clientHeight + 12
       const footerHeight = 100
-      
+
       const availableHeight = containerHeight - menuHeight - headerHeight - footerHeight - 20
       const itemHeight = 50
       const maxFit = Math.max(1, Math.floor(availableHeight / itemHeight))
-      
+
       const maxToShow = Math.min(MAX_VISIBLE_RECENT, maxFit, recentAccesses.length)
       setVisibleRecentCount(maxToShow)
       setHasMore(recentAccesses.length > maxToShow)
@@ -76,7 +92,7 @@ export default function Sidebar() {
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!isResizing) return
-      
+
       const newWidth = e.clientX
       if (newWidth >= 180 && newWidth <= 500) {
         setSidebarWidth(newWidth)
@@ -112,9 +128,9 @@ export default function Sidebar() {
 
   const handleRecentClick = (access) => {
     addTab({
-      id: `sei-${access.id}`,
-      title: access.process,
-      path: `/sei/${access.process}`,
+      id: access.id,
+      title: access.title || access.process, // Fallback for backward compatibility
+      path: access.path,
     })
   }
 
@@ -140,7 +156,7 @@ export default function Sidebar() {
 
   return (
     <div className="relative flex-shrink-0" style={{ width: `${sidebarWidth}px` }}>
-      <aside 
+      <aside
         ref={sidebarRef}
         className="h-full flex flex-col overflow-hidden bg-white border-r border-gray-200"
         style={{ width: `${sidebarWidth}px` }}
@@ -167,10 +183,10 @@ export default function Sidebar() {
                   onClick={() => handleMenuClick(item)}
                   className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg 
                              text-left transition-all duration-200 min-w-0 relative
-                             ${isActive 
-                               ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-500' 
-                               : 'text-gray-700 hover:bg-gray-50'
-                             }`}
+                             ${isActive
+                      ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-500'
+                      : 'text-gray-700 hover:bg-gray-50'
+                    }`}
                 >
                   <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
                   <span className="text-sm font-medium truncate flex-1">{item.title}</span>
@@ -178,7 +194,7 @@ export default function Sidebar() {
               )
             })}
           </div>
-          
+
           <div className="flex flex-col border-t border-gray-200 mx-2 mt-4 pt-4">
             <h3 className="recent-header px-3 text-xs font-semibold text-gray-600 uppercase mb-3 tracking-wide flex-shrink-0">
               Acessos recentes
@@ -237,9 +253,8 @@ export default function Sidebar() {
       <div
         ref={resizerRef}
         onMouseDown={handleResizerMouseDown}
-        className={`absolute right-0 top-0 h-full cursor-col-resize transition-all z-10 ${
-          isResizing ? 'w-1 bg-gray-400' : 'w-0.5 bg-gray-300 hover:bg-gray-400'
-        }`}
+        className={`absolute right-0 top-0 h-full cursor-col-resize transition-all z-10 ${isResizing ? 'w-1 bg-gray-400' : 'w-0.5 bg-gray-300 hover:bg-gray-400'
+          }`}
       />
     </div>
   )

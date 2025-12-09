@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import useTabStore from '@/store/useTabStore'
 
-import { 
-  MdClose, 
-  MdHome, 
-  MdGridView, 
-  MdDescription, 
-  MdSearch, 
-  MdSettings, 
+import {
+  MdClose,
+  MdHome,
+  MdGridView,
+  MdDescription,
+  MdSearch,
+  MdSettings,
   MdNotifications,
   MdBarChart,
   MdLanguage,
@@ -44,16 +44,7 @@ export default function Navbar() {
   }
 
   const handleHomeClick = () => {
-    const homeTab = tabs.find(t => t.id === 'home')
-    if (homeTab) {
-      switchTab('home')
-    } else {
-      addTab({
-        id: 'home',
-        title: 'Home',
-        path: '/home',
-      })
-    }
+    switchTab(null)
   }
 
   const [draggedTabId, setDraggedTabId] = useState(null)
@@ -82,12 +73,12 @@ export default function Navbar() {
     if (draggedTabId && draggedTabId !== targetTabId) {
       const draggedIndex = tabs.findIndex(t => t.id === draggedTabId)
       const targetIndex = tabs.findIndex(t => t.id === targetTabId)
-      
+
       if (draggedIndex !== -1 && targetIndex !== -1) {
         const newTabs = [...tabs]
         const [removed] = newTabs.splice(draggedIndex, 1)
         newTabs.splice(targetIndex, 0, removed)
-        
+
         reorderTabs(newTabs)
       }
     }
@@ -104,10 +95,10 @@ export default function Navbar() {
     <nav className="bg-white border-b border-gray-200 flex items-center h-12 px-2 gap-0 overflow-hidden">
       <button
         onClick={handleHomeClick}
-        className="p-2 hover:bg-gray-100 rounded transition-colors flex-shrink-0 mr-1"
+        className={`p-2 rounded transition-colors flex-shrink-0 mr-1 text-gray-600 hover:bg-gray-100'`}
         aria-label="Home"
       >
-        <MdHome className="w-5 h-5 text-gray-600 mt-2" />
+        <MdHome className={`w-5 h-5 mt-0.5 ${activeTabId === null ? 'text-blue-700' : 'text-gray-600'}`} />
       </button>
       <div className="w-px h-6 bg-gray-300 mx-1 flex-shrink-0 mt-2" />
       <div className="flex items-center gap-0 flex-1 overflow-x-auto min-w-0 scrollbar-hide overflow-y-hidden h-full">
@@ -119,7 +110,7 @@ export default function Navbar() {
           const isDragOver = dragOverTabId === tab.id
           const prevTab = index > 0 ? tabs[index - 1] : null
           const prevTabIsActive = prevTab ? activeTabId === prevTab.id : false
-          
+
           return (
             <div key={tab.id} className="flex items-center h-10 mt-2">
               {!isActive && !prevTabIsActive && index > 0 && (
@@ -136,14 +127,14 @@ export default function Navbar() {
                 className={`
                   flex items-center gap-2 px-3 py-2 cursor-pointer h-full
                   transition-all duration-200 ease-out whitespace-nowrap flex-shrink-0 relative
-                  ${isActive 
-                    ? 'bg-white border-t border-l border-r border-gray-200 shadow-sm tab-active' 
+                  ${isActive
+                    ? 'bg-white border-t border-l border-r border-gray-200 shadow-sm tab-active'
                     : 'bg-transparent hover:bg-gray-100'
                   }
                   ${isDragging ? 'opacity-50 cursor-move' : ''}
                   ${isDragOver ? 'border-l-2 border-blue-500' : ''}
                 `}
-                style={{ 
+                style={{
                   minHeight: '32px',
                   alignItems: 'center'
                 }}
@@ -162,7 +153,7 @@ export default function Navbar() {
                 </button>
               </div>
               {isLast && !isActive && (
-                <div 
+                <div
                   className={`w-8 h-full flex-shrink-0 ${dragOverTabId === 'end' ? 'bg-blue-100' : ''}`}
                   onDragOver={(e) => {
                     e.preventDefault()
@@ -194,7 +185,7 @@ export default function Navbar() {
                 />
               )}
               {isLast && isActive && (
-                <div 
+                <div
                   className={`w-8 h-full flex-shrink-0 ${dragOverTabId === 'end' ? 'bg-blue-100' : ''}`}
                   onDragOver={(e) => {
                     e.preventDefault()
