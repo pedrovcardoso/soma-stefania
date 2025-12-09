@@ -1,8 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'TCE Monitoring System - SEF/MG',
-  description: 'State Treasury Monitoring System',
+  title: 'StefanIA - SEF/MG',
+  description: 'Sistema de monitoramento de demandas do TCE-MG',
 }
 
 export default function RootLayout({ children }) {
