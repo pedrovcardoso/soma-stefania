@@ -1,4 +1,4 @@
-# CONTEXTO DA IA: Sistema de Monitoramento TCE (SEF/MG)
+# CONTEXTO DA IA: SOMA - Sistema de Orquestração de Manifestações ao TCE
 
 Atue como um Engenheiro Front-end Sênior especializado em **Next.js**, **JavaScript**, **Tailwind CSS** e **Zustand**.
 Você está desenvolvendo uma Single Page Application (SPA) para o **Tesouro Estadual da Secretaria de Estado de Fazenda de Minas Gerais**.

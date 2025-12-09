@@ -24,10 +24,10 @@ const ParticleBackground = () => {
     const ctx = canvas.getContext('2d');
     let animationFrameId;
 
-    const particleCount = 45; 
-    const connectionDistance = 90; 
+    const particleCount = 45;
+    const connectionDistance = 90;
     const mouseDistance = 120;
-    
+
     let width = canvas.width = container.clientWidth;
     let height = canvas.height = container.clientHeight;
 
@@ -56,16 +56,16 @@ const ParticleBackground = () => {
         if (this.y < 0 || this.y > height) this.vy *= -1;
 
         if (mouse.x != null) {
-            let dx = mouse.x - this.x;
-            let dy = mouse.y - this.y;
-            let distance = Math.sqrt(dx*dx + dy*dy);
-            if (distance < mouseDistance) {
-                const forceDirectionX = dx / distance;
-                const forceDirectionY = dy / distance;
-                const force = (mouseDistance - distance) / mouseDistance;
-                this.vx -= forceDirectionX * force * 0.03;
-                this.vy -= forceDirectionY * force * 0.03;
-            }
+          let dx = mouse.x - this.x;
+          let dy = mouse.y - this.y;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < mouseDistance) {
+            const forceDirectionX = dx / distance;
+            const forceDirectionY = dy / distance;
+            const force = (mouseDistance - distance) / mouseDistance;
+            this.vx -= forceDirectionX * force * 0.03;
+            this.vy -= forceDirectionY * force * 0.03;
+          }
         }
       }
 
@@ -86,9 +86,9 @@ const ParticleBackground = () => {
 
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
-      
+
       // NÃO desenhamos mais o fundo preto aqui. O fundo será CSS.
-      
+
       particles.forEach(particle => {
         particle.update();
         particle.draw();
@@ -129,19 +129,19 @@ const ParticleBackground = () => {
 
     const handleMouseMove = (e) => {
       const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left; 
+      mouse.x = e.clientX - rect.left;
       mouse.y = e.clientY - rect.top;
     }
 
     const handleMouseLeave = () => {
-        mouse.x = null;
-        mouse.y = null;
+      mouse.x = null;
+      mouse.y = null;
     }
 
     window.addEventListener('resize', handleResize);
-    if(container) {
-        container.addEventListener('mousemove', handleMouseMove);
-        container.addEventListener('mouseleave', handleMouseLeave);
+    if (container) {
+      container.addEventListener('mousemove', handleMouseMove);
+      container.addEventListener('mouseleave', handleMouseLeave);
     }
 
     init();
@@ -149,7 +149,7 @@ const ParticleBackground = () => {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      if(container) {
+      if (container) {
         container.removeEventListener('mousemove', handleMouseMove);
         container.removeEventListener('mouseleave', handleMouseLeave);
       }
@@ -158,8 +158,8 @@ const ParticleBackground = () => {
   }, []);
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="absolute inset-0 w-full h-full overflow-hidden"
       // Aqui está o GLOW GRADIENTE MAIS CLARO e a forma MORPH
       style={{
@@ -261,10 +261,10 @@ const HomePage = () => {
 
       <div className="flex h-full flex-col overflow-y-auto bg-slate-100 text-slate-800">
         <div className="w-full max-w-7xl mx-auto p-6 md:p-10 lg:p-14">
-          
+
           {/* --- HERO SECTION --- */}
           <section className="flex flex-col lg:flex-row items-center justify-between gap-10 mb-16 mt-4">
-            
+
             {/* Texto */}
             {/* <div className="lg:w-1/2 flex flex-col text-center lg:text-left animate-fade-in-right z-10">
               <div className="inline-block px-3 py-1 mb-4 text-xs font-semibold tracking-wider text-blue-700 uppercase bg-blue-100 rounded-full w-fit mx-auto lg:mx-0">
@@ -279,10 +279,10 @@ const HomePage = () => {
             </div> */}
             <div className="lg:w-1/2 flex flex-col text-center lg:text-left animate-fade-in-right z-10">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Sistema de monitoramento de demandas
+                SOMA - Sistema de Orquestração de Manifestações ao TCE
               </h1>
               <p className="text-lg text-slate-600 mt-6 leading-relaxed max-w-lg mx-auto lg:mx-0">
-                Centralize processos, analise documentos e obtenha insights estratégicos com a 
+                Centralize processos, analise documentos e obtenha insights estratégicos com a
                 <span className="text-transparent font-bold bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500"> StefanIA</span>
                 , a inteligência artificial do Tesouro.
               </p>
@@ -291,7 +291,7 @@ const HomePage = () => {
             {/* Animação - Agora Harmônica e "Clean" */}
             <div className="w-full lg:w-1/2 flex justify-center lg:justify-end animate-fade-in-left relative">
               <div id="stefan-ia-container" className="relative flex items-center justify-center w-[350px] h-[350px] md:w-[450px] md:h-[450px]">
-                
+
                 {/* Background: Partículas Azuis sobre Glow Claro */}
                 <ParticleBackground />
 
@@ -302,12 +302,12 @@ const HomePage = () => {
 
           {/* --- FEATURES SECTION (Cards Melhorados) --- */}
           <section>
-             <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                  <span className="w-2 h-8 bg-blue-600 rounded-full inline-block"></span>
-                  Funcionalidades
-                </h2>
-             </div>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <span className="w-2 h-8 bg-blue-600 rounded-full inline-block"></span>
+                Funcionalidades
+              </h2>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {features.map((feature, index) => (
@@ -328,7 +328,7 @@ const HomePage = () => {
                   <h3 className="relative z-10 font-bold text-lg text-slate-800 mb-2 group-hover:text-blue-700 transition-colors">
                     {feature.title}
                   </h3>
-                  
+
                   <p className="relative z-10 text-slate-500 text-sm leading-relaxed mb-4">
                     {feature.description}
                   </p>

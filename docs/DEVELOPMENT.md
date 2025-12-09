@@ -1,36 +1,55 @@
 # Guia de Desenvolvimento
 
-## Padrões de Código
+Este documento estabelece os padrões utilizados no desenvolvimento do **SOMA**.
 
-### Nomenclatura
-- Variáveis e funções: `camelCase`
-- Componentes: `PascalCase`
-- Arquivos: `camelCase.js` ou `PascalCase.jsx`
+## Regras
 
-### Imports
-Sempre use alias `@/` para imports:
-```javascript
-import Component from '@/components/Component'
-import { useStore } from '@/store/useStore'
-```
+1.  **SEM TYPESCRIPT**
+2.  **CODE IN ENGLISH**
+3.  **Clean Code**
+    -   Evite comentários óbvios. Comente *o porquê*, não *o que*.
+    -   Funções pequenas e puras sempre que possível.
 
-### Comentários
-Evite comentários desnecessários. O código deve ser auto-explicativo.
+## Convenções de Nomenclatura
 
-## Adicionando Novas Rotas
+| Tipo                        | Formato            | Exemplo         |
+| :-------------------------- | :----------------- | :-------------- |
+| **Arquivos (Componentes)**  | `PascalCase`       | `UserProfile.jsx`, `TabViewer.jsx` |
+| **Arquivos (Lógica/Utils)** | `camelCase`        | `dateFormatter.js`, `apiClient.js` |
+| **Hooks**                   | `camelCase`        | `useTabStore.js`, `useTheme.js` |
+| **Pastas**                  | `camelCase`        | `components/ui`, `services/auth` |
+| **Variáveis/Funções**       | `camelCase`        | `const activeTab`, `function handleSubmit()` |
+| **Constantes**              | `UPPER_SNAKE_CASE` | `MAX_RETRY_COUNT`, `API_BASE_URL` |
 
-1. Crie a página em `src/app/(main)/[rota]/page.js`
-2. Adicione o item no menu em `src/components/layout/Sidebar.jsx`
-3. Adicione o caso no `TabContentRenderer.jsx`
+## Sistema de Temas & CSS
 
-## Trabalhando com API
+O sistema de temas é baseados em **CSS Variables** nativas manipuladas via JS e mapeadas no Tailwind.
 
-Use os serviços em `src/services/` para fazer chamadas à API. Durante desenvolvimento, use os mocks disponíveis.
+### Como adicionar uma nova cor:
 
-## Temas
+1.  **Defina a variável** em `src/app/globals.css`:
+    ```css
+    :root {
+      /* ...outras vars... */
+      --color-accent-hover: #0056b3;
+    }
+    ```
 
-Para adicionar novas variáveis de tema:
-1. Adicione em `src/app/globals.css` (`:root`)
-2. Mapeie em `tailwind.config.js`
-3. Use no código via classes Tailwind
+2.  **Mapeie no Tailwind** em `tailwind.config.js`:
+    ```javascript
+    module.exports = {
+      theme: {
+        extend: {
+          colors: {
+            // Use o nome da variável sem 'var(--)'
+            'accent-hover': 'var(--color-accent-hover)',
+          }
+        }
+      }
+    }
+    ```
 
+3.  **Use no Componente**:
+    ```jsx
+    <button className="bg-accent-hover text-white">Clique aqui</button>
+    ```
