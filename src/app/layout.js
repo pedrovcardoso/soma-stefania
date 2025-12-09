@@ -1,8 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'StefanIA - SEF/MG',
-  description: 'Sistema de monitoramento de demandas do TCE-MG',
+  title: 'SOMA - SEF/MG',
+  description: 'Sistema de Orquestração de Manifestações ao TCE',
 }
 
 export default function RootLayout({ children }) {
