@@ -55,8 +55,14 @@ export default function Sidebar() {
   const resizerRef = useRef(null)
   const [hasMore, setHasMore] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return;
     const calculateVisibleItems = () => {
       if (!recentSectionRef.current) return
 
@@ -152,7 +158,7 @@ export default function Sidebar() {
     setIsResizing(true)
   }
 
-  const visibleRecentAccesses = recentAccesses.slice(0, visibleRecentCount)
+  const visibleRecentAccesses = mounted ? recentAccesses.slice(0, visibleRecentCount) : []
 
   return (
     <div className="relative flex-shrink-0" style={{ width: `${sidebarWidth}px` }}>
