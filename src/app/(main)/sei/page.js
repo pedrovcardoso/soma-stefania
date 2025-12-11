@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, Fragment } from 'react';
-import { MdSearch, MdMoreVert, MdLaunch, MdCalendarToday, MdExpandMore } from 'react-icons/md';
+import { MdSearch, MdMoreVert, MdLaunch, MdCalendarToday, MdExpandMore, MdSort, MdCheck, MdArrowUpward, MdArrowDownward, MdGridView, MdViewList, MdViewKanban } from 'react-icons/md';
+import SmartTable from '@/components/ui/SmartTable';
 import FilterPanel from '@/components/ui/FilterPanel';
 import { getSeiProcesses } from '@/services/mockData';
 import useTabStore from '@/store/useTabStore';
@@ -22,7 +23,7 @@ const getStatusColor = (status) => {
 };
 
 export default function SeiPage() {
-  const [activeView, setActiveView] = useState('table');
+  const [activeView, setActiveView] = useState('block');
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const addTab = useTabStore((state) => state.addTab);
@@ -36,6 +37,85 @@ export default function SeiPage() {
     datePreset: 'all',
     dateRange: { from: undefined, to: undefined }
   });
+
+  const [sortBy, setSortBy] = useState('deadline');
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+
+  const columns = [
+    {
+      key: 'sei_number',
+      label: 'Processo',
+      render: (row) => (
+        <div className="flex flex-col">
+          <button
+            onClick={() => addTab({
+              id: `sei-${row.id}`,
+              title: row.sei_number,
+              path: `/sei/${row.id}`
+            })}
+            className="font-medium text-slate-700 hover:text-blue-600 hover:underline text-xs flex items-center gap-1 w-fit text-left"
+          >
+            {row.sei_number} <MdLaunch size={10} />
+          </button>
+          <span className="text-[10px] text-slate-400 mt-0.5">{row.type}</span>
+        </div>
+      )
+    },
+    {
+      key: 'description',
+      label: 'Descrição',
+      render: (row) => <div className="line-clamp-2 whitespace-normal text-xs text-slate-600" title={row.description}>{row.description}</div>
+    },
+    {
+      key: 'assigned_to',
+      label: 'Atribuído para',
+      render: (row) => <span className="font-medium text-slate-700 text-sm">{row.assigned_to}</span>
+    },
+    {
+      key: 'deadline',
+      label: 'Prazo Final',
+      render: (row) => (
+        <div className="flex items-center gap-2 text-slate-600">
+          <MdCalendarToday size={14} className="text-slate-400" />
+          <span>{new Date(row.deadline).toLocaleDateString('pt-BR')}</span>
+        </div>
+      )
+    },
+    {
+      key: 'tags',
+      label: 'Tags',
+      render: (row) => (
+        <div className="flex flex-wrap gap-1">
+          {row.tags.map(tag => (
+            <span key={tag} className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200 uppercase tracking-wide">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (row) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${getStatusColor(row.status)}`}>
+          {row.status}
+        </span>
+      )
+    },
+    {
+      key: 'actions',
+      label: 'Ações',
+      width: 80,
+      render: () => (
+        <div className="flex justify-center">
+          <button className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-colors">
+            <MdMoreVert size={20} />
+          </button>
+        </div>
+      )
+    }
+  ];
 
   const handleDatePresetChange = (preset) => {
     const now = new Date(); let from, to;
@@ -80,6 +160,18 @@ export default function SeiPage() {
       (!filters.dateRange.to || new Date(item.deadline) <= endOfDay(filters.dateRange.to));
 
     return matchYear && matchType && matchStatus && matchSearch && matchDate;
+  }).sort((a, b) => {
+    let valA = a[sortBy];
+    let valB = b[sortBy];
+
+    if (sortBy === 'deadline' || sortBy === 'received_date') {
+      valA = new Date(valA).getTime();
+      valB = new Date(valB).getTime();
+    }
+
+    if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+    if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
   });
 
   return (
@@ -201,26 +293,88 @@ export default function SeiPage() {
           </div>
         </div>
 
-        {/* View Tabs */}
-        <div className="flex border-b border-slate-200 mb-6 space-x-6">
-          <button
-            onClick={() => setActiveView('table')}
-            className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeView === 'table' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-          >
-            Tabela
-          </button>
-          <button
-            onClick={() => setActiveView('kanban')}
-            className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeView === 'kanban' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-          >
-            Kanban
-          </button>
-          <button
-            onClick={() => setActiveView('block')}
-            className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeView === 'block' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-          >
-            Bloco
-          </button>
+
+
+        {/* Sorting & View Controls */}
+        {/* Sorting & View Controls */}
+        <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-6 gap-4 border-b border-slate-200">
+
+          {/* View Tabs (Left Side) */}
+          <div className="flex space-x-6 w-full sm:w-auto overflow-x-auto">
+            <button
+              onClick={() => setActiveView('block')}
+              className={`pb-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'block' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+            >
+              Bloco
+            </button>
+            <button
+              onClick={() => setActiveView('table')}
+              className={`pb-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'table' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+            >
+              Tabela
+            </button>
+            <button
+              onClick={() => setActiveView('kanban')}
+              className={`pb-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'kanban' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+            >
+              Kanban
+            </button>
+          </div>
+
+          {/* Custom Sort Selector (Right Side) */}
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end pb-2">
+
+            <Popover className="relative">
+              <Popover.Button className="flex items-center gap-2 px-3 py-1.5 text-slate-600 font-medium text-sm transition-colors hover:bg-slate-100 rounded-lg outline-none">
+                <MdSort size={18} className="text-slate-500" />
+                <span>
+                  Ordenar: <span className="text-blue-600">{
+                    sortBy === 'deadline' ? 'Prazo' :
+                      sortBy === 'received_date' ? 'Recebimento' : 'Número SEI'
+                  }</span>
+                </span>
+                <MdExpandMore size={16} className="text-slate-400" />
+              </Popover.Button>
+
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <Popover.Panel className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 ring-1 ring-black ring-opacity-5 focus:outline-none z-50 p-1">
+                  {[
+                    { id: 'deadline', label: 'Prazo Final' },
+                    { id: 'received_date', label: 'Data de Recebimento' },
+                    { id: 'sei_number', label: 'Número SEI' },
+                  ].map((option) => (
+                    <button
+                      key={option.id}
+                      onClick={() => setSortBy(option.id)}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-colors ${sortBy === option.id
+                        ? 'bg-blue-50 text-blue-700 font-medium'
+                        : 'text-slate-600 hover:bg-slate-50'
+                        }`}
+                    >
+                      {option.label}
+                      {sortBy === option.id && <MdCheck size={16} className="text-blue-600" />}
+                    </button>
+                  ))}
+                </Popover.Panel>
+              </Transition>
+            </Popover>
+
+            <button
+              onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+              className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-colors"
+              title={sortOrder === 'asc' ? 'Crescente' : 'Decrescente'}
+            >
+              {sortOrder === 'asc' ? <MdArrowUpward size={18} /> : <MdArrowDownward size={18} />}
+            </button>
+          </div>
         </div>
 
         {/* Content Area */}
@@ -232,99 +386,77 @@ export default function SeiPage() {
           ) : (
             <>
               {activeView === 'table' && (
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-slate-600">
-                      <thead className="bg-slate-50 border-b border-slate-200">
-                        <tr>
-                          <th className="px-6 py-4 font-semibold text-slate-700">Processo</th>
-                          <th className="px-6 py-4 font-semibold text-slate-700">Descrição</th>
-                          <th className="px-6 py-4 font-semibold text-slate-700">Atribuído para</th>
-                          <th className="px-6 py-4 font-semibold text-slate-700">Prazo Final</th>
-                          <th className="px-6 py-4 font-semibold text-slate-700">Tags</th>
-                          <th className="px-6 py-4 font-semibold text-slate-700">Status</th>
-                          <th className="px-6 py-4 font-semibold text-slate-700 text-right">Ações</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {filteredData.length > 0 ? filteredData.map((row) => (
-                          <tr key={row.id} className="hover:bg-slate-50/50 transition-colors group">
+                <SmartTable
+                  data={filteredData}
+                  columns={columns}
+                />
+              )}
+              {activeView === 'block' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredData.length > 0 ? filteredData.map((item) => (
+                    <div key={item.id} className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col h-full group">
+                      {/* Card Header */}
+                      <div className="flex justify-between items-start mb-3">
+                        <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider border border-slate-200">
+                          {item.type}
+                        </span>
+                        <div className="relative">
+                          {/* Placeholder for menu if needed */}
+                          <button className="text-slate-400 hover:text-slate-600 p-1 -mr-2">
+                            <MdMoreVert size={20} />
+                          </button>
+                        </div>
+                      </div>
 
-                            {/* Processo */}
-                            <td className="px-6 py-4 align-top">
-                              <div className="flex flex-col">
-                                <button
-                                  onClick={() => addTab({
-                                    id: `sei-${row.id}`,
-                                    title: row.sei_number,
-                                    path: `/sei/${row.id}`
-                                  })}
-                                  className="font-bold text-blue-600 hover:text-blue-800 hover:underline font-mono text-xs flex items-center gap-1 w-fit text-left"
-                                >
-                                  {row.sei_number} <MdLaunch size={10} />
-                                </button>
-                                <span className="text-xs text-slate-400 mt-0.5">{row.type}</span>
-                              </div>
-                            </td>
+                      {/* Card Body */}
+                      <div className="mb-4 flex-grow">
+                        <button
+                          onClick={() => addTab({
+                            id: `sei-${item.id}`,
+                            title: item.sei_number,
+                            path: `/sei/${item.id}`
+                          })}
+                          className="font-medium text-slate-700 hover:text-blue-600 hover:underline text-sm flex items-center gap-2 mb-2 text-left w-full break-all"
+                        >
+                          {item.sei_number} <MdLaunch size={12} />
+                        </button>
+                        <p className="text-slate-600 text-sm line-clamp-3 leading-relaxed">
+                          {item.description}
+                        </p>
+                      </div>
 
-                            {/* Descrição */}
-                            <td className="px-6 py-4 align-top max-w-xs">
-                              <p className="text-slate-600 line-clamp-2">{row.description}</p>
-                            </td>
+                      {/* Card Footer */}
+                      <div className="mt-auto border-t border-slate-100 pt-3 space-y-3">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-500">Atribuído para:</span>
+                          <span className="font-medium text-slate-700 truncate max-w-[120px]" title={item.assigned_to}>{item.assigned_to}</span>
+                        </div>
 
-                            {/* Atribuído */}
-                            <td className="px-6 py-4 align-top">
-                              <span className="text-slate-700 font-medium text-sm">{row.assigned_to}</span>
-                            </td>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-500">Prazo:</span>
+                          <div className="flex items-center gap-1.5 font-medium text-slate-700">
+                            <MdCalendarToday size={14} className="text-slate-400" />
+                            {new Date(item.deadline).toLocaleDateString('pt-BR')}
+                          </div>
+                        </div>
 
-                            {/* Prazo */}
-                            <td className="px-6 py-4 align-top">
-                              <div className="flex items-center gap-2 text-slate-600">
-                                <MdCalendarToday size={14} className="text-slate-400" />
-                                <span>{new Date(row.deadline).toLocaleDateString('pt-BR')}</span>
-                              </div>
-                            </td>
-
-                            {/* Tags */}
-                            <td className="px-6 py-4 align-top">
-                              <div className="flex flex-wrap gap-1">
-                                {row.tags.map(tag => (
-                                  <span key={tag} className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200 uppercase tracking-wide">
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                            </td>
-
-                            {/* Status */}
-                            <td className="px-6 py-4 align-top">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${getStatusColor(row.status)}`}>
-                                {row.status}
-                              </span>
-                            </td>
-
-                            {/* Ações */}
-                            <td className="px-6 py-4 align-top text-right">
-                              <button className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100">
-                                <MdMoreVert size={20} />
-                              </button>
-                            </td>
-                          </tr>
-                        )) : (
-                          <tr>
-                            <td colSpan="7" className="px-6 py-10 text-center text-slate-500">
-                              Nenhum processo encontrado com os filtros selecionados.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                        <div className="pt-1">
+                          <span className={`inline-flex w-full justify-center items-center px-2 py-1.5 rounded-md text-xs font-semibold ${getStatusColor(item.status)}`}>
+                            {item.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-xl border border-dashed border-slate-300">
+                      Nenhum processo encontrado.
+                    </div>
+                  )}
                 </div>
               )}
-              {activeView !== 'table' && (
+              {activeView === 'kanban' && (
                 <div className="bg-white p-10 rounded-xl border border-slate-200/80 text-center shadow-sm">
-                  <p className="text-slate-400">Visualização em desenvolvimento.</p>
+                  <p className="text-slate-400">Visualização Kanban em desenvolvimento.</p>
                 </div>
               )}
             </>
