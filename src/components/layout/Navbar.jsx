@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import useTabStore from '@/store/useTabStore'
+import Link from 'next/link'
 
 import {
   MdClose,
@@ -231,7 +232,10 @@ export default function Navbar() {
           />
           <MdSearch className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         </div>
-        <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
+        <button
+          onClick={() => addTab({ id: 'settings', title: 'Configurações', path: '/settings' })}
+          className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+        >
           <MdSettings className="w-5 h-5 text-gray-600" />
         </button>
         <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
