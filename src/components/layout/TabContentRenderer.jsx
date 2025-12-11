@@ -10,6 +10,7 @@ import DocumentsPage from '@/app/(main)/documents/page'
 import SettingsPage from '@/app/(main)/settings/page'
 import FavoritesPage from '@/app/(main)/favorites/page'
 import ActionPlansPage from '@/app/(main)/action-plans/page'
+import SettingsContainer from '@/components/settings/SettingsContainer'
 
 const SeiDetailPage = dynamic(() => import('@/app/(main)/sei/[id]/page'), {
   ssr: false,
@@ -21,7 +22,7 @@ const DocumentsDetailPage = dynamic(() => import('@/app/(main)/documents/[id]/pa
 
 export default function TabContentRenderer({ tab }) {
   const pathParts = tab.path.split('/').filter(Boolean)
-  
+
   if (tab.path === '/home') {
     return <HomePage />
   }
@@ -53,9 +54,9 @@ export default function TabContentRenderer({ tab }) {
     return <ActionPlansPage />
   }
   if (tab.path === '/settings') {
-    return <SettingsPage />
+    return <SettingsContainer />
   }
-  
+
   return (
     <div className="p-8 bg-gray-100">
       <p className="text-gray-600">Página não encontrada</p>
