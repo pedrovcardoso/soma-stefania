@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://10.180.168.23:5000'
 
 export const apiClient = {
   async get(endpoint) {
@@ -8,27 +8,31 @@ export const apiClient = {
         'Content-Type': 'application/json',
       },
     })
-    
+
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`)
     }
-    
+
     return response.json()
   },
 
   async post(endpoint, data) {
+    const isFormData = data instanceof FormData;
+
+    const headers = isFormData ? {} : {
+      'Content-Type': 'application/json',
+    };
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
+      headers,
+      body: isFormData ? data : JSON.stringify(data),
     })
-    
+
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`)
     }
-    
+
     return response.json()
   },
 
@@ -40,11 +44,11 @@ export const apiClient = {
       },
       body: JSON.stringify(data),
     })
-    
+
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`)
     }
-    
+
     return response.json()
   },
 
@@ -55,11 +59,11 @@ export const apiClient = {
         'Content-Type': 'application/json',
       },
     })
-    
+
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`)
     }
-    
+
     return response.json()
   },
 }

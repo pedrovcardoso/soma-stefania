@@ -5,13 +5,13 @@ import { MdSearch, MdMoreVert, MdLaunch, MdCalendarToday, MdExpandMore, MdSort, 
 import SmartTable from '@/components/ui/SmartTable';
 import FilterPanel from '@/components/ui/FilterPanel';
 import MultiSelect from '@/components/ui/MultiSelect';
-import { getSeiProcesses } from '@/services/mockData';
 import useTabStore from '@/store/useTabStore';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, subWeeks, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Popover, Transition } from '@headlessui/react';
+import { fetchSeiProcesses } from '@/services/seiService';
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -131,13 +131,32 @@ export default function SeiPage() {
     setFilters(prev => ({ ...prev, datePreset: preset, dateRange: { from, to } }));
   };
 
+  // ... inside SeiPage component
   useEffect(() => {
-    // Carregar dados simulados
-    getSeiProcesses().then(result => {
-      setData(result);
-      setIsLoading(false);
-    });
-  }, []);
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        // Using the real service
+        const result = await fetchSeiProcesses(filters);
+        setData(result);
+      } catch (error) {
+        console.error("Failed to load SEI data", error);
+        // Optional: fallback to mock data or show error
+        // const mockResult = await getSeiProcesses();
+        // setData(mockResult);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Debounce or just load? implementing specific trigger
+    // For now, load on mount and when filters change (debouncing recommended for search)
+    const timeoutId = setTimeout(() => {
+      loadData();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [filters]); // Dependency on filters triggers reload
 
   const handleClearFilters = () => {
     setFilters({ year: '', type: [], status: [], assignedTo: [], search: '', datePreset: 'all', dateRange: { from: undefined, to: undefined } });
