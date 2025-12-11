@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo, Fragment } from 'react';
 import { MdSearch, MdFilterList, MdCheck, MdArrowUpward, MdArrowDownward, MdDragIndicator, MdRefresh, MdChevronLeft, MdChevronRight, MdFirstPage, MdLastPage, MdKeyboardArrowDown } from 'react-icons/md';
 import { Popover, Transition } from '@headlessui/react';
+import SearchableList from './SearchableList';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -267,9 +268,8 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
 
     return (
         <div className={`border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm flex flex-col ${className}`}>
-            {/* Table Container - Removed fixed height/overflow-hidden wrapper to allow auto-height */}
-            {/* Kept overflow-x-auto for horizontal scroll support */}
-            <div className="overflow-x-auto custom-scrollbar relative w-full">
+            {/* Table Container - Added min-h to prevent filter menu clipping */}
+            <div className="overflow-x-auto custom-scrollbar relative w-full min-h-[400px]">
                 <table
                     ref={tableRef}
                     className="text-left border-collapse"
@@ -332,60 +332,20 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                                                 leaveFrom="transform opacity-100 scale-100"
                                                                 leaveTo="transform opacity-0 scale-95"
                                                             >
-                                                                <Popover.Panel className={`absolute mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-100 ring-1 ring-black ring-opacity-5 focus:outline-none z-[100] p-3 ${index === 0 ? 'left-0' : 'right-0'}`}>
-                                                                    {/* Search */}
-                                                                    <div className="relative mb-3">
-                                                                        <MdSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                                                        <input
-                                                                            type="text"
-                                                                            placeholder="Pesquisar..."
-                                                                            className="w-full pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-md outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-normal"
-                                                                            onChange={(e) => {
-                                                                                // Handle local search if needed, or simple css filtering
-                                                                                const term = e.target.value.toLowerCase();
-                                                                                const items = document.querySelectorAll(`.filter-item-${col.key}`);
-                                                                                items.forEach(item => {
-                                                                                    const text = item.textContent.toLowerCase();
-                                                                                    item.style.display = text.includes(term) ? 'flex' : 'none';
-                                                                                });
-                                                                            }}
-                                                                        />
-                                                                    </div>
-
-                                                                    {/* List */}
-                                                                    <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-1 mb-3">
-                                                                        {uniqueValues.map(val => (
-                                                                            <label key={val} className={`filter-item-${col.key} flex items-center p-2 rounded-md hover:bg-slate-50 cursor-pointer text-sm font-normal text-slate-700`}>
-                                                                                <input
-                                                                                    type="checkbox"
-                                                                                    checked={activeFilters[col.key]?.includes(val) || false}
-                                                                                    onChange={(e) => handleFilterChange(col.key, val, e.target.checked)}
-                                                                                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 mr-2.5"
-                                                                                />
-                                                                                <span className="truncate">{val}</span>
-                                                                            </label>
-                                                                        ))}
-                                                                    </div>
-
-                                                                    {/* Actions */}
-                                                                    <div className="flex justify-between pt-2 border-t border-slate-100 mt-2">
-                                                                        <button
-                                                                            onClick={() => setActiveFilters(prev => ({ ...prev, [col.key]: uniqueValues }))}
-                                                                            className="text-xs font-medium text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-50 transition-colors"
-                                                                        >
-                                                                            Selecionar Todos
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => setActiveFilters(prev => {
-                                                                                const next = { ...prev };
-                                                                                delete next[col.key];
-                                                                                return next;
-                                                                            })}
-                                                                            className="text-xs font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1 px-2 py-1 rounded hover:bg-slate-100 transition-colors"
-                                                                        >
-                                                                            <MdRefresh size={14} /> Limpar
-                                                                        </button>
-                                                                    </div>
+                                                                <Popover.Panel className={`absolute mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-100 ring-1 ring-black ring-opacity-5 focus:outline-none z-[100] overflow-hidden ${index === 0 ? 'left-0' : 'right-0'}`}>
+                                                                    <SearchableList
+                                                                        options={uniqueValues}
+                                                                        selected={activeFilters[col.key] || []}
+                                                                        onChange={(newVals) => {
+                                                                            // Direct update
+                                                                            setActiveFilters(prev => {
+                                                                                const newFilters = { ...prev, [col.key]: newVals };
+                                                                                if (newVals.length === 0) delete newFilters[col.key];
+                                                                                return newFilters;
+                                                                            });
+                                                                        }}
+                                                                        enableSelectAll={true}
+                                                                    />
                                                                 </Popover.Panel>
                                                             </Transition>
                                                         </>

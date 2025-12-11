@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, Fragment } from 'react';
-import { MdSearch, MdMoreVert, MdLaunch, MdCalendarToday, MdExpandMore, MdSort, MdCheck, MdArrowUpward, MdArrowDownward, MdGridView, MdViewList, MdViewKanban } from 'react-icons/md';
+import { MdSearch, MdMoreVert, MdLaunch, MdCalendarToday, MdExpandMore, MdSort, MdCheck, MdArrowUpward, MdArrowDownward } from 'react-icons/md';
 import SmartTable from '@/components/ui/SmartTable';
 import FilterPanel from '@/components/ui/FilterPanel';
+import MultiSelect from '@/components/ui/MultiSelect';
 import { getSeiProcesses } from '@/services/mockData';
 import useTabStore from '@/store/useTabStore';
 import { DayPicker } from 'react-day-picker';
@@ -27,12 +28,11 @@ export default function SeiPage() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const addTab = useTabStore((state) => state.addTab);
-
-  // Estados de Filtro
   const [filters, setFilters] = useState({
     year: '',
-    type: '',
-    status: '',
+    type: [],
+    status: [],
+    assignedTo: [],
     search: '',
     datePreset: 'all',
     dateRange: { from: undefined, to: undefined }
@@ -77,7 +77,7 @@ export default function SeiPage() {
       render: (row) => (
         <div className="flex items-center gap-2 text-slate-600">
           <MdCalendarToday size={14} className="text-slate-400" />
-          <span>{new Date(row.deadline).toLocaleDateString('pt-BR')}</span>
+          <span>{format(new Date(row.deadline), 'dd/MM/yyyy')}</span>
         </div>
       )
     },
@@ -140,7 +140,7 @@ export default function SeiPage() {
   }, []);
 
   const handleClearFilters = () => {
-    setFilters({ year: '', type: '', status: '', search: '', datePreset: 'all', dateRange: { from: undefined, to: undefined } });
+    setFilters({ year: '', type: [], status: [], assignedTo: [], search: '', datePreset: 'all', dateRange: { from: undefined, to: undefined } });
   };
 
   const handleFilterChange = (key, value) => {
@@ -148,18 +148,21 @@ export default function SeiPage() {
   };
 
   // Filtragem (simulada no client-side para este exemplo)
+  const normalizeText = (text) =>
+    text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const filteredData = data.filter(item => {
     const matchYear = !filters.year || item.ref_year.toString() === filters.year;
-    const matchType = !filters.type || item.type === filters.type;
-    const matchStatus = !filters.status || item.status === filters.status;
+    const matchType = filters.type.length === 0 || filters.type.includes(item.type);
+    const matchStatus = filters.status.length === 0 || filters.status.includes(item.status);
+    const matchAssignedTo = filters.assignedTo.length === 0 || filters.assignedTo.includes(item.assigned_to);
     const matchSearch = !filters.search ||
-      item.sei_number.toLowerCase().includes(filters.search.toLowerCase()) ||
-      item.description.toLowerCase().includes(filters.search.toLowerCase());
+      normalizeText(item.sei_number).includes(normalizeText(filters.search)) ||
+      normalizeText(item.description).includes(normalizeText(filters.search));
 
     const matchDate = (!filters.dateRange.from || new Date(item.deadline) >= filters.dateRange.from) &&
       (!filters.dateRange.to || new Date(item.deadline) <= endOfDay(filters.dateRange.to));
 
-    return matchYear && matchType && matchStatus && matchSearch && matchDate;
+    return matchYear && matchType && matchStatus && matchAssignedTo && matchSearch && matchDate;
   }).sort((a, b) => {
     let valA = a[sortBy];
     let valB = b[sortBy];
@@ -202,48 +205,12 @@ export default function SeiPage() {
             </div>
           </div>
 
-          {/* Filtro por Tipo */}
-          <div className="flex-grow min-w-[180px]">
-            <label className="text-xs font-semibold text-slate-500">Tipo</label>
-            <div className="relative mt-1">
-              <select
-                value={filters.type}
-                onChange={(e) => handleFilterChange('type', e.target.value)}
-                className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none bg-slate-50 outline-none pr-8"
-              >
-                <option value="">Todos os tipos</option>
-                <option value="Prestação de Contas">Prestação de Contas</option>
-                <option value="Diligência">Diligência</option>
-                <option value="Auditoria">Auditoria</option>
-                <option value="Acompanhamento especial">Acompanhamento especial</option>
-              </select>
-              <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-          </div>
-
-          {/* Filtro por Status */}
-          <div className="flex-grow min-w-[180px]">
-            <label className="text-xs font-semibold text-slate-500">Status</label>
-            <div className="relative mt-1">
-              <select
-                value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none bg-slate-50 outline-none pr-8"
-              >
-                <option value="">Todos os status</option>
-                <option value="Acompanhamento especial">Acompanhamento especial</option>
-                <option value="Aguarda resposta">Aguarda resposta</option>
-                <option value="Finalizado e Concluído">Finalizado e Concluído</option>
-              </select>
-              <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-          </div>
-
-
-
           {/* Filtro por Prazo (Data) */}
           <div className="flex-grow min-w-[180px]">
-            <label className="text-xs font-semibold text-slate-500">Filtrar por Prazo</label>
+            <label className="text-xs font-semibold text-slate-500 flex gap-2">
+              <MdCalendarToday />
+              Filtrar por Prazo
+            </label>
             <div className="relative mt-1">
               <select value={filters.datePreset} onChange={(e) => handleDatePresetChange(e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8 bg-slate-50 outline-none">
                 <option value="all">Qualquer data</option>
@@ -260,11 +227,11 @@ export default function SeiPage() {
           {filters.datePreset === 'specific' && (
             <div className="flex-grow min-w-[180px]">
               <label className="text-xs font-semibold text-slate-500">Datas</label>
-              <Popover className="relative mt-1">
-                <Popover.Button className="w-full flex items-center justify-between p-2 text-sm text-left bg-slate-50 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
-                  <span className='flex items-center gap-2 text-slate-700'>
+              <Popover className="relative mt-1 z-30">
+                <Popover.Button className="w-full flex items-center justify-between p-2 text-sm text-left bg-slate-50 border border-slate-300 hover:border-slate-400 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+                  <span className='flex items-center gap-2 text-slate-500'>
                     <MdCalendarToday className="text-slate-400" />
-                    {filters.dateRange.from ? `${format(filters.dateRange.from, 'dd/MM/yy')} - ${filters.dateRange.to ? format(filters.dateRange.to, 'dd/MM/yy') : ''}` : 'Selecione...'}
+                    {filters.dateRange.from ? `${format(filters.dateRange.from, 'dd/MM/yyyy')} - ${filters.dateRange.to ? format(filters.dateRange.to, 'dd/MM/yyyy') : ''}` : 'Selecione...'}
                   </span>
                   <MdExpandMore className="text-slate-400" />
                 </Popover.Button>
@@ -276,6 +243,48 @@ export default function SeiPage() {
               </Popover>
             </div>
           )}
+
+          {/* Filtro por Tipo */}
+          {/* Filtro por Tipo */}
+          <div className="flex-grow min-w-[220px]">
+            <MultiSelect
+              label="Tipo"
+              placeholder="Todos os tipos"
+              options={[
+                "Acompanhamento", "Auditoria", "Balanço Geral do Estado", "Denúncia",
+                "Inspeção Ordinária", "Monitoramento", "Outros", "Relatório Temático",
+                "Representação", "Solicitação TCE/CFAMGE", "Tomada de Contas Especial"
+              ]}
+              value={filters.type}
+              onChange={(val) => handleFilterChange('type', val)}
+            />
+          </div>
+
+          {/* Filtro por Status */}
+          {/* Filtro por Status */}
+          <div className="flex-grow min-w-[220px]">
+            <MultiSelect
+              label="Status"
+              placeholder="Todos os status"
+              options={[
+                "Aguarda resposta", "Acompanhamento especial",
+                "Finalizado e Concluído", "Finalizado com Desdobramentos"
+              ]}
+              value={filters.status}
+              onChange={(val) => handleFilterChange('status', val)}
+            />
+          </div>
+
+          {/* Filtro por Atribuído para */}
+          <div className="flex-grow min-w-[220px]">
+            <MultiSelect
+              label="Atribuído para"
+              placeholder="Todos"
+              options={[...new Set(data.map(item => item.assigned_to))].sort()}
+              value={filters.assignedTo}
+              onChange={(val) => handleFilterChange('assignedTo', val)}
+            />
+          </div>
 
         </FilterPanel>
 
@@ -296,26 +305,25 @@ export default function SeiPage() {
 
 
         {/* Sorting & View Controls */}
-        {/* Sorting & View Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-6 gap-4 border-b border-slate-200">
 
           {/* View Tabs (Left Side) */}
           <div className="flex space-x-6 w-full sm:w-auto overflow-x-auto">
             <button
               onClick={() => setActiveView('block')}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'block' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+              className={`pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'block' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
             >
               Bloco
             </button>
             <button
               onClick={() => setActiveView('table')}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'table' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+              className={`pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'table' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
             >
               Tabela
             </button>
             <button
               onClick={() => setActiveView('kanban')}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'kanban' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+              className={`hidden pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'kanban' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
             >
               Kanban
             </button>
@@ -436,7 +444,7 @@ export default function SeiPage() {
                           <span className="text-slate-500">Prazo:</span>
                           <div className="flex items-center gap-1.5 font-medium text-slate-700">
                             <MdCalendarToday size={14} className="text-slate-400" />
-                            {new Date(item.deadline).toLocaleDateString('pt-BR')}
+                            {format(new Date(item.deadline), 'dd/MM/yyyy')}
                           </div>
                         </div>
 
