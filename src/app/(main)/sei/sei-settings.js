@@ -10,7 +10,7 @@ export const seiConfig = {
     },
     responseMapping: {
         status: 'status',
-        sei_number: 'SEI',
+        sei_number: 'sei',
         description: 'descricao',
         ref_year: 'ano_referencia',
         deadline: 'dt_fim_prevista',

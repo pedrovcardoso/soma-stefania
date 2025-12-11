@@ -3,6 +3,7 @@ import { seiConfig } from '@/app/(main)/sei/sei-settings';
 
 const mapResponseToFrontend = (data) => {
     if (!Array.isArray(data)) return [];
+    console.log(data)
 
     return data.map(item => ({
         id: item[seiConfig.responseMapping.sei_number] || Math.random().toString(36).substr(2, 9), // Fallback ID if not provided
