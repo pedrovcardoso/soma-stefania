@@ -24,7 +24,7 @@ Desenvolvido para a **Secretaria de Estado de Fazenda de Minas Gerais (SEF/MG)**
 O projeto é organizado para separar lógica de UI das regras de negócio, priorizando uma base de código limpa em "Inglês Simples" (Plain English).
 
 ```
-stefania/
+soma-stefania/
 ├── src/
 │   ├── app/               # Rotas Lógicas (Next.js App Router)
 │   ├── components/        #
@@ -41,20 +41,50 @@ stefania/
 Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de contribuir:
 
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)**: Aprofundamento na arquitetura de abas "Hidden View", Gerenciamento de Estado e hierarquia de Componentes.
-- **[DEVELOPMENT.md](docs/DEVELOPMENT.md)**: Padrões de código (SEM TypeScript, Inglês Estrito), convenções de nomenclatura e guia de customização de Temas.
+- **[DEVELOPMENT.md](docs/DEVELOPMENT.md)**: Padrões de código, convenções de nomenclatura e guia de customização de Temas.
 - **[ICONS.md](docs/ICONS.md)**: Guia para gerenciar e adicionar ícones ao sistema.
 - **[AI_CONTEXT.md](docs/AI_CONTEXT.md)**: A "Alma" do projeto - Contexto de alto nível para assistentes de IA.
+- **Documentação da API**: O Swagger UI com os endpoints atuais está disponível dentro da aplicação em **Configurações > Sobre o Sistema**.
+
+## Pré-requisitos
+
+1. **Node.js** (Requer Login de Administrador)
+   - Baixe o instalador **MSI** na opção **Or get a prebuilt Node.js®** em [https://nodejs.org/en/download](https://nodejs.org/en/download).
+   - **Importante:** Durante a instalação, marque a opção para instalar automaticamente as ferramentas nativas ("Automatically install...").
+
+2. **GitHub Desktop** (Recomendado - Não requer Admin)
+   - Facilita o versionamento e atualização do projeto.
+   - Baixe em [https://desktop.github.com/download/](https://desktop.github.com/download/).
 
 ## Inicialização Rápida
 
-1. **Clonar e Instalar**
+1. **Clonar o Repositório**
+   Abra o Terminal/PowerShell. Recomendamos navegar para a pasta **Documentos** antes de clonar:
    ```bash
-   git clone <repo-url>
-   cd stefania
-   npm install
+   cd Documents
+   git clone https://github.com/pedrovcardoso/soma-stefania
+   cd soma-stefania
    ```
 
-2. **Rodar Servidor de Desenvolvimento**
+2. **Instalar Dependências**
+   ```bash
+   npm install
+   ```
+   > **Problemas de Rede (SSL)?** Se o comando falhar (comum na rede de governo), tente:
+   > ```bash
+   > npm config set strict-ssl false
+   > npm install
+   > npm config set strict-ssl true
+   > ```
+
+3. **Configurar Ambiente**
+   Crie um arquivo `.env` na raiz do projeto com a URL da API:
+   ```env
+   NEXT_PUBLIC_API_URL=http://10.180.168.23:5000
+   ```
+   > **Atenção:** A API atualmente só está acessível através da rede de governo (Computadores da CAMG ou VPN).
+
+4. **Rodar Servidor de Desenvolvimento**
    ```bash
    npm run dev
    ```
