@@ -40,7 +40,7 @@ const HomePage = () => {
 
   const features = [
     { id: 'dashboard', title: 'Dashboard', description: 'Métricas e dados estatísticos em tempo real.', icon: <MdBarChart size={24} className="text-blue-600" />, path: '/dashboard' },
-    { id: 'sei-process-list', title: 'Processos SEI', description: 'Busca detalhada de processos e tramitações.', icon: <MdLanguage size={24} className="text-blue-600" />, path: '/sei' },
+    { id: 'sei', title: 'Processos SEI', description: 'Busca detalhada de processos e tramitações.', icon: <MdLanguage size={24} className="text-blue-600" />, path: '/sei' },
     { id: 'documents', title: 'Documentos', description: 'Análise e criação de documentos com IA.', icon: <MdDescription size={24} className="text-blue-600" />, path: '/documents' },
     { id: 'stefania', title: 'StefanIA', description: 'Chatbot inteligente para insights processuais.', icon: <MdChat size={24} className="text-blue-600" />, path: '/stefania' },
     { id: 'action-plans', title: 'Planos de Ação', description: 'Gestão estruturada de grupos de trabalho.', icon: <MdAddToPhotos size={24} className="text-blue-600" />, path: '/action-plans' },
