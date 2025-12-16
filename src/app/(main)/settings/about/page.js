@@ -3,6 +3,10 @@
 import { TbBrandNextjs, TbBrandTailwind, TbBrandReact } from 'react-icons/tb';
 import { SiPostgresql } from 'react-icons/si';
 import { MdCode, MdOpenInNew } from 'react-icons/md';
+import dynamic from 'next/dynamic';
+import 'swagger-ui-react/swagger-ui.css';
+
+const SwaggerUI = dynamic(() => import('swagger-ui-react'), { ssr: false });
 
 export default function AboutSettingsPage() {
     return (
@@ -75,6 +79,17 @@ export default function AboutSettingsPage() {
                             Acessar GitHub
                             <MdOpenInNew />
                         </a>
+                    </div>
+                </section>
+
+                {/* API Documentation */}
+                <section className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                    <div className="bg-slate-50 px-6 py-4 border-b border-slate-100">
+                        <h3 className="text-base font-medium text-slate-800">Documentação da API</h3>
+                        <p className="text-sm text-slate-500 mt-1">Endpoints e especificações técnicas.</p>
+                    </div>
+                    <div className="p-4">
+                        <SwaggerUI url="/openapi.yaml" />
                     </div>
                 </section>
 

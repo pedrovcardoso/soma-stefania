@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://10.180.168.23:5000' // 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 function toFormData(data) {
   const formData = new FormData()
@@ -62,7 +62,7 @@ export const authService = {
 export const processService = {
   async getProcesses(filters = {}) {
     const response = await apiClient.post('/processo', filters)
-    
+
     if (response.data) {
       return Array.isArray(response.data) ? response.data : [response.data]
     }
@@ -76,6 +76,6 @@ export const processService = {
 
 export const historyService = {
   async getRecentAccesses(limit = 10) {
-    return [] 
+    return []
   },
 }

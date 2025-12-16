@@ -1,0 +1,336 @@
+openapi: 3.0.3
+info:
+  title: API SOMA - Gestão de Processos
+  description: |
+    API backend do sistema SOMA para consulta de processos,
+    documentos, integração com SEI e Azure Cognitive Search.
+  version: "1.0.0"
+ 
+servers:
+  - url: http://localhost:5000
+    description: Ambiente local
+  - url: http://10.180.168.23:5000
+    description: Ambiente interno
+ 
+paths:
+ 
+  /login:
+    post:
+      summary: Autenticação de usuário
+      tags: [Autenticação]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login realizado com sucesso
+        "400":
+          description: Login ou senha inválidos
+ 
+  /processo:
+    post:
+      summary: Lista processos com filtros
+      tags: [Processos]
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                ano_referencia:
+                  type: array
+                  items:
+                    type: string
+                tipo:
+                  type: array
+                  items:
+                    type: string
+                status:
+                  type: array
+                  items:
+                    type: string
+                data_inicio:
+                  type: string
+                  format: date
+                data_fim:
+                  type: string
+                  format: date
+      responses:
+        "200":
+          description: Lista de processos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ProcessoResumo"
+ 
+  /filtros:
+    get:
+      summary: Retorna valores para filtros
+      tags: [Processos]
+      responses:
+        "200":
+          description: Filtros disponíveis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  anos:
+                    type: array
+                    items: { type: string }
+                  tipos:
+                    type: array
+                    items: { type: string }
+                  status:
+                    type: array
+                    items: { type: string }
+ 
+  /detalheProcesso:
+    post:
+      summary: Detalhes completos do processo
+      tags: [Processos]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [sei]
+              properties:
+                sei:
+                  type: string
+      responses:
+        "200":
+          description: Detalhes do processo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processo:
+                    $ref: "#/components/schemas/ProcessoDetalhado"
+                  tags:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Tag"
+                  sei:
+                    type: object
+ 
+  /documentosProcesso:
+    post:
+      summary: Lista documentos de um processo e auxiliares
+      tags: [Documentos]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [url_processo, sei_principal]
+              properties:
+                url_processo:
+                  type: string
+                sei_principal:
+                  type: string
+      responses:
+        "200":
+          description: Lista de documentos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  documentos:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Documento"
+ 
+  /consultaDocumento:
+    post:
+      summary: Consulta documento específico
+      tags: [Documentos]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [protocolo]
+              properties:
+                protocolo:
+                  type: string
+      responses:
+        "200":
+          description: Documento consultado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sei:
+                    type: object
+                  metadata:
+                    $ref: "#/components/schemas/DocumentoMetadata"
+ 
+  /uploadDocumentos:
+    post:
+      summary: Upload de documentos para Azure
+      description: |
+        Recebe uma lista de documentos com links públicos,
+        realiza o download temporário no backend, envia ao Azure Blob Storage
+        com metadados e executa indexação.
+      tags: [Documentos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [documentos]
+              properties:
+                documentos:
+                  type: array
+                  minItems: 1
+                  items:
+                    $ref: "#/components/schemas/UploadDocumento"
+      responses:
+        "200":
+          description: Processamento finalizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: finalizado
+                  resultado:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UploadResultado"
+        "400":
+          description: Payload inválido
+ 
+components:
+ 
+  schemas:
+    UploadDocumento:
+      type: object
+      required:
+        - nome
+        - url
+        - container
+        - processo
+        - data_documento
+        - metadata
+      properties:
+        nome:
+          type: string
+          example: "123456789"
+        url:
+          type: string
+          example: "https://sei.mg.gov.br/sei/controlador.php?...pdf"
+        container:
+          type: string
+          example: "tce"
+        processo:
+          type: string
+          example: "12345.678901/2024-11"
+        data_documento:
+          type: string
+          example: "15/03/2024"
+        metadata:
+          type: object
+          properties:
+            ano:
+              type: string
+              example: "2024"
+            tipo:
+              type: string
+              example: "contrato"
+            categoria:
+              type: string
+              example: "licitacao"
+ 
+    UploadResultado:
+      type: object
+      properties:
+        documento:
+          type: string
+          example: "123456789"
+        status:
+          type: string
+          example: success
+        detalhe:
+          type: object
+          description: Resultado detalhado do upload
+ 
+    ProcessoResumo:
+      type: object
+      properties:
+        status: { type: string }
+        sei: { type: string }
+        descricao: { type: string }
+        ano_referencia: { type: string }
+        dt_fim_prevista: { type: string }
+        tipo: { type: string }
+        atribuido: { type: string }
+ 
+    ProcessoDetalhado:
+      type: object
+      properties:
+        sei: { type: string }
+        ano_referencia: { type: string }
+        tipo: { type: string }
+        descricao: { type: string }
+        status: { type: string }
+        atribuido: { type: string }
+        dt_recebimento: { type: string }
+        dt_fim_prevista: { type: string }
+        dt_dilacao: { type: string }
+        sei_dilacao: { type: string }
+        dt_resposta: { type: string }
+        obs: { type: string }
+ 
+    Documento:
+      type: object
+      properties:
+        nome: { type: string }
+        url: { type: string }
+        tipo: { type: string }
+        data: { type: string }
+        unidade: { type: string }
+        existe_azure: { type: string }
+        processo_origem: { type: string }
+ 
+    DocumentoMetadata:
+      type: object
+      properties:
+        processo: { type: string }
+        numero_documento: { type: string }
+        tipo: { type: string }
+        categoria: { type: string }
+        ordem: { type: string }
+        ano: { type: string }
+ 
+    Tag:
+      type: object
+      properties:
+        id_tag: { type: integer }
+        tag: { type: string }
