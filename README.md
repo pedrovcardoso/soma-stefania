@@ -81,6 +81,7 @@ Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de
    Crie um arquivo `.env` na raiz do projeto com a URL da API:
    ```env
    NEXT_PUBLIC_API_URL=http://10.180.168.23:5000
+   EXT_PUBLIC_USE_MOCK_API=false  
    ```
    > **Atenção:** A API atualmente só está acessível através da rede de governo (Computadores da CAMG ou VPN).
 
