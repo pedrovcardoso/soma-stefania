@@ -57,7 +57,6 @@ export default function SeiPage() {
           >
             {row.sei_number} <MdLaunch size={10} />
           </button>
-          <span className="text-[10px] text-slate-400 mt-0.5">{row.type}</span>
         </div>
       )
     },
@@ -82,17 +81,9 @@ export default function SeiPage() {
       )
     },
     {
-      key: 'tags',
-      label: 'Tags',
-      render: (row) => (
-        <div className="flex flex-wrap gap-1">
-          {row.tags.map(tag => (
-            <span key={tag} className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200 uppercase tracking-wide">
-              {tag}
-            </span>
-          ))}
-        </div>
-      )
+      key: 'type',
+      label: 'Tipo',
+      render: (row) => <div className="line-clamp-2 whitespace-normal text-xs text-slate-600" title={row.type}>{row.type}</div>
     },
     {
       key: 'status',

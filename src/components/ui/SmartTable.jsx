@@ -376,7 +376,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-white">
                         {paginatedData.length > 0 ? paginatedData.map((row, rowIndex) => (
-                            <tr key={rowIndex} className="hover:bg-slate-50/50 transition-colors">
+                            <tr key={rowIndex} className="hover:bg-slate-100 transition-colors">
                                 {orderedColumns.map(col => (
                                     <td key={col.key} className="px-4 py-3 text-sm text-slate-600 border-b border-slate-50 truncate" title={typeof row[col.key] === 'string' ? row[col.key] : ''} >
                                         {col.render ? col.render(row) : row[col.key]}
