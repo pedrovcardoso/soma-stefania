@@ -1,7 +1,7 @@
 'use client';
 
-import { TbBrandNextjs, TbBrandTailwind, TbBrandReact } from 'react-icons/tb';
-import { SiPostgresql } from 'react-icons/si';
+import { SiPython, SiMysql, SiFlask } from 'react-icons/si';
+import { TbBrandNextjs, TbBrandReact, TbBrandTailwind } from 'react-icons/tb';
 import { MdCode, MdOpenInNew } from 'react-icons/md';
 import dynamic from 'next/dynamic';
 import 'swagger-ui-react/swagger-ui.css';
@@ -36,27 +36,80 @@ export default function AboutSettingsPage() {
 
                 {/* Tech Stack */}
                 <section>
-                    <h3 className="text-sm font-semibold text-slate-800 mb-4 uppercase tracking-wider">Tecnologias Utilizadas</h3>
+                    <h3 className="text-sm font-semibold text-slate-800 mb-4 uppercase tracking-wider">
+                    Principais tecnologias
+                    </h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {/* Next.js */}
                         <div className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                             <TbBrandNextjs className="text-4xl text-black mb-2" />
                             <span className="text-sm font-medium text-slate-700">Next.js</span>
-                            <span className="text-xs text-slate-400">v15.0</span>
+                            <span className="text-xs text-slate-400">v15.0.0</span>
                         </div>
+
+                        {/* React */}
                         <div className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                             <TbBrandReact className="text-4xl text-blue-500 mb-2" />
                             <span className="text-sm font-medium text-slate-700">React</span>
-                            <span className="text-xs text-slate-400">v18.0</span>
+                            <span className="text-xs text-slate-400">v18.3.0</span>
                         </div>
+
+                        {/* Tailwind */}
                         <div className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                             <TbBrandTailwind className="text-4xl text-cyan-500 mb-2" />
                             <span className="text-sm font-medium text-slate-700">Tailwind</span>
-                            <span className="text-xs text-slate-400">v3.4</span>
+                            <span className="text-xs text-slate-400">v3.4.0</span>
                         </div>
+
+                        {/* Zustand */}
                         <div className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                            <SiPostgresql className="text-4xl text-blue-700 mb-2" />
-                            <span className="text-sm font-medium text-slate-700">PostgreSQL</span>
-                            <span className="text-xs text-slate-400">Database</span>
+                            <img
+                            src="https://zustand-demo.pmnd.rs/favicon.ico"
+                            alt="Zustand Logo"
+                            className="mb-2 h-9 w-9"
+                            />
+                            <span className="text-sm font-medium text-slate-700">Zustand</span>
+                            <span className="text-xs text-slate-400">v4.5.0</span>
+                        </div>
+
+                        {/* Python */}
+                        <div className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                            <img
+                            src="https://www.python.org/static/favicon.ico"
+                            alt="Python Logo"
+                            className="mb-2 h-9 w-9"
+                            />
+                            <span className="text-sm font-medium text-slate-700">Python</span>
+                            <span className="text-xs text-slate-400">v0</span>
+                        </div>
+
+                        {/* MySQL */}
+                        <div className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                            <img
+                            src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg"
+                            alt="MySQL Logo"
+                            className="mb-2 h-9 w-9"
+                            />
+                            <span className="text-sm font-medium text-slate-700">MySQL</span>
+                            <span className="text-xs text-slate-400">v0</span>
+                        </div>
+
+                        {/* Azure */}
+                        <div className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                            <img
+                            src="https://raw.githubusercontent.com/devicons/devicon/master/icons/azure/azure-original.svg"
+                            alt="Azure Logo"
+                            className="mb-2 h-9 w-9"
+                            />
+                            <span className="text-sm font-medium text-slate-700">Azure</span>
+                            <span className="text-xs text-slate-400">Cloud</span>
+                        </div>
+
+                        {/* Flask */}
+                        <div className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                            <SiFlask className="text-4xl text-gray-800 mb-2" />
+                            <span className="text-sm font-medium text-slate-700">Flask</span>
+                            <span className="text-xs text-slate-400">v0</span>
                         </div>
                     </div>
                 </section>
@@ -67,16 +120,21 @@ export default function AboutSettingsPage() {
                         <div>
                             <h3 className="text-base font-medium text-slate-800">Repositório do Projeto</h3>
                             <p className="text-sm text-slate-500 mt-1">
-                                Acesse o código fonte, reporte bugs ou veja o changelog completo no GitHub.
+                                Acesse o código fonte completo no GitLab.
                             </p>
                         </div>
                         <a
-                            href="https://github.com/pedrovcardoso/soma-stefania"
+                            href="https://gitlab.fazenda.mg.gov.br/pedro.campos/soma-mg"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-sm"
                         >
-                            Acessar GitHub
+                            <img
+                                src="https://gitlab.com/favicon.ico"
+                                alt="GitLab"
+                                className="h-4 w-4"
+                            />
+                            Acessar GitLab
                             <MdOpenInNew />
                         </a>
                     </div>
@@ -95,7 +153,7 @@ export default function AboutSettingsPage() {
 
                 {/* Copyright */}
                 <footer className="text-center text-xs text-slate-400 mt-4">
-                    © 2025 SEF/MG - Coordenação de Sistemas. Todos os direitos reservados.
+                    © 2025 SEF/MG - Subsecretaria do Tesouro Estadual.
                 </footer>
             </div>
         </div>
