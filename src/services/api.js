@@ -1,4 +1,9 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
+const API_BASE_URL = USE_MOCK ? '/api/mock' : process.env.NEXT_PUBLIC_API_URL;
+
+if (USE_MOCK && typeof window !== 'undefined') {
+  console.log(`[SOMA] Using Mock API at: ${API_BASE_URL}`);
+}
 
 function toFormData(data) {
   const formData = new FormData()
@@ -39,7 +44,14 @@ async function request(endpoint, { method = 'GET', data, headers: customHeaders 
       throw new Error(errorMessage)
     }
 
-    return await response.json()
+    // Check if response is JSON
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      return await response.json();
+    } else {
+      return await response.text();
+    }
+
   } catch (error) {
     console.error(`API Request Failed: ${endpoint}`, error)
     throw error

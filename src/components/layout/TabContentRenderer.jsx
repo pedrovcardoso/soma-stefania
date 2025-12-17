@@ -38,8 +38,11 @@ export default function TabContentRenderer({ tab }) {
   if (tab.path === '/sei' && pathParts.length === 1) {
     return <SeiPage />
   }
-  if (tab.path.startsWith('/sei/') && pathParts.length === 2) {
-    return <SeiDetailPage params={{ id: pathParts[1] }} />
+  if (tab.path.startsWith('/sei/')) {
+    // Reconstruct ID from all parts after 'sei' to handle slashes in the ID (e.g. 1234/2025)
+    // pathParts[0] is 'sei', so we join everything from index 1 onwards
+    const id = pathParts.slice(1).join('/');
+    return <SeiDetailPage params={{ id }} />
   }
   if (tab.path === '/documents' && pathParts.length === 1) {
     return <DocumentsPage />

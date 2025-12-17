@@ -1,33 +1,20 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+import { apiClient } from './api';
 
 export const login = async (email, password) => {
-    const loginUrl = `${API_BASE_URL}/login`;
-
-    const body = new URLSearchParams();
-    body.append('email', email);
-    body.append('password', password);
-
     try {
-        const response = await fetch(loginUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: body,
-        });
+        // apiClient connects to either Mock or Real API based on env var
+        // It also handles JSON vs Text responses automatically
+        const data = await apiClient.post('/login', { email, password });
 
-        if (!response.ok) {
-            try {
-                const errorData = await response.json();
-                const errorMessage = errorData.message || errorData.error || 'Credenciais inválidas ou erro no servidor.';
-                return { success: false, error: errorMessage };
-            } catch (e) {
-                return { success: false, error: `Erro ${response.status}: ${response.statusText}` };
-            }
+        // If the API returns a text string (success message), we simulate a token for frontend state
+        if (typeof data === 'string') {
+            // Mock success scenario or Real API returning text
+            const fakeToken = 'mock-token-' + Date.now();
+            localStorage.setItem('authToken', fakeToken);
+            return { success: true, data: { message: data, token: fakeToken } };
         }
 
-        const data = await response.json();
-
+        // If it returns JSON (Real API might return JSON in future or error objects)
         if (data.token) {
             localStorage.setItem('authToken', data.token);
         }
@@ -35,10 +22,10 @@ export const login = async (email, password) => {
         return { success: true, data };
 
     } catch (error) {
-        console.error('Login service network error:', error);
+        console.error('Login service error:', error);
         return {
             success: false,
-            error: 'Não foi possível conectar ao servidor. Verifique sua conexão de rede.',
+            error: error.message || 'Erro ao realizar login.',
         };
     }
 };

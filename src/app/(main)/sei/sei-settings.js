@@ -1,6 +1,8 @@
 export const seiConfig = {
     endpoints: {
-        processo: '/processo'
+        processo: '/processo',
+        detalheProcesso: '/detalheProcesso',
+        planoAcao: '/planoAcao'
     },
     filters: {
         ano_ref: 'ano_referencia',

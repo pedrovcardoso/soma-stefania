@@ -3,7 +3,6 @@ import { seiConfig } from '@/app/(main)/sei/sei-settings';
 
 const mapResponseToFrontend = (data) => {
     if (!Array.isArray(data)) return [];
-    console.log(data)
 
     return data.map(item => ({
         id: item[seiConfig.responseMapping.sei_number] || Math.random().toString(36).substr(2, 9), // Fallback ID if not provided
@@ -53,6 +52,34 @@ export const fetchSeiProcesses = async (filters) => {
 
     } catch (error) {
         console.error('Error fetching SEI processes:', error);
+        throw error;
+    }
+};
+
+export const fetchSeiProcessDetails = async (seiNumber) => {
+    try {
+        const formData = new FormData();
+        formData.append('sei', seiNumber);
+
+        // Use apiClient which now handles base URL switching via env var
+        const response = await apiClient.post(seiConfig.endpoints.detalheProcesso, formData);
+
+        // Internal API (api.js request) returns the parsed JSON directly
+        return response;
+    } catch (error) {
+        console.error('Error fetching SEI process details:', error);
+        throw error;
+    }
+};
+
+export const fetchActionPlan = async (seiNumber) => {
+    try {
+        const formData = new FormData();
+        formData.append('sei', seiNumber);
+        const response = await apiClient.post(seiConfig.endpoints.planoAcao, formData);
+        return response;
+    } catch (error) {
+        console.error('Error fetching Action Plan:', error);
         throw error;
     }
 };
