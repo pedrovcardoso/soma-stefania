@@ -1,60 +1,65 @@
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
-const API_BASE_URL = USE_MOCK ? '/api/mock' : process.env.NEXT_PUBLIC_API_URL;
 
-if (USE_MOCK && typeof window !== 'undefined') {
-  console.log(`[SOMA] Using Mock API at: ${API_BASE_URL}`);
-}
+const API_BASE_URL = USE_MOCK ? '/api/mock' : '/api';
 
 function toFormData(data) {
-  const formData = new FormData()
+  const formData = new FormData();
   Object.keys(data).forEach((key) => {
     if (data[key] !== null && data[key] !== undefined) {
-      formData.append(key, data[key])
+      formData.append(key, data[key]);
     }
-  })
-  return formData
+  });
+  return formData;
 }
 
 async function request(endpoint, { method = 'GET', data, headers: customHeaders = {} } = {}) {
-  const headers = { ...customHeaders }
+  const headers = { 
+    'Content-Type': 'application/json',
+    ...customHeaders 
+  };
 
-  let body = undefined
+  let body = undefined;
 
   if (method !== 'GET' && data) {
     if (data instanceof FormData) {
-      body = data
+      delete headers['Content-Type']; 
+      body = data;
     } else {
-      body = toFormData(data)
+      body = JSON.stringify(data);
     }
   }
 
   const config = {
     method,
-    mode: 'cors',
     headers,
     body,
-  }
+  };
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config)
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => null)
-      const errorMessage = errorBody?.message || `Erro na requisição: ${response.status}`
-      throw new Error(errorMessage)
+    if (response.status === 401) {
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+            window.location.href = '/login';
+        }
     }
 
-    // Check if response is JSON
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => null);
+      const errorMessage = errorBody?.message || errorBody || `Erro: ${response.status}`;
+      throw new Error(errorMessage);
+    }
+
     const contentType = response.headers.get("content-type");
-    if (contentType && contentType.indexOf("application/json") !== -1) {
+    if (contentType && contentType.includes("application/json")) {
       return await response.json();
     } else {
       return await response.text();
     }
 
   } catch (error) {
-    console.error(`API Request Failed: ${endpoint}`, error)
-    throw error
+    console.error(`API Request Failed: ${endpoint}`, error);
+    throw error;
   }
 }
 
@@ -63,13 +68,7 @@ export const apiClient = {
   post: (endpoint, data) => request(endpoint, { method: 'POST', data }),
   put: (endpoint, data) => request(endpoint, { method: 'PUT', data }),
   delete: (endpoint) => request(endpoint, { method: 'DELETE' }),
-}
-
-export const authService = {
-  async login(email, password) {
-    return apiClient.post('/login', { email, password })
-  },
-}
+};
 
 export const processService = {
   async getProcesses(filters = {}) {

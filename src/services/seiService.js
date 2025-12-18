@@ -53,10 +53,8 @@ export const fetchSeiProcessDetails = async (seiNumber) => {
         const formData = new FormData();
         formData.append('sei', seiNumber);
 
-        // Use apiClient which now handles base URL switching via env var
         const response = await apiClient.post(seiConfig.endpoints.detalheProcesso, formData);
 
-        // Internal API (api.js request) returns the parsed JSON directly
         return response;
     } catch (error) {
         console.error('Error fetching SEI process details:', error);

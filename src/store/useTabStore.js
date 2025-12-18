@@ -13,15 +13,13 @@ const useTabStore = create((set) => ({
       }
       const historyItem = {
         id: tab.id,
-        process: tab.title, // Adapting structure to match history item expectations
+        process: tab.title,
         title: tab.title,
         path: tab.path,
         pinned: false,
         favorited: false,
-        // accessedAt is handled by store
       };
 
-      // Auto-log to history
       useHistoryStore.getState().addToHistory(historyItem);
 
       return {

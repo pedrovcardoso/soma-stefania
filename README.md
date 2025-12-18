@@ -21,20 +21,29 @@ Desenvolvido para a **Secretaria de Estado de Fazenda de Minas Gerais (SEF/MG)**
 
 ## Estrutura do Projeto
 
-O projeto é organizado para separar lógica de UI das regras de negócio, priorizando uma base de código limpa em "Inglês Simples" (Plain English).
-
 ```
-soma-stefania/
+frontend/
 ├── src/
 │   ├── app/               # Rotas Lógicas (Next.js App Router)
+│   │   ├── api/           # Camada de Proxy e Auth (BFF)
+│   │   │   ├── auth/      # Login/Logout reais
+│   │   │   ├── mock/      # Sistema de Mocks espelhado
+│   │   │   └── [...args]/ # Proxy genérico para a API Externa
 │   ├── components/        #
 │   │   ├── layout/        # AppShell, Navbar, Sidebar, TabViewer
 │   │   └── ui/            # Componentes de UI Reutilizáveis
 │   ├── store/             # Stores Zustand (Tabs, Theme, History)
-│   └── services/          # Integrações de API & Mocks
+│   ├── services/          # Integrações de API & Mocks
+│   └── middleware.js      # Proteção global de rotas
 ├── docs/                  # Documentação Detalhada
 └── public/                # Assets Estáticos
 ```
+
+### Segurança e Autenticação
+- **JWT Stateless**: Autenticação moderna sem armazenamento de sessão no servidor.
+- **Cookies HttpOnly**: O token de acesso é armazenado em cookies protegidos, invisíveis ao JavaScript do navegador, mitigando ataques XSS.
+- **Middleware Guard**: Verificação de sessão em tempo real antes de carregar qualquer página ou rota de dados.
+- **Backend-for-Frontend (BFF)**: O frontend nunca expõe o IP real do backend; todas as requisições são tuneladas e autenticadas pela camada de API do Next.js.
 
 ## Documentação
 
@@ -80,8 +89,17 @@ Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de
 3. **Configurar Ambiente**
    Crie um arquivo `.env` na raiz do projeto com a URL da API:
    ```env
-   NEXT_PUBLIC_API_URL=http://10.180.168.23:5000
-   EXT_PUBLIC_USE_MOCK_API=false  
+   # --- SEGURANÇA (Apenas Servidor) ---
+   # URL da API real (ex: Python/FastAPI)
+   API_URL=http://10.180.168.23:5000
+
+   # Chave mestra para assinar o JWT (HS256)
+   # Mude para uma string longa e aleatória em produção
+   JWT_SECRET=super-secret-key
+
+   # --- DESENVOLVIMENTO (Público) ---
+   # Define se o sistema usará a pasta /api/mock ou a API_URL real
+   NEXT_PUBLIC_USE_MOCK_API=false
    ```
    > **Atenção:** A API atualmente só está acessível através da rede de governo (Computadores da CAMG ou VPN).
 

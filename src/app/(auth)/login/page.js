@@ -51,8 +51,8 @@ export default function LoginPage() {
         if (result.success) {
             addToast('Login bem-sucedido! Redirecionando...', 'success');
             setTimeout(() => {
-                router.push('/dashboard');
-            }, 2000);
+                router.push('/home');
+            }, 1000);
         } else {
             addToast(result.error, 'error');
             setIsLoading(false);
@@ -152,7 +152,6 @@ export default function LoginPage() {
                     </form>
                 </div>
 
-                {/* DIREITA: Marca e Identidade */}
                 <div className="hidden md:flex w-1/2 relative overflow-hidden bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white p-12 flex-col justify-between">
                     <ParticleBackground
                         particleColor="rgba(203, 213, 225, 0.5)"

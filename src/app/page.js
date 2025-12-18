@@ -7,7 +7,7 @@ export default function RootPage() {
   const router = useRouter()
 
   useEffect(() => {
-    router.replace('/login')
+    router.replace('/home')
   }, [router])
 
   return null
