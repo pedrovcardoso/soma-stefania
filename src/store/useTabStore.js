@@ -1,68 +1,74 @@
-import { create } from 'zustand'
-import useHistoryStore from './useHistoryStore'
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-const useTabStore = create((set) => ({
-  tabs: [],
-  activeTabId: null,
+const useTabStore = create(
+  persist(
+    (set, get) => ({
+      activeTabId: 'home',
+      tabs: [],
 
-  addTab: (tab) => {
-    set((state) => {
-      const existingTab = state.tabs.find((t) => t.id === tab.id)
-      if (existingTab) {
-        return { activeTabId: tab.id }
-      }
-      const historyItem = {
-        id: tab.id,
-        process: tab.title,
-        title: tab.title,
-        path: tab.path,
-        pinned: false,
-        favorited: false,
-      };
-
-      useHistoryStore.getState().addToHistory(historyItem);
-
-      return {
-        tabs: [...state.tabs, tab],
-        activeTabId: tab.id,
-      }
-    })
-  },
-
-  closeTab: (tabId) => {
-    set((state) => {
-      const filteredTabs = state.tabs.filter((t) => t.id !== tabId)
-      const wasActive = state.activeTabId === tabId
-      let newActiveId = state.activeTabId
-
-      if (wasActive && filteredTabs.length > 0) {
-        const closedIndex = state.tabs.findIndex((t) => t.id === tabId)
-        if (closedIndex > 0) {
-          newActiveId = state.tabs[closedIndex - 1].id
-        } else {
-          newActiveId = filteredTabs[0].id
+      openTab: (newTab) => {
+        const { tabs } = get();
+        
+        if (newTab.id === 'home') {
+          set({ activeTabId: 'home' });
+          return;
         }
-      }
 
-      return {
-        tabs: filteredTabs,
-        activeTabId: filteredTabs.length > 0 ? newActiveId : null,
-      }
-    })
-  },
+        const exists = tabs.find((t) => t.id === newTab.id);
 
-  switchTab: (tabId) => {
-    set({ activeTabId: tabId })
-  },
+        if (exists) {
+          set({ activeTabId: newTab.id });
+        } else {
+          set({
+            tabs: [...tabs, newTab],
+            activeTabId: newTab.id,
+          });
+        }
+      },
 
-  clearAllTabs: () => {
-    set({ tabs: [], activeTabId: null })
-  },
+      switchTab: (tabId) => {
+        set({ activeTabId: tabId });
+      },
 
-  reorderTabs: (newTabs) => {
-    set({ tabs: newTabs })
-  },
-}))
+      closeTab: (tabId) => {
+        const { tabs, activeTabId } = get();
+        const newTabs = tabs.filter((t) => t.id !== tabId);
+        
+        let newActiveId = activeTabId;
+        
+        if (tabId === activeTabId) {
+          if (newTabs.length === 0) {
+            newActiveId = 'home';
+          } else {
+            const index = tabs.findIndex((t) => t.id === tabId);
+            const newIndex = index > 0 ? index - 1 : 0;
+            newActiveId = newTabs[newIndex].id;
+          }
+        }
 
-export default useTabStore
+        set({
+          tabs: newTabs,
+          activeTabId: newActiveId,
+        });
+      },
 
+      closeAll: () => {
+        set({
+          tabs: [],
+          activeTabId: 'home',
+        });
+      },
+
+      reorderTabs: (newTabs) => {
+        set({ tabs: newTabs });
+      },
+    }),
+    {
+      name: 'soma-tabs-storage',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
+
+export default useTabStore;

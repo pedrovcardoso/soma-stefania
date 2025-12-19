@@ -12,7 +12,7 @@
   --color-text-secondary: #666666;
   --color-border: #E0E0E0;
   --color-error: #DC3545;
-  --color-succzess: #28A745;
+  --color-success: #28A745;
   --color-warning: #FFC107;
   --font-primary: 'Inter', system-ui, sans-serif;
   --font-mono: 'Courier New', monospace;
@@ -32,15 +32,13 @@ body {
 }
 
 .tab-content-hidden {
-  display: none;
-  pointer-events: none;
+  display: none !important;
 }
 
 .tab-content-visible {
-  display: block;
+  display: block !important;
   height: 100%;
   overflow-y: auto;
-  pointer-events: auto;
 }
 
 .scrollbar-hide {
@@ -56,9 +54,9 @@ body {
   border-radius: 8px 8px 0 0 !important;
   position: relative;
   margin-bottom: -1px;
-  background-color: #f0f4f8;
+  background-color: #ffffff;
   border: 1px solid var(--color-border);
-  border-bottom-color: var(--color-background);
+  border-bottom-color: #ffffff;
   z-index: 10;
 }
 
@@ -77,7 +75,7 @@ body {
   border-width: 0 1px 1px 0;
   border-style: solid;
   border-color: var(--color-border);
-  box-shadow: 4px 2px 0 0 #f0f4f8;
+  box-shadow: 4px 2px 0 0 #ffffff;
 }
 
 .tab-active::after {
@@ -86,5 +84,5 @@ body {
   border-width: 0 0 1px 1px;
   border-style: solid;
   border-color: var(--color-border);
-  box-shadow: -4px 2px 0 0 #f0f4f8;
+  box-shadow: -4px 2px 0 0 #ffffff;
 }

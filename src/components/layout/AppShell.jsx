@@ -1,18 +1,31 @@
 'use client'
 
-import { Suspense, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Sidebar from './Sidebar'
 import Navbar from './Navbar'
-import TabViewer from './TabViewer'
-import TabContentRenderer from './TabContentRenderer'
-import HomePage from '@/app/(main)/home/page'
+import TabRenderer from './TabRenderer'
+import HomeView from '@/views/HomeView'
 import useTabStore from '@/store/useTabStore'
 import useThemeStore from '@/store/useThemeStore'
 
-export default function AppShell({ children }) {
+const SimpleLoader = () => {
+  return (
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-50">
+      <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest animate-pulse">
+        Carregando conteúdo...
+      </p>
+    </div>
+  )
+}
+
+export default function AppShell() {
   const { tabs, activeTabId } = useTabStore()
   const { currentTheme } = useThemeStore()
-  const showHome = tabs.length === 0 || activeTabId === null
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -20,41 +33,43 @@ export default function AppShell({ children }) {
       Object.entries(currentTheme).forEach(([key, value]) => {
         root.style.setProperty(key, value)
       })
+    }
+  }, [currentTheme])
 
-      // Enforce Static URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
       const enforceStaticUrl = () => {
         if (window.location.pathname !== '/main' && !window.location.pathname.includes('/login')) {
-          window.history.replaceState(null, '', '/main');
+          window.history.replaceState(null, '', '/main')
         }
-      };
-
-      enforceStaticUrl();
-      // Listen for updates (though replaceState doesn't trigger popstate, we mainly care about initial load and tab switches if they caused route changes)
+      }
+      enforceStaticUrl()
     }
-  }, [currentTheme, activeTabId])
+  }, [])
+
+  if (!isClient) {
+    return <SimpleLoader />
+  }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden animate-in fade-in duration-300">
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <Navbar />
-          <div className="flex-1 overflow-hidden relative">
-            {showHome && (
-              <div className="absolute inset-0 tab-content-visible">
-                <HomePage />
-              </div>
-            )}
+          <div className="flex-1 overflow-hidden relative bg-slate-50">
+            <div className={`absolute inset-0 overflow-auto bg-slate-50 transition-opacity duration-200 ${activeTabId === 'home' ? 'z-10 opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              <HomeView />
+            </div>
             {tabs.map((tab) => (
-              <TabViewer key={tab.id} tabId={tab.id}>
-                <Suspense fallback={
-                  <div className="p-8">
-                    <p className="text-text-secondary">Carregando...</p>
-                  </div>
-                }>
-                  <TabContentRenderer tab={tab} />
-                </Suspense>
-              </TabViewer>
+              <div 
+                key={tab.id} 
+                className={`absolute inset-0 overflow-hidden flex flex-col bg-white transition-opacity duration-200 ${activeTabId === tab.id ? 'z-10 opacity-100' : 'opacity-0 pointer-events-none'}`}
+              >
+                <div className={`h-full w-full ${activeTabId === tab.id ? 'block' : 'hidden'}`}>
+                  <TabRenderer tab={tab} />
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -62,4 +77,3 @@ export default function AppShell({ children }) {
     </div>
   )
 }
-

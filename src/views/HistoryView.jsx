@@ -21,34 +21,41 @@ import {
 
 // --- HELPERS ---
 const PAGE_TYPES = {
-  // CORRIGIDO: Ícones agora são monocromáticos
   dashboard: { label: 'Dashboard', icon: <MdBarChart className="text-slate-500" /> },
-  sei: { label: 'Processos SEI', icon: <MdLanguage className="text-slate-500" /> },
-  documents: { label: 'Documentos', icon: <MdDescription className="text-slate-500" /> },
+  sei_list: { label: 'Processos SEI', icon: <MdLanguage className="text-slate-500" /> },
+  sei_detail: { label: 'Processos SEI', icon: <MdLanguage className="text-slate-500" /> },
+  doc_list: { label: 'Documentos', icon: <MdDescription className="text-slate-500" /> },
+  doc_detail: { label: 'Documentos', icon: <MdDescription className="text-slate-500" /> },
   default: { label: 'Outro', icon: <MdHistory className="text-slate-500" /> },
 };
-const getPageInfo = (path) => {
-  if (path.startsWith('/dashboard')) return PAGE_TYPES.dashboard;
-  if (path.startsWith('/sei')) return PAGE_TYPES.sei;
-  if (path.startsWith('/documents')) return PAGE_TYPES.documents;
+
+const getPageInfo = (type) => {
+  if (!type) return PAGE_TYPES.default;
+  if (type === 'dashboard') return PAGE_TYPES.dashboard;
+  if (type.startsWith('sei')) return PAGE_TYPES.sei_list; // Mapeia ambos
+  if (type.startsWith('doc')) return PAGE_TYPES.doc_list;
   return PAGE_TYPES.default;
 };
-const formatFullDateTime = (date) => new Date(date).toLocaleString('pt-BR', {
+
+const formatFullDateTime = (timestamp) => new Date(timestamp).toLocaleString('pt-BR', {
   day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
 });
-const normalizeText = (text) =>
-  text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-export default function HistoryPage() {
-  const addTab = useTabStore((state) => state.addTab);
-  const { historyItems, removeFromHistory, togglePin, toggleFavorite, clearHistory } = useHistoryStore();
+const normalizeText = (text) =>
+  text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+
+export default function HistoryView() {
+  const openTab = useTabStore((state) => state.openTab);
+  
+  // Refatorado para usar os nomes corretos da Store atual
+  const { recentAccesses, removeFromHistory, togglePin, clearHistory } = useHistoryStore();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     pageType: 'all',
     datePreset: 'all',
     dateRange: { from: undefined, to: undefined },
-    isPinned: false,
-    isFavorited: false,
+    isFixed: false,
   });
 
   const handleDatePresetChange = (preset) => {
@@ -66,45 +73,63 @@ export default function HistoryPage() {
   };
   const handleFilterChange = (key, value) => setFilters(prev => ({ ...prev, [key]: value }));
   const clearFilters = () => {
-    setFilters({ pageType: 'all', datePreset: 'all', dateRange: { from: undefined, to: undefined }, isPinned: false, isFavorited: false });
+    setFilters({ pageType: 'all', datePreset: 'all', dateRange: { from: undefined, to: undefined }, isFixed: false });
     setSearchTerm('');
   };
 
-  const handleAccessClick = (access) => addTab({ id: access.id, title: access.title, path: access.path || `/sei/${access.id}` });
+  const handleAccessClick = (access) => openTab({ 
+    id: access.id, 
+    type: access.type, 
+    title: access.title 
+  });
+  
   const handleDeleteItem = (idToDelete) => removeFromHistory(idToDelete);
   const handleTogglePin = (idToToggle) => togglePin(idToToggle);
-  const handleToggleFavorite = (idToToggle) => toggleFavorite(idToToggle);
-  const handleShare = (process) => alert(`Compartilhar: ${process}\n(Funcionalidade pendente)`);
+  
+  const handleShare = (title) => alert(`Compartilhar: ${title}\n(Funcionalidade pendente)`);
 
   const handleClearHistory = (period) => {
-    clearHistory(period);
+    // Para simplificar no momento, limpamos tudo. Lógica complexa de periodo pode ser add na store depois
+    if (period === 'all') clearHistory();
+    else alert('Limpeza parcial não implementada nesta versão.');
   };
 
   const groupedHistory = useMemo(() => {
     const normalizedSearch = normalizeText(searchTerm);
-    const filtered = historyItems.filter(item => {
-      const searchMatch = !normalizedSearch || normalizeText(item.process).includes(normalizedSearch) || normalizeText(item.title).includes(normalizedSearch);
-      const itemType = (item.path || '').split('/')[1] || 'default';
-      const pageTypeMatch = filters.pageType === 'all' || itemType === filters.pageType;
-      const pinnedMatch = !filters.isPinned || item.pinned;
-      const favoritedMatch = !filters.isFavorited || item.favorited;
-      const dateMatch = (!filters.dateRange.from || new Date(item.accessedAt) >= filters.dateRange.from) && (!filters.dateRange.to || new Date(item.accessedAt) <= endOfDay(filters.dateRange.to));
-      return searchMatch && pageTypeMatch && pinnedMatch && favoritedMatch && dateMatch;
+    const filtered = recentAccesses.filter(item => {
+      // Ajuste de filtro para estrutura nova (title / id)
+      const searchMatch = !normalizedSearch || normalizeText(item.title).includes(normalizedSearch) || normalizeText(item.id).includes(normalizedSearch);
+      
+      const itemType = item.type || 'default';
+      const pageTypeMatch = filters.pageType === 'all' || itemType.startsWith(filters.pageType);
+      
+      // Ajuste: pinned -> isFixed
+      const pinnedMatch = !filters.isFixed || item.isFixed;
+      
+      // Ajuste: accessedAt -> timestamp
+      const itemDate = new Date(item.timestamp);
+      const dateMatch = (!filters.dateRange.from || itemDate >= filters.dateRange.from) && (!filters.dateRange.to || itemDate <= endOfDay(filters.dateRange.to));
+      
+      return searchMatch && pageTypeMatch && pinnedMatch && dateMatch;
     });
+
     const groups = { 'Hoje': [], 'Ontem': [], 'Esta Semana': [], 'Mais Antigo': [] };
-    const today = startOfDay(new Date()); const yesterday = startOfDay(subDays(new Date(), 1)); const thisWeekStart = startOfWeek(new Date(), { locale: ptBR });
+    const today = startOfDay(new Date()); 
+    const yesterday = startOfDay(subDays(new Date(), 1)); 
+    const thisWeekStart = startOfWeek(new Date(), { locale: ptBR });
+    
     for (const item of filtered) {
-      const itemDate = new Date(item.accessedAt);
+      const itemDate = new Date(item.timestamp);
       if (itemDate >= today) groups['Hoje'].push(item);
       else if (itemDate >= yesterday) groups['Ontem'].push(item);
       else if (itemDate >= thisWeekStart) groups['Esta Semana'].push(item);
       else groups['Mais Antigo'].push(item);
     }
     return groups;
-  }, [historyItems, searchTerm, filters]);
+  }, [recentAccesses, searchTerm, filters]);
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 bg-slate-50 min-h-full font-sans">
+    <div className="p-4 sm:p-6 md:p-8 bg-slate-50 min-h-full font-sans overflow-auto h-full">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8">
           <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Histórico de Atividades</h1>
@@ -113,7 +138,7 @@ export default function HistoryPage() {
 
         <FilterPanel onClear={clearFilters}>
           <div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Filtrar por Tipo</label><div className="relative mt-1">
-            <select value={filters.pageType} onChange={(e) => handleFilterChange('pageType', e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8 bg-slate-50 outline-none"><option value="all">Todos os tipos</option><option value="dashboard">Dashboard</option><option value="sei">Processos SEI</option><option value="documents">Documentos</option></select>
+            <select value={filters.pageType} onChange={(e) => handleFilterChange('pageType', e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8 bg-slate-50 outline-none"><option value="all">Todos os tipos</option><option value="dashboard">Dashboard</option><option value="sei">Processos SEI</option><option value="doc">Documentos</option></select>
             <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div></div>
           <div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Filtrar por Período</label><div className="relative mt-1">
@@ -125,8 +150,7 @@ export default function HistoryPage() {
             <Transition as={Fragment} enter="transition ease-out duration-200" enterFrom="opacity-0 translate-y-1" enterTo="opacity-100 translate-y-0" leave="transition ease-in duration-150" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-1"><Popover.Panel className="absolute z-20 mt-1 bg-white border rounded-md shadow-lg"><DayPicker mode="range" selected={filters.dateRange} onSelect={(range) => handleFilterChange('dateRange', range)} locale={ptBR} className="p-2" captionLayout="dropdown-buttons" fromYear={2020} toYear={new Date().getFullYear()} /></Popover.Panel></Transition>
           </Popover></div>)}
           <div className="flex items-center gap-4">
-            <label htmlFor="isPinnedFilter" className="flex items-center gap-2 p-2 border border-slate-300 rounded-md cursor-pointer hover:bg-slate-50 transition-colors"><input id="isPinnedFilter" type="checkbox" checked={filters.isPinned} onChange={(e) => handleFilterChange('isPinned', e.target.checked)} className="h-4 w-4 rounded border-slate-400 text-blue-600 focus:ring-blue-500" /><span className="text-sm text-slate-700">Somente fixado no histórico</span></label>
-            <label htmlFor="isFavoritedFilter" className="flex items-center gap-2 p-2 border border-slate-300 rounded-md cursor-pointer hover:bg-slate-50 transition-colors"><input id="isFavoritedFilter" type="checkbox" checked={filters.isFavorited} onChange={(e) => handleFilterChange('isFavorited', e.target.checked)} className="h-4 w-4 rounded border-slate-400 text-blue-600 focus:ring-blue-500" /><span className="text-sm text-slate-700">Somente favoritos</span></label>
+            <label htmlFor="isFixedFilter" className="flex items-center gap-2 p-2 border border-slate-300 rounded-md cursor-pointer hover:bg-slate-50 transition-colors"><input id="isFixedFilter" type="checkbox" checked={filters.isFixed} onChange={(e) => handleFilterChange('isFixed', e.target.checked)} className="h-4 w-4 rounded border-slate-400 text-blue-600 focus:ring-blue-500" /><span className="text-sm text-slate-700">Somente fixado no histórico</span></label>
           </div>
         </FilterPanel>
 
@@ -139,22 +163,25 @@ export default function HistoryPage() {
           </Menu>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-8 pb-8">
           {Object.entries(groupedHistory).map(([groupName, items]) => items.length > 0 && (
             <section key={groupName}><h2 className="text-sm font-bold uppercase text-slate-500 tracking-wider pb-2 border-b-2 border-slate-200 mb-4">{groupName}</h2><ul>{items.map(access => (
               <li key={access.id} className="relative py-3 group"><div className="absolute top-5 left-4 -ml-px h-full w-0.5 bg-slate-200"></div><div className="relative flex items-center space-x-4">
-                <div className="relative z-10 flex items-center justify-center w-8 h-8 bg-white rounded-full ring-4 ring-slate-50">{React.cloneElement(getPageInfo(access.path || '').icon, { size: 20 })}</div>
+                <div className="relative z-10 flex items-center justify-center w-8 h-8 bg-white rounded-full ring-4 ring-slate-50">{React.cloneElement(getPageInfo(access.type).icon, { size: 20 })}</div>
                 <div className="flex-1 min-w-0 bg-white p-4 rounded-lg border border-slate-200 shadow-sm group-hover:border-blue-300 transition-all"><div className="flex justify-between items-center gap-2">
-                  <div className="flex-1 min-w-0"><p className="text-xs text-slate-500 mb-1">{formatFullDateTime(access.accessedAt)}</p><button onClick={() => handleAccessClick(access)} className="text-left w-full"><h3 className="text-md font-semibold text-slate-800 hover:underline underline-offset-2 truncate">{access.process}</h3></button><p className="text-sm text-slate-600 mt-1 truncate">{access.title}</p></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-500 mb-1">{formatFullDateTime(access.timestamp)}</p>
+                    <button onClick={() => handleAccessClick(access)} className="text-left w-full"><h3 className="text-md font-semibold text-slate-800 hover:underline underline-offset-2 truncate">{access.title}</h3></button>
+                    {/* Exibe ID se disponível como subtitulo */}
+                    {access.id !== access.title && <p className="text-sm text-slate-600 mt-1 truncate">{access.id}</p>}
+                  </div>
                   <div className="flex items-center flex-shrink-0">
-                    {/* CORRIGIDO: Tamanho e rotação do pin */}
-                    <button onClick={() => handleTogglePin(access.id)} title={access.pinned ? 'Desafixar do histórico' : 'Fixar no histórico'} className="p-1.5"><MdPushPin className={`w-4 h-4 rotate-45 transition-all ${access.pinned ? 'text-slate-600 opacity-100' : 'text-slate-300 opacity-40 group-hover:opacity-80'}`} /></button>
+                    <button onClick={() => handleTogglePin(access.id)} title={access.isFixed ? 'Desafixar do histórico' : 'Fixar no histórico'} className="p-1.5"><MdPushPin className={`w-4 h-4 rotate-45 transition-all ${access.isFixed ? 'text-slate-600 opacity-100' : 'text-slate-300 opacity-40 group-hover:opacity-80'}`} /></button>
                     <Menu as="div" className="relative"><Menu.Button className="p-1.5 text-slate-500 rounded-full hover:bg-slate-100"><MdMoreVert size={20} /></Menu.Button>
                       <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
                         <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-20"><div className="p-1">
                           <Menu.Item>{({ active }) => (<button onClick={() => handleAccessClick(access)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdLaunch className="mr-2" /> Acessar</button>)}</Menu.Item>
-                          <Menu.Item>{({ active }) => (<button onClick={() => handleShare(access.process)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdShare className="mr-2" /> Compartilhar</button>)}</Menu.Item>
-                          <Menu.Item>{({ active }) => (<button onClick={() => handleToggleFavorite(access.id)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}>{access.favorited ? <MdFavorite className="mr-2" /> : <MdFavoriteBorder className="mr-2" />} {access.favorited ? 'Remover dos favoritos' : 'Favoritar'}</button>)}</Menu.Item>
+                          <Menu.Item>{({ active }) => (<button onClick={() => handleShare(access.title)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdShare className="mr-2" /> Compartilhar</button>)}</Menu.Item>
                           <Menu.Item>{({ active }) => (<button onClick={() => handleDeleteItem(access.id)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdClose className="mr-2" /> Excluir</button>)}</Menu.Item>
                         </div></Menu.Items>
                       </Transition>

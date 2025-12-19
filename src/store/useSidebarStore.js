@@ -1,12 +1,18 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-const useSidebarStore = create((set) => ({
-  sidebarWidth: 256,
-  
-  setSidebarWidth: (width) => {
-    set({ sidebarWidth: Math.max(180, Math.min(500, width)) })
-  },
-}))
+const useSidebarStore = create(
+  persist(
+    (set) => ({
+      isOpen: true,
+      toggleSidebar: () => set((state) => ({ isOpen: !state.isOpen })),
+      setSidebarOpen: (isOpen) => set({ isOpen }),
+    }),
+    {
+      name: 'soma-sidebar-storage',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
 
-export default useSidebarStore
-
+export default useSidebarStore;

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import useTabStore from '@/store/useTabStore'
-import Link from 'next/link'
 
 import {
   MdClose,
@@ -19,21 +18,26 @@ import {
   MdAddToPhotos
 } from 'react-icons/md'
 
-const getTabIcon = (path, title) => {
-  if (path === '/home') return MdHome
-  if (path === '/dashboard') return MdBarChart
-  if (path === '/sei') return MdLanguage
-  if (path.startsWith('/sei/')) return MdGridView
-  if (path === '/documents') return MdDescription
-  if (path.startsWith('/documents/')) return MdDescription
-  if (path === '/stefania') return MdChat
-  if (path === '/favorites') return MdFavorite
-  if (path === '/action-plans') return MdAddToPhotos
-  return MdHome
+const getTabIcon = (type, title) => {
+  // Mapeamento baseado no 'type' da arquitetura SOMA
+  if (type === 'home') return MdHome
+  if (type === 'dashboard') return MdBarChart
+  if (type === 'sei_list') return MdLanguage
+  if (type === 'sei_detail') return MdGridView
+  if (type === 'doc_list') return MdDescription
+  if (type === 'doc_detail') return MdDescription
+  if (type === 'stefania') return MdChat
+  if (type === 'favorites') return MdFavorite
+  if (type === 'action_plans') return MdAddToPhotos
+  if (type === 'settings') return MdSettings
+  
+  return MdDescription // Ícone padrão (Documento)
 }
 
 export default function Navbar() {
-  const { tabs, activeTabId, switchTab, closeTab, addTab, reorderTabs } = useTabStore()
+  // 'addTab' renomeado para 'openTab' conforme a Store
+  // 'reorderTabs' deve ser adicionado ao Store para o D&D funcionar
+  const { tabs, activeTabId, switchTab, closeTab, openTab, reorderTabs } = useTabStore()
 
   const handleTabClick = (tabId) => {
     switchTab(tabId)
@@ -45,7 +49,7 @@ export default function Navbar() {
   }
 
   const handleHomeClick = () => {
-    switchTab(null)
+    switchTab('home')
   }
 
   const [draggedTabId, setDraggedTabId] = useState(null)
@@ -80,7 +84,8 @@ export default function Navbar() {
         const [removed] = newTabs.splice(draggedIndex, 1)
         newTabs.splice(targetIndex, 0, removed)
 
-        reorderTabs(newTabs)
+        // Verifica se a função existe na store antes de chamar
+        if (reorderTabs) reorderTabs(newTabs)
       }
     }
     setDraggedTabId(null)
@@ -92,6 +97,9 @@ export default function Navbar() {
     setDragOverTabId(null)
   }
 
+  // Define se a Home está ativa
+  const isHomeActive = activeTabId === 'home'
+
   return (
     <nav className="bg-white border-b border-gray-200 flex items-center h-12 px-2 gap-0 overflow-hidden">
       <button
@@ -99,13 +107,14 @@ export default function Navbar() {
         className={`p-2 rounded transition-colors flex-shrink-0 mr-1 text-gray-600 hover:bg-gray-100'`}
         aria-label="Home"
       >
-        <MdHome className={`w-5 h-5 mt-0.5 ${activeTabId === null ? 'text-blue-700' : 'text-gray-600'}`} />
+        <MdHome className={`w-5 h-5 mt-0.5 ${isHomeActive ? 'text-blue-700' : 'text-gray-600'}`} />
       </button>
       <div className="w-px h-6 bg-gray-300 mx-1 flex-shrink-0 mt-2" />
       <div className="flex items-center gap-0 flex-1 overflow-x-auto min-w-0 scrollbar-hide overflow-y-hidden h-full">
         {tabs.map((tab, index) => {
           const isActive = activeTabId === tab.id
-          const Icon = getTabIcon(tab.path, tab.title)
+          // Passamos tab.type em vez de tab.path
+          const Icon = getTabIcon(tab.type, tab.title)
           const isLast = index === tabs.length - 1
           const isDragging = draggedTabId === tab.id
           const isDragOver = dragOverTabId === tab.id
@@ -177,7 +186,7 @@ export default function Navbar() {
                         const newTabs = [...tabs]
                         const [removed] = newTabs.splice(draggedIndex, 1)
                         newTabs.push(removed)
-                        reorderTabs(newTabs)
+                        if (reorderTabs) reorderTabs(newTabs)
                       }
                     }
                     setDraggedTabId(null)
@@ -209,7 +218,7 @@ export default function Navbar() {
                         const newTabs = [...tabs]
                         const [removed] = newTabs.splice(draggedIndex, 1)
                         newTabs.push(removed)
-                        reorderTabs(newTabs)
+                        if (reorderTabs) reorderTabs(newTabs)
                       }
                     }
                     setDraggedTabId(null)
@@ -233,7 +242,7 @@ export default function Navbar() {
           <MdSearch className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         </div>
         <button
-          onClick={() => addTab({ id: 'settings', title: 'Configurações', path: '/settings' })}
+          onClick={() => openTab({ id: 'settings', type: 'settings', title: 'Configurações' })}
           className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
         >
           <MdSettings className="w-5 h-5 text-gray-600" />
@@ -245,4 +254,3 @@ export default function Navbar() {
     </nav>
   )
 }
-

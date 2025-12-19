@@ -1,73 +1,61 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { mockInitialHistory } from '@/services/mockData';
+import { persist, createJSONStorage } from 'zustand/middleware';
+
+// Gerador de ID curto e performático (Timestamp Base36 + Sufixo Aleatório)
+// ~10 caracteres, colisão impossível para histórico de usuário único
+const generateLogId = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 
 const useHistoryStore = create(
-    persist(
-        (set, get) => ({
-            historyItems: mockInitialHistory,
+  persist(
+    (set, get) => ({
+      recentAccesses: [], // LOG Completo (histórico cronológico)
+      pinnedIds: [],      // Array separado de IDs fixados para lookup rápido O(1)
 
-            addToHistory: (item) => {
-                set((state) => {
-                    const now = new Date().toISOString();
-                    const existingIndex = state.historyItems.findIndex(
-                        (i) => i.id === item.id || (i.path && i.path === item.path)
-                    );
+      addToHistory: (item) => {
+        const allowedTypes = ['sei_detail', 'doc_detail'];
+        if (!allowedTypes.includes(item.type)) return;
 
-                    let newHistory = [...state.historyItems];
+        // CRÍTICO: Criamos uma entrada de Log nova e única a cada acesso
+        // Não verificamos duplicidade aqui para ser extremamente rápido
+        const newLogEntry = {
+          logId: generateLogId(), // ID do registro no histórico
+          contentId: item.id,     // ID do conteúdo (ex: numero do SEI)
+          type: item.type,
+          title: item.title,
+          description: item.description,
+          timestamp: Date.now()
+        };
 
-                    if (existingIndex >= 0) {
-                        const existingItem = newHistory[existingIndex];
-                        newHistory.splice(existingIndex, 1);
-                        newHistory.unshift({ ...existingItem, accessedAt: now });
-                    } else {
-                        newHistory.unshift({ ...item, accessedAt: now });
-                    }
-                    if (newHistory.length > 100) {
-                        newHistory = newHistory.slice(0, 100);
-                    }
+        set((state) => ({
+          recentAccesses: [newLogEntry, ...state.recentAccesses]
+        }));
+      },
 
-                    return { historyItems: newHistory };
-                });
-            },
+      togglePin: (contentId) => {
+        set((state) => {
+          const isPinned = state.pinnedIds.includes(contentId);
+          return {
+            pinnedIds: isPinned
+              ? state.pinnedIds.filter(id => id !== contentId)
+              : [...state.pinnedIds, contentId]
+          };
+        });
+      },
 
-            removeFromHistory: (id) => {
-                set((state) => ({
-                    historyItems: state.historyItems.filter((i) => i.id !== id),
-                }));
-            },
-
-            togglePin: (id) => {
-                set((state) => ({
-                    historyItems: state.historyItems.map((item) =>
-                        item.id === id ? { ...item, pinned: !item.pinned } : item
-                    ),
-                }));
-            },
-
-            toggleFavorite: (id) => {
-                set((state) => ({
-                    historyItems: state.historyItems.map((item) =>
-                        item.id === id ? { ...item, favorited: !item.favorited } : item
-                    ),
-                }));
-            },
-
-            clearHistory: (period) => {
-                set((state) => {
-                    if (period === 'all') {
-                        return { historyItems: state.historyItems.filter(i => i.pinned) };
-                    }
-
-                    return { historyItems: state.historyItems.filter(i => i.pinned) };
-                });
-            },
-        }),
-        {
-            name: 'stefania-history-storage',
-            getStorage: () => localStorage,
-        }
-    )
+      clearHistory: () => set({ recentAccesses: [] }),
+      
+      removeFromHistory: (contentId) => {
+          set((state) => ({
+             recentAccesses: state.recentAccesses.filter(item => item.contentId !== contentId),
+             pinnedIds: state.pinnedIds.filter(id => id !== contentId)
+          }));
+      }
+    }),
+    {
+      name: 'soma-history-storage',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
 );
 
 export default useHistoryStore;

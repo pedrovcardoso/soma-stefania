@@ -16,39 +16,35 @@ import {
 } from 'react-icons/md'
 
 const menuItems = [
-  { id: 'dashboard', title: 'Dashboard', icon: MdBarChart, path: '/dashboard' },
-  { id: 'sei', title: 'Processos SEI', icon: MdLanguage, path: '/sei' },
-  { id: 'documents', title: 'Documentos', icon: MdDescription, path: '/documents' },
-  { id: 'stefania', title: 'StefanIA', icon: MdChat, path: '/stefania' },
-  { id: 'favorites', title: 'Favoritos', icon: MdFavorite, path: '/favorites' },
-  { id: 'action-plans', title: 'Planos de ação', icon: MdAddToPhotos, path: '/action-plans' },
+  { id: 'dashboard', type: 'dashboard', title: 'Dashboard', icon: MdBarChart },
+  { id: 'sei', type: 'sei_list', title: 'Processos SEI', icon: MdLanguage },
+  { id: 'documents', type: 'doc_list', title: 'Documentos', icon: MdDescription },
+  { id: 'stefania', type: 'stefania', title: 'StefanIA', icon: MdChat },
+  { id: 'favorites', type: 'favorites', title: 'Favoritos', icon: MdFavorite },
+  { id: 'action-plans', type: 'action_plans', title: 'Planos de ação', icon: MdAddToPhotos },
 ]
 
 const MAX_VISIBLE_RECENT = 10
 
 export default function Sidebar() {
-  const addTab = useTabStore((state) => state.addTab)
+  const openTab = useTabStore((state) => state.openTab)
   const activeTabId = useTabStore((state) => state.activeTabId)
+  
   const sidebarWidth = useSidebarStore((state) => state.sidebarWidth)
   const setSidebarWidth = useSidebarStore((state) => state.setSidebarWidth)
-  const { historyItems, togglePin } = useHistoryStore()
+  
+  const { recentAccesses, togglePin } = useHistoryStore()
 
-  // Filter and Sort Logic
-  const recentAccesses = historyItems
+  const filteredAccesses = recentAccesses
     .filter(item => {
-      // Filter out main menu items if they appear in history (e.g. Dashboard, Favorites)
-      // Only show SEI processes or Documents
-      const isSei = item.path?.startsWith('/sei') || (item.id && item.id.toString().startsWith('sei-'));
-      const isDoc = item.path?.startsWith('/documents');
-      return isSei || isDoc;
+      return item.type === 'sei_detail' || item.type === 'doc_detail';
     })
     .sort((a, b) => {
-      // Pinned first
-      if (a.pinned && !b.pinned) return -1;
-      if (!a.pinned && b.pinned) return 1;
-      // Then by date
-      return new Date(b.accessedAt) - new Date(a.accessedAt);
+      if (a.isFixed && !b.isFixed) return -1;
+      if (!a.isFixed && b.isFixed) return 1;
+      return b.timestamp - a.timestamp;
     });
+
   const [visibleRecentCount, setVisibleRecentCount] = useState(MAX_VISIBLE_RECENT)
   const recentSectionRef = useRef(null)
   const sidebarRef = useRef(null)
@@ -82,9 +78,9 @@ export default function Sidebar() {
       const itemHeight = 50
       const maxFit = Math.max(1, Math.floor(availableHeight / itemHeight))
 
-      const maxToShow = Math.min(MAX_VISIBLE_RECENT, maxFit, recentAccesses.length)
+      const maxToShow = Math.min(MAX_VISIBLE_RECENT, maxFit, filteredAccesses.length)
       setVisibleRecentCount(maxToShow)
-      setHasMore(recentAccesses.length > maxToShow)
+      setHasMore(filteredAccesses.length > maxToShow)
     }
 
     const timeoutId = setTimeout(calculateVisibleItems, 100)
@@ -93,7 +89,7 @@ export default function Sidebar() {
       clearTimeout(timeoutId)
       window.removeEventListener('resize', calculateVisibleItems)
     }
-  }, [sidebarWidth, recentAccesses])
+  }, [sidebarWidth, filteredAccesses, mounted])
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -125,18 +121,18 @@ export default function Sidebar() {
   }, [isResizing, setSidebarWidth])
 
   const handleMenuClick = (item) => {
-    addTab({
+    openTab({
       id: item.id,
+      type: item.type,
       title: item.title,
-      path: item.path,
     })
   }
 
   const handleRecentClick = (access) => {
-    addTab({
+    openTab({
       id: access.id,
-      title: access.title || access.process, // Fallback for backward compatibility
-      path: access.path,
+      type: access.type,
+      title: access.title,
     })
   }
 
@@ -146,10 +142,10 @@ export default function Sidebar() {
   }
 
   const handleViewMore = () => {
-    addTab({
+    openTab({
       id: 'history',
+      type: 'history',
       title: 'Histórico',
-      path: '/history',
     })
   }
 
@@ -158,7 +154,7 @@ export default function Sidebar() {
     setIsResizing(true)
   }
 
-  const visibleRecentAccesses = mounted ? recentAccesses.slice(0, visibleRecentCount) : []
+  const visibleRecentAccesses = mounted ? filteredAccesses.slice(0, visibleRecentCount) : []
 
   return (
     <div className="relative flex-shrink-0" style={{ width: `${sidebarWidth}px` }}>
@@ -216,15 +212,19 @@ export default function Sidebar() {
                     onClick={() => handleRecentClick(access)}
                     className="flex-1 min-w-0 pr-2 text-left"
                   >
-                    <p className="text-xs font-medium truncate">{access.process}</p>
-                    <p className="text-xs text-gray-500 truncate mt-0.5">{access.title}</p>
+                    <p className="text-xs font-medium truncate text-gray-800">
+                      {access.title}
+                    </p>
+                    <p className="text-[10px] text-gray-500 truncate mt-0.5 leading-tight">
+                      {access.description || access.id}
+                    </p>
                   </button>
                   <button
                     onClick={(e) => handlePinClick(e, access.id)}
                     className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
-                    aria-label={access.pinned ? 'Desafixar' : 'Fixar'}
+                    aria-label={access.isFixed ? 'Desafixar' : 'Fixar'}
                   >
-                    <MdPushPin className={`w-3.5 h-3.5 transition-all ${access.pinned ? 'text-gray-600 opacity-100' : 'text-gray-300 opacity-40 group-hover:opacity-60'}`} />
+                    <MdPushPin className={`w-3.5 h-3.5 transition-all ${access.isFixed ? 'text-gray-600 opacity-100' : 'text-gray-300 opacity-40 group-hover:opacity-60'}`} />
                   </button>
                 </div>
               ))}
@@ -251,7 +251,7 @@ export default function Sidebar() {
             />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">Pedro BI</p>
-              <p className="text-xs text-gray-600 truncate">pedro.cardoso@fa...</p>
+              <p className="text-xs text-gray-600 truncate">pedro.cardoso@fazenda.mg.gov.br</p>
             </div>
           </div>
         </div>
@@ -265,4 +265,3 @@ export default function Sidebar() {
     </div>
   )
 }
-

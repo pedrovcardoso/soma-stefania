@@ -23,11 +23,13 @@ const getStatusColor = (status) => {
   }
 };
 
-export default function SeiPage() {
+export default function SeiListView() {
   const [activeView, setActiveView] = useState('block');
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const addTab = useTabStore((state) => state.addTab);
+  
+  const openTab = useTabStore((state) => state.openTab);
+  
   const [filters, setFilters] = useState({
     year: '',
     type: [],
@@ -39,7 +41,7 @@ export default function SeiPage() {
   });
 
   const [sortBy, setSortBy] = useState('deadline');
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+  const [sortOrder, setSortOrder] = useState('asc');
 
   const columns = [
     {
@@ -48,10 +50,10 @@ export default function SeiPage() {
       render: (row) => (
         <div className="flex flex-col">
           <button
-            onClick={() => addTab({
-              id: `sei-${row.id}`,
-              title: row.sei_number,
-              path: `/sei/${row.id}`
+            onClick={() => openTab({
+              id: row.sei_number, 
+              type: 'sei_detail', 
+              title: row.sei_number
             })}
             className="font-medium text-slate-700 hover:text-blue-600 hover:underline text-xs flex items-center gap-1 w-fit text-left"
           >
@@ -122,32 +124,25 @@ export default function SeiPage() {
     setFilters(prev => ({ ...prev, datePreset: preset, dateRange: { from, to } }));
   };
 
-  // ... inside SeiPage component
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        // Using the real service
         const result = await fetchSeiProcesses(filters);
         setData(result);
       } catch (error) {
         console.error("Failed to load SEI data", error);
-        // Optional: fallback to mock data or show error
-        // const mockResult = await getSeiProcesses();
-        // setData(mockResult);
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Debounce or just load? implementing specific trigger
-    // For now, load on mount and when filters change (debouncing recommended for search)
     const timeoutId = setTimeout(() => {
       loadData();
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [filters]); // Dependency on filters triggers reload
+  }, [filters]);
 
   const handleClearFilters = () => {
     setFilters({ year: '', type: [], status: [], assignedTo: [], search: '', datePreset: 'all', dateRange: { from: undefined, to: undefined } });
@@ -157,23 +152,10 @@ export default function SeiPage() {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  // Filtragem (simulada no client-side para este exemplo)
   const normalizeText = (text) =>
-    text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  const filteredData = data.filter(item => {
-    const matchYear = !filters.year || item.ref_year.toString() === filters.year;
-    const matchType = filters.type.length === 0 || filters.type.includes(item.type);
-    const matchStatus = filters.status.length === 0 || filters.status.includes(item.status);
-    const matchAssignedTo = filters.assignedTo.length === 0 || filters.assignedTo.includes(item.assigned_to);
-    const matchSearch = !filters.search ||
-      normalizeText(item.sei_number).includes(normalizeText(filters.search)) ||
-      normalizeText(item.description).includes(normalizeText(filters.search));
-
-    const matchDate = (!filters.dateRange.from || new Date(item.deadline) >= filters.dateRange.from) &&
-      (!filters.dateRange.to || new Date(item.deadline) <= endOfDay(filters.dateRange.to));
-
-    return matchYear && matchType && matchStatus && matchAssignedTo && matchSearch && matchDate;
-  }).sort((a, b) => {
+    text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+    
+  const filteredData = [...data].sort((a, b) => {
     let valA = a[sortBy];
     let valB = b[sortBy];
 
@@ -181,6 +163,9 @@ export default function SeiPage() {
       valA = new Date(valA).getTime();
       valB = new Date(valB).getTime();
     }
+
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
 
     if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
     if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
@@ -190,15 +175,12 @@ export default function SeiPage() {
   return (
     <div className="h-full bg-slate-50/50 p-6 md:p-10 overflow-auto font-sans">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Processos SEI</h1>
           <p className="text-slate-500 mt-2">Gerencie e acompanhe as tramitações, prazos e documentos oficiais.</p>
         </div>
 
-        {/* Filtros com componente reutilizável */}
         <FilterPanel onClear={handleClearFilters}>
-          {/* Filtro por Ano */}
           <div className="flex-grow min-w-[150px]">
             <label className="text-xs font-semibold text-slate-500">Ano de Referência</label>
             <div className="relative mt-1">
@@ -215,7 +197,6 @@ export default function SeiPage() {
             </div>
           </div>
 
-          {/* Filtro por Prazo (Data) */}
           <div className="flex-grow min-w-[180px]">
             <label className="text-xs font-semibold text-slate-500 flex gap-2">
               <MdCalendarToday />
@@ -254,8 +235,6 @@ export default function SeiPage() {
             </div>
           )}
 
-          {/* Filtro por Tipo */}
-          {/* Filtro por Tipo */}
           <div className="flex-grow min-w-[220px]">
             <MultiSelect
               label="Tipo"
@@ -270,8 +249,6 @@ export default function SeiPage() {
             />
           </div>
 
-          {/* Filtro por Status */}
-          {/* Filtro por Status */}
           <div className="flex-grow min-w-[220px]">
             <MultiSelect
               label="Status"
@@ -285,7 +262,6 @@ export default function SeiPage() {
             />
           </div>
 
-          {/* Filtro por Atribuído para */}
           <div className="flex-grow min-w-[220px]">
             <MultiSelect
               label="Atribuído para"
@@ -298,7 +274,6 @@ export default function SeiPage() {
 
         </FilterPanel>
 
-        {/* Busca em Destaque (Estilo History) */}
         <div className="flex flex-col sm:flex-row gap-4 items-center mb-6">
           <div className="relative w-full">
             <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
@@ -312,12 +287,8 @@ export default function SeiPage() {
           </div>
         </div>
 
-
-
-        {/* Sorting & View Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-6 gap-4 border-b border-slate-200">
 
-          {/* View Tabs (Left Side) */}
           <div className="flex space-x-6 w-full sm:w-auto overflow-x-auto">
             <button
               onClick={() => setActiveView('block')}
@@ -339,7 +310,6 @@ export default function SeiPage() {
             </button>
           </div>
 
-          {/* Custom Sort Selector (Right Side) */}
           <div className="flex items-center gap-3 w-full sm:w-auto justify-end pb-2">
 
             <Popover className="relative">
@@ -395,7 +365,6 @@ export default function SeiPage() {
           </div>
         </div>
 
-        {/* Content Area */}
         {
           isLoading ? (
             <div className="flex justify-center py-20">
@@ -413,26 +382,23 @@ export default function SeiPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredData.length > 0 ? filteredData.map((item) => (
                     <div key={item.id} className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col h-full group">
-                      {/* Card Header */}
                       <div className="flex justify-between items-start mb-3">
                         <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider border border-slate-200">
                           {item.type}
                         </span>
                         <div className="relative">
-                          {/* Placeholder for menu if needed */}
                           <button className="text-slate-400 hover:text-slate-600 p-1 -mr-2">
                             <MdMoreVert size={20} />
                           </button>
                         </div>
                       </div>
 
-                      {/* Card Body */}
                       <div className="mb-4 flex-grow">
                         <button
-                          onClick={() => addTab({
-                            id: `sei-${item.id}`,
-                            title: item.sei_number,
-                            path: `/sei/${item.id}`
+                          onClick={() => openTab({
+                            id: item.sei_number,
+                            type: 'sei_detail',
+                            title: item.sei_number
                           })}
                           className="font-medium text-slate-700 hover:text-blue-600 hover:underline text-sm flex items-center gap-2 mb-2 text-left w-full break-all"
                         >
@@ -443,7 +409,6 @@ export default function SeiPage() {
                         </p>
                       </div>
 
-                      {/* Card Footer */}
                       <div className="mt-auto border-t border-slate-100 pt-3 space-y-3">
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-slate-500">Atribuído para:</span>

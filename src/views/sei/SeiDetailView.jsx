@@ -1,22 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { MdContentCopy, MdShare, MdEdit, MdOpenInNew, MdRefresh, MdError, MdCheck, MdWarning } from 'react-icons/md';
+import { MdContentCopy, MdShare, MdEdit, MdOpenInNew, MdError } from 'react-icons/md';
 import { fetchSeiProcessDetails } from '@/services/seiService';
 import ActionPlanSection from './ActionPlanSection';
+import useHistoryStore from '@/store/useHistoryStore';
 
-export default function SeiDetailPage({ params: propParams }) {
-  // Handling params from both Next.js Router (if used directly) and our Tab System (props)
-  const routerParams = useParams();
-  const id = propParams?.id || routerParams?.id || 'unknown';
-
+export default function SeiDetailView({ id }) {
   const [processData, setProcessData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const addToHistory = useHistoryStore((state) => state.addToHistory);
 
   useEffect(() => {
-    loadData();
+    if (id && id !== 'unknown') {
+      loadData();
+    }
   }, [id]);
 
   const loadData = async () => {
@@ -24,8 +24,20 @@ export default function SeiDetailPage({ params: propParams }) {
     try {
       const data = await fetchSeiProcessDetails(id);
       setProcessData(data);
+
+      if (data && data.processo) {
+        const historyItem = {
+          id: data.processo.sei,
+          type: 'sei_detail',
+          title: data.processo.sei,
+          description: data.processo.descricao
+        };
+
+        addToHistory(historyItem);
+      }
     } catch (err) {
-      setError(err.message);
+      console.error("Erro ao carregar detalhes:", err);
+      setError(err.message || "Erro desconhecido");
     } finally {
       setLoading(false);
     }
@@ -33,7 +45,6 @@ export default function SeiDetailPage({ params: propParams }) {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    // Toast logic would go here
   };
 
   if (loading) {
@@ -66,7 +77,6 @@ export default function SeiDetailPage({ params: propParams }) {
 
   const { processo, tags, sei } = processData;
 
-  // Helper for "Input-like" field display
   const Field = ({ label, value, fullWidth = false, className = "" }) => (
     <div className={`flex flex-col ${fullWidth ? 'col-span-full' : ''} ${className}`}>
       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{label}</label>
@@ -76,7 +86,6 @@ export default function SeiDetailPage({ params: propParams }) {
     </div>
   );
 
-  // Footer Info Item
   const FooterItem = ({ label, value, colorClass = "text-slate-700" }) => (
     <div className="text-center md:text-left">
       <span className="block text-[10px] text-slate-400 mb-1">{label}</span>
@@ -84,18 +93,14 @@ export default function SeiDetailPage({ params: propParams }) {
     </div>
   );
 
-  // Process Tree Item Component
   const TreeItem = ({ type, title, subtitle, status, isCurrent, isLast, statusColor }) => (
     <div className="relative flex gap-4">
-      {/* Timeline Line */}
       {!isLast && <div className="absolute left-[15px] top-8 bottom-0 w-0.5 bg-slate-200" />}
 
-      {/* Node Icon */}
       <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-white border-2 ${isCurrent ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-300'}`}>
         {isCurrent && <div className="w-3 h-3 bg-blue-500 rounded-full" />}
       </div>
 
-      {/* Content Card */}
       <div className="flex-grow pb-8">
         <div className="flex flex-col mb-1">
           <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isCurrent ? 'text-blue-600' : 'text-slate-400'}`}>
@@ -126,7 +131,6 @@ export default function SeiDetailPage({ params: propParams }) {
 
         {/* Header Section */}
         <div>
-          {/* Title & Actions */}
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
@@ -137,7 +141,6 @@ export default function SeiDetailPage({ params: propParams }) {
                   <MdContentCopy size={18} />
                 </button>
               </div>
-              {/* Status Badge */}
               <div className="flex items-center gap-2">
                 <span className={`px-3 py-1 rounded-full text-xs font-bold border ${processo.status.includes('Concluído') ? 'bg-green-100 text-green-700 border-green-200' :
                     processo.status.includes('Análise') ? 'bg-amber-100 text-amber-700 border-amber-200' :
@@ -176,7 +179,6 @@ export default function SeiDetailPage({ params: propParams }) {
           </div>
 
           <div className="p-6 md:p-8 space-y-8">
-
             {/* Section 1: Basic Info */}
             <div>
               <h3 className="flex items-center gap-2 text-sm font-bold text-blue-800 uppercase tracking-wide mb-6 border-l-4 border-blue-600 pl-3">
@@ -188,7 +190,6 @@ export default function SeiDetailPage({ params: propParams }) {
                   <Field label="Tipo" value={processo.tipo} />
                 </div>
                 <Field label="Descrição" value={processo.descricao} fullWidth />
-                {/* Tags */}
                 <div className="flex flex-col">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Tags Associadas</label>
                   <div className="flex flex-wrap gap-2">
@@ -204,7 +205,6 @@ export default function SeiDetailPage({ params: propParams }) {
               </div>
             </div>
 
-            {/* DIVIDER */}
             <hr className="border-slate-100 my-8" />
 
             {/* Section 2: Assignment & Status */}
@@ -217,7 +217,6 @@ export default function SeiDetailPage({ params: propParams }) {
                   <Field label="Atribuído a" value={processo.atribuido} />
                   <Field label="Unidade Atual" value="SEF/STE-SCAF" />
                 </div>
-                {/* Removed background color as requested */}
                 <Field label="Observações e Tramitação" value={processo.obs} fullWidth />
               </div>
             </div>
@@ -238,7 +237,6 @@ export default function SeiDetailPage({ params: propParams }) {
             )}
           </div>
 
-          {/* Footer Stats/Dates */}
           <div className="bg-slate-50/50 px-6 py-4 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-4">
             <FooterItem label="Recebimento" value={processo.dt_recebimento} />
             <FooterItem label="Prazo Final" value={processo.dt_fim_prevista} colorClass="text-red-600" />

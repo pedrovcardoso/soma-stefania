@@ -34,22 +34,24 @@ const StefanIaAnimation = () => {
   );
 };
 
-const HomePage = () => {
-  const addTab = useTabStore((state) => state.addTab);
+const HomeView = () => {
+  const openTab = useTabStore((state) => state.openTab);
   const switchTab = useTabStore((state) => state.switchTab);
 
   const features = [
-    { id: 'dashboard', title: 'Dashboard', description: 'Métricas e dados estatísticos em tempo real.', icon: <MdBarChart size={24} className="text-blue-600" />, path: '/dashboard' },
-    { id: 'sei', title: 'Processos SEI', description: 'Busca detalhada de processos e tramitações.', icon: <MdLanguage size={24} className="text-blue-600" />, path: '/sei' },
-    { id: 'documents', title: 'Documentos', description: 'Análise e criação de documentos com IA.', icon: <MdDescription size={24} className="text-blue-600" />, path: '/documents' },
-    { id: 'stefania', title: 'StefanIA', description: 'Chatbot inteligente para insights processuais.', icon: <MdChat size={24} className="text-blue-600" />, path: '/stefania' },
-    { id: 'action-plans', title: 'Planos de Ação', description: 'Gestão estruturada de grupos de trabalho.', icon: <MdAddToPhotos size={24} className="text-blue-600" />, path: '/action-plans' },
+    { id: 'dashboard', type: 'dashboard', title: 'Dashboard', description: 'Métricas e dados estatísticos em tempo real.', icon: <MdBarChart size={24} className="text-blue-600" />, path: '/dashboard' },
+    { id: 'sei', type: 'sei_list', title: 'Processos SEI', description: 'Busca detalhada de processos e tramitações.', icon: <MdLanguage size={24} className="text-blue-600" />, path: '/sei' },
+    { id: 'documents', type: 'doc_list', title: 'Documentos', description: 'Análise e criação de documentos com IA.', icon: <MdDescription size={24} className="text-blue-600" />, path: '/documents' },
+    { id: 'stefania', type: 'stefania', title: 'StefanIA', description: 'Chatbot inteligente para insights processuais.', icon: <MdChat size={24} className="text-blue-600" />, path: '/stefania' },
+    { id: 'action-plans', type: 'action_plans', title: 'Planos de Ação', description: 'Gestão estruturada de grupos de trabalho.', icon: <MdAddToPhotos size={24} className="text-blue-600" />, path: '/action-plans' },
   ];
 
   const handleCardClick = (feature) => {
-    const newTab = { id: feature.id, title: feature.title, path: feature.path };
-    addTab(newTab);
-    switchTab(newTab.id);
+    openTab({
+      id: feature.id,
+      type: feature.type,
+      title: feature.title
+    });
   };
 
   return (
@@ -170,4 +172,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default HomeView;
