@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { MdContentCopy, MdShare, MdEdit, MdOpenInNew, MdError } from 'react-icons/md';
+import { useState, useEffect, Fragment } from 'react';
+import { MdContentCopy, MdShare, MdEdit, MdOpenInNew, MdError, MdDeleteOutline, MdKeyboardArrowDown } from 'react-icons/md';
+import { Menu, Transition } from '@headlessui/react';
 import { fetchSeiProcessDetails } from '@/services/seiService';
 import ActionPlanSection from './ActionPlanSection';
 import useHistoryStore from '@/store/useHistoryStore';
+import StefaniaChatbot from './StefaniaChatbot';
 
 export default function SeiDetailView({ id }) {
   const [processData, setProcessData] = useState(null);
@@ -121,8 +123,8 @@ export default function SeiDetailView({ id }) {
   );
 
   return (
-    <div className="h-full bg-gray-50/50 p-6 md:p-10 overflow-auto font-sans">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="h-full bg-gray-50/50 p-6 md:p-10 overflow-auto font-sans relative">
+      <div className="max-w-5xl mx-auto space-y-8 pb-20">
 
         {/* Header Section */}
         <div>
@@ -147,22 +149,64 @@ export default function SeiDetailView({ id }) {
             </div>
 
             <div className="flex gap-2">
-              <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-medium rounded-lg transition-colors">
-                <MdShare size={16} /> Compartilhar
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors">
-                <MdEdit size={16} /> Editar
-              </button>
-              {sei?.link && (
-                <a
-                  href={sei.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+              <Menu as="div" className="relative inline-block text-left">
+                <div>
+                  <Menu.Button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-lg shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20 active:scale-95">
+                    Opções
+                    <MdKeyboardArrowDown size={16} className="text-slate-400" />
+                  </Menu.Button>
+                </div>
+                <Transition
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
                 >
-                  <MdOpenInNew size={16} /> Abrir no SEI
-                </a>
-              )}
+                  <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-slate-100 rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                    <div className="px-1 py-1">
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button className={`${active ? 'bg-slate-50 text-blue-600' : 'text-slate-700'} group flex w-full items-center rounded-lg px-2 py-2 text-sm transition-colors`}>
+                            <MdShare className={`mr-2 h-4 w-4 ${active ? 'text-blue-500' : 'text-slate-400'}`} />
+                            Compartilhar
+                          </button>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button className={`${active ? 'bg-slate-50 text-blue-600' : 'text-slate-700'} group flex w-full items-center rounded-lg px-2 py-2 text-sm transition-colors`}>
+                            <MdEdit className={`mr-2 h-4 w-4 ${active ? 'text-blue-500' : 'text-slate-400'}`} />
+                            Editar
+                          </button>
+                        )}
+                      </Menu.Item>
+                    </div>
+
+                    <div className="px-1 py-1">
+                      {sei?.link && (
+                        <Menu.Item>
+                          {({ active }) => (
+                            <a href={sei.link} target="_blank" rel="noreferrer" className={`${active ? 'bg-slate-50 text-blue-600' : 'text-slate-700'} group flex w-full items-center rounded-lg px-2 py-2 text-sm transition-colors`}>
+                              <MdOpenInNew className={`mr-2 h-4 w-4 ${active ? 'text-blue-500' : 'text-slate-400'}`} />
+                              Abrir no SEI
+                            </a>
+                          )}
+                        </Menu.Item>
+                      )}
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button className={`${active ? 'bg-red-50 text-red-600' : 'text-red-600'} group flex w-full items-center rounded-lg px-2 py-2 text-sm transition-colors`}>
+                            <MdDeleteOutline className={`mr-2 h-4 w-4 ${active ? 'text-red-600' : 'text-red-500'}`} />
+                            Remover do SOMA
+                          </button>
+                        )}
+                      </Menu.Item>
+                    </div>
+                  </Menu.Items>
+                </Transition>
+              </Menu>
             </div>
           </div>
         </div>
@@ -276,6 +320,10 @@ export default function SeiDetailView({ id }) {
         <ActionPlanSection seiNumber={processo.sei} />
 
       </div>
+
+      {/* Chatbot - Fixed Position, relative to viewport usually but put here for strict React hierarchy */}
+      <StefaniaChatbot />
+
     </div>
   );
 }
