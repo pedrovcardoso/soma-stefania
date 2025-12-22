@@ -1,7 +1,6 @@
-'use client';
-
 import { useState, useRef, useEffect } from 'react';
-import { MdChat, MdClose, MdSend, MdAutoAwesome, MdSmartToy, MdInfoOutline } from 'react-icons/md';
+import Image from 'next/image';
+import { MdClose, MdSend, MdAutoAwesome, MdRefresh, MdOpenInFull, MdCloseFullscreen } from 'react-icons/md';
 import { Transition } from '@headlessui/react';
 
 const MOCK_RESPONSES = [
@@ -19,6 +18,7 @@ const MOCK_RESPONSES = [
 
 export default function StefaniaChatbot() {
     const [isOpen, setIsOpen] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const [messages, setMessages] = useState([
         { id: 1, text: "Olá! Sou a Stefania, sua assistente virtual. Como posso ajudar com este processo hoje?", sender: 'bot', timestamp: new Date() }
@@ -38,8 +38,13 @@ export default function StefaniaChatbot() {
     }, [messages, isTyping]);
 
     useEffect(() => {
-        if (isOpen && inputRef.current) {
-            setTimeout(() => inputRef.current.focus(), 100);
+        if (isOpen) {
+            setTimeout(() => {
+                scrollToBottom();
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                }
+            }, 100);
         }
     }, [isOpen]);
 
@@ -75,23 +80,43 @@ export default function StefaniaChatbot() {
         }, delay);
     };
 
+    const handleRegenerate = () => {
+        if (messages.length === 0 || messages[messages.length - 1].sender !== 'bot' || isTyping) {
+            return;
+        }
+
+        setIsTyping(true);
+        const messagesWithoutLast = messages.slice(0, -1);
+        setMessages(messagesWithoutLast);
+
+        const regenAt = new Date();
+        const delay = useTreeContext ? Math.random() * 2000 + 2000 : Math.random() * 1000 + 1000;
+
+        setTimeout(() => {
+            const randomResponse = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)];
+            const botMsg = {
+                id: Date.now() + 1,
+                text: randomResponse,
+                sender: 'bot',
+                timestamp: new Date(),
+                regenFrom: regenAt,
+            };
+            setMessages(prev => [...prev, botMsg]);
+            setIsTyping(false);
+        }, delay);
+    };
+
+
     return (
         <>
             {/* Floating Toggle Button */}
             <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
-                {!isOpen && (
-                    <div className="bg-white px-4 py-2 rounded-lg shadow-lg border border-slate-100 mb-2 animate-bounce-slow origin-bottom-right">
-                        <p className="text-sm font-medium text-slate-700">Posso ajudar com o processo?</p>
-                        <div className="absolute right-4 -bottom-1 w-2 h-2 bg-white rotate-45 transform translate-y-1/2 border-r border-b border-slate-100"></div>
-                    </div>
-                )}
-
                 <button
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
                     className={`p-4 rounded-full shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center ${isOpen
                         ? 'bg-slate-700 text-white rotate-90'
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-blue-500/30'
+                        : 'bg-blue-800 text-white hover:shadow-blue-500/30'
                         }`}
                 >
                     {isOpen ? <MdClose size={28} /> : <MdAutoAwesome size={28} />}
@@ -102,29 +127,29 @@ export default function StefaniaChatbot() {
             <Transition
                 as="div"
                 show={isOpen}
-                enter="transition ease-out duration-300 transform origin-bottom-right"
+                enter="transition-all ease-out duration-500 transform origin-bottom-right"
                 enterFrom="opacity-0 scale-95 translate-y-10"
                 enterTo="opacity-100 scale-100 translate-y-0"
-                leave="transition ease-in duration-200 transform origin-bottom-right"
+                leave="transition-all ease-in duration-300 transform origin-bottom-right"
                 leaveFrom="opacity-100 scale-100 translate-y-0"
                 leaveTo="opacity-0 scale-95 translate-y-10"
-                className="fixed bottom-24 right-6 w-[90vw] md:w-[400px] h-[600px] max-h-[80vh] bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden ring-1 ring-black/5"
+                className={`fixed bottom-24 right-6 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden ring-1 ring-black/5 transition-all duration-500 ease-in-out ${isExpanded ? 'w-[80vw] h-[85vh] max-h-[85vh] md:w-[70vw]' : 'w-[90vw] md:w-[400px] h-[600px] max-h-[80vh]'
+                    }`}
             >
                 {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 flex items-center justify-between text-white shrink-0">
+                <div className="bg-blue-800 p-4 flex items-center justify-between text-white shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
-                            <MdSmartToy size={24} className="text-white" />
+                        <div className="w-10 h-10 flex items-center justify-center">
+                            <Image src="/stefan.svg" alt="Stefania" width={40} height={40} />
                         </div>
                         <div>
                             <h3 className="font-bold text-lg leading-tight">Stefania</h3>
-                            <span className="text-xs text-blue-100 flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-                                Online
-                            </span>
+                            <p className="text-xs text-blue-200">Sua assistente virtual</p>
                         </div>
                     </div>
-                    {/* Minimize button could go here, but main FAB handles it */}
+                    <button onClick={() => setIsExpanded(!isExpanded)} className="text-white p-2 hover:bg-white/10 rounded-full">
+                        {isExpanded ? <MdCloseFullscreen size={20} /> : <MdOpenInFull size={20} />}
+                    </button>
                 </div>
 
                 {/* Settings / Context Alert */}
@@ -137,7 +162,7 @@ export default function StefaniaChatbot() {
                                 onChange={(e) => setUseTreeContext(e.target.checked)}
                                 className="peer sr-only"
                             />
-                            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-800"></div>
                         </div>
                         <div className="flex-1">
                             <span className="text-sm font-semibold text-slate-700 block group-hover:text-blue-700 transition-colors">
@@ -154,29 +179,66 @@ export default function StefaniaChatbot() {
                 </div>
 
                 {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/30 scroll-smooth">
-                    {messages.map((msg) => (
-                        <div
-                            key={msg.id}
-                            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
-                            <div
-                                className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-sm text-sm ${msg.sender === 'user'
-                                    ? 'bg-blue-600 text-white rounded-br-none'
-                                    : 'bg-white border border-slate-200 text-slate-700 rounded-bl-none'
-                                    }`}
-                            >
-                                <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-                                <span className={`text-[10px] block mt-1 text-right ${msg.sender === 'user' ? 'text-blue-100' : 'text-slate-400'}`}>
-                                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
+                <div className="flex-1 overflow-y-auto p-4 bg-slate-50/30 scroll-smooth">
+                    <div className="space-y-1">
+                        {messages.map((msg, index) => {
+                            const isLastMessage = index === messages.length - 1;
+                            const prevMsg = index > 0 ? messages[index - 1] : null;
+                            let timeDiffLabel = null;
 
+                            if (msg.sender === 'bot') {
+                                const startTime = msg.regenFrom || (prevMsg && prevMsg.timestamp);
+                                if (startTime) {
+                                    const timeDiffSeconds = Math.round((msg.timestamp - startTime) / 1000);
+                                    if (timeDiffSeconds > 0) {
+                                        timeDiffLabel = (
+                                            <div className="text-left italic text-xs text-slate-500 mt-1 pl-3">
+                                                {`resposta em ${timeDiffSeconds}s`}
+                                            </div>
+                                        );
+                                    }
+                                }
+                            }
+
+                            return (
+                                <Transition
+                                    appear={true}
+                                    show={true}
+                                    enter="transition-all duration-300"
+                                    enterFrom="opacity-0 scale-95"
+                                    enterTo="opacity-100 scale-100"
+                                    key={msg.id}
+                                >
+                                    <div className="pb-3">
+                                        <div
+                                            className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                                        >
+                                            <div
+                                                className={`max-w-[80%] rounded-2xl px-3 py-2 shadow-sm text-sm ${msg.sender === 'user'
+                                                    ? 'bg-blue-700 text-white rounded-br-none'
+                                                    : 'bg-white border border-slate-200 text-slate-700 rounded-bl-none'
+                                                    }`}
+                                            >
+                                                <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                                                <span className={`text-[10px] block mt-0.5 text-right ${msg.sender === 'user' ? 'text-blue-200' : 'text-slate-400'}`}>
+                                                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </div>
+                                            {msg.sender === 'bot' && isLastMessage && !isTyping && (
+                                                <button onClick={handleRegenerate} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-200 rounded-full transition-colors">
+                                                    <MdRefresh size={18} />
+                                                </button>
+                                            )}
+                                        </div>
+                                        {msg.sender === 'bot' && timeDiffLabel}
+                                    </div>
+                                </Transition>
+                            );
+                        })}
+                    </div>
                     {isTyping && (
-                        <div className="flex justify-start">
-                            <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm">
+                        <div className="flex justify-start mt-4">
+                            <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none px-3 py-2 shadow-sm">
                                 <div className="flex space-x-1.5">
                                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
@@ -197,12 +259,12 @@ export default function StefaniaChatbot() {
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             placeholder="Digite sua mensagem..."
-                            className="flex-1 bg-slate-50 text-slate-800 text-sm rounded-xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400"
+                            className="flex-1 bg-slate-50 text-slate-800 text-sm rounded-xl border border-slate-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400"
                         />
                         <button
                             type="submit"
                             disabled={!inputValue.trim() || isTyping}
-                            className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            className="p-3 bg-blue-800 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-800 transition-colors shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                             <MdSend size={20} />
                         </button>
