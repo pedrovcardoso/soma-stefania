@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import useHistoryStore from './useHistoryStore';
 
 const useTabStore = create(
   persist(
@@ -9,7 +10,10 @@ const useTabStore = create(
 
       openTab: (newTab) => {
         const { tabs } = get();
-        
+
+        // Log to history directly using the store's getState()
+        useHistoryStore.getState().addToHistory(newTab);
+
         if (newTab.id === 'home') {
           set({ activeTabId: 'home' });
           return;
@@ -34,9 +38,9 @@ const useTabStore = create(
       closeTab: (tabId) => {
         const { tabs, activeTabId } = get();
         const newTabs = tabs.filter((t) => t.id !== tabId);
-        
+
         let newActiveId = activeTabId;
-        
+
         if (tabId === activeTabId) {
           if (newTabs.length === 0) {
             newActiveId = 'home';

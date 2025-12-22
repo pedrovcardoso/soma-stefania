@@ -1,34 +1,54 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-// Gerador de ID curto e performático (Timestamp Base36 + Sufixo Aleatório)
-// ~10 caracteres, colisão impossível para histórico de usuário único
-const generateLogId = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-
 const useHistoryStore = create(
   persist(
     (set, get) => ({
-      recentAccesses: [], // LOG Completo (histórico cronológico)
-      pinnedIds: [],      // Array separado de IDs fixados para lookup rápido O(1)
+      recentAccesses: [],
+      pinnedIds: [],
 
       addToHistory: (item) => {
         const allowedTypes = ['sei_detail', 'doc_detail'];
         if (!allowedTypes.includes(item.type)) return;
 
-        // CRÍTICO: Criamos uma entrada de Log nova e única a cada acesso
-        // Não verificamos duplicidade aqui para ser extremamente rápido
+        let description = item.description;
+        if (description && description.length > 200) {
+          description = description.substring(0, 197) + '...';
+        }
+
         const newLogEntry = {
-          logId: generateLogId(), // ID do registro no histórico
-          contentId: item.id,     // ID do conteúdo (ex: numero do SEI)
+          contentId: item.id,
           type: item.type,
           title: item.title,
-          description: item.description,
+          description: description,
           timestamp: Date.now()
         };
 
         set((state) => ({
           recentAccesses: [newLogEntry, ...state.recentAccesses]
         }));
+      },
+
+      updateHistoryEntry: (contentId, data) => {
+        set((state) => {
+          const index = state.recentAccesses.findIndex(item => item.contentId === contentId);
+          if (index === -1) return {};
+
+          const maxSearchDepth = 5;
+          const targetIndex = index < maxSearchDepth ? index : -1;
+
+          if (targetIndex === -1) return {};
+
+          const newRecent = [...state.recentAccesses];
+
+          let newData = { ...data };
+          if (newData.description && newData.description.length > 200) {
+            newData.description = newData.description.substring(0, 197) + '...';
+          }
+
+          newRecent[targetIndex] = { ...newRecent[targetIndex], ...newData };
+          return { recentAccesses: newRecent };
+        });
       },
 
       togglePin: (contentId) => {
@@ -42,13 +62,16 @@ const useHistoryStore = create(
         });
       },
 
-      clearHistory: () => set({ recentAccesses: [] }),
-      
-      removeFromHistory: (contentId) => {
-          set((state) => ({
-             recentAccesses: state.recentAccesses.filter(item => item.contentId !== contentId),
-             pinnedIds: state.pinnedIds.filter(id => id !== contentId)
-          }));
+      clearHistory: () => {
+        set((state) => ({
+          recentAccesses: state.recentAccesses.filter(item => state.pinnedIds.includes(item.contentId))
+        }));
+      },
+
+      removeFromHistory: (timestamp) => {
+        set((state) => ({
+          recentAccesses: state.recentAccesses.filter(item => item.timestamp !== timestamp)
+        }));
       }
     }),
     {

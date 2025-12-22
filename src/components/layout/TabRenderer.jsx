@@ -5,12 +5,14 @@ import HomeView from '@/views/HomeView'
 import SeiListView from '@/views/sei/SeiListView'
 import SeiDetailView from '@/views/sei/SeiDetailView'
 import HistoryView from '@/views/HistoryView'
+import SettingsContainer from '@/components/settings/SettingsContainer'
 
 const viewMap = {
   'home': HomeView,
   'sei_list': SeiListView,
   'sei_detail': SeiDetailView,
   'history': HistoryView,
+  'settings': SettingsContainer,
 }
 
 export default function TabRenderer() {
@@ -26,7 +28,7 @@ export default function TabRenderer() {
       {/* Renderização Dinâmica das Abas Persistentes */}
       {tabs.map((tab) => {
         const ViewComponent = viewMap[tab.type]
-        
+
         if (!ViewComponent) {
           return (
             <div key={tab.id} className={activeTabId === tab.id ? 'tab-content-visible' : 'tab-content-hidden'}>
@@ -38,8 +40,8 @@ export default function TabRenderer() {
         }
 
         return (
-          <div 
-            key={tab.id} 
+          <div
+            key={tab.id}
             className={activeTabId === tab.id ? 'tab-content-visible' : 'tab-content-hidden'}
           >
             <ViewComponent id={tab.id} title={tab.title} data={tab.data} />

@@ -4,6 +4,7 @@ import React, { useState, useMemo, Fragment } from 'react';
 import useTabStore from '@/store/useTabStore';
 import useHistoryStore from '@/store/useHistoryStore';
 import FilterPanel from '@/components/ui/FilterPanel';
+import MultiSelect from '@/components/ui/MultiSelect';
 
 // --- DEPENDÊNCIAS ---
 import { DayPicker } from 'react-day-picker';
@@ -29,6 +30,12 @@ const PAGE_TYPES = {
   default: { label: 'Outro', icon: <MdHistory className="text-slate-500" /> },
 };
 
+const TYPE_MAPPING = {
+  'Processo SEI': ['sei'],
+  'Documento': ['doc'],
+  'Dashboard': ['dashboard']
+};
+
 const getPageInfo = (type) => {
   if (!type) return PAGE_TYPES.default;
   if (type === 'dashboard') return PAGE_TYPES.dashboard;
@@ -46,13 +53,12 @@ const normalizeText = (text) =>
 
 export default function HistoryView() {
   const openTab = useTabStore((state) => state.openTab);
-  
-  // Refatorado para usar os nomes corretos da Store atual
-  const { recentAccesses, removeFromHistory, togglePin, clearHistory } = useHistoryStore();
-  
+
+  const { recentAccesses, pinnedIds, removeFromHistory, togglePin, clearHistory } = useHistoryStore();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    pageType: 'all',
+    pageType: [], // Changed from 'all' string to empty array for MultiSelect
     datePreset: 'all',
     dateRange: { from: undefined, to: undefined },
     isFixed: false,
@@ -73,51 +79,62 @@ export default function HistoryView() {
   };
   const handleFilterChange = (key, value) => setFilters(prev => ({ ...prev, [key]: value }));
   const clearFilters = () => {
-    setFilters({ pageType: 'all', datePreset: 'all', dateRange: { from: undefined, to: undefined }, isFixed: false });
+    setFilters({ pageType: [], datePreset: 'all', dateRange: { from: undefined, to: undefined }, isFixed: false });
     setSearchTerm('');
   };
 
-  const handleAccessClick = (access) => openTab({ 
-    id: access.id, 
-    type: access.type, 
-    title: access.title 
+  const handleAccessClick = (access) => openTab({
+    id: access.contentId,
+    type: access.type,
+    title: access.title
   });
-  
-  const handleDeleteItem = (idToDelete) => removeFromHistory(idToDelete);
+
+  const handleDeleteItem = (timestampToDelete) => removeFromHistory(timestampToDelete);
   const handleTogglePin = (idToToggle) => togglePin(idToToggle);
-  
+
   const handleShare = (title) => alert(`Compartilhar: ${title}\n(Funcionalidade pendente)`);
 
   const handleClearHistory = (period) => {
-    // Para simplificar no momento, limpamos tudo. Lógica complexa de periodo pode ser add na store depois
     if (period === 'all') clearHistory();
     else alert('Limpeza parcial não implementada nesta versão.');
   };
 
   const groupedHistory = useMemo(() => {
     const normalizedSearch = normalizeText(searchTerm);
-    const filtered = recentAccesses.filter(item => {
-      // Ajuste de filtro para estrutura nova (title / id)
+
+    const mappedItems = recentAccesses.map(item => ({
+      ...item,
+      isFixed: pinnedIds.includes(item.contentId),
+      id: item.contentId
+    }));
+
+    const filtered = mappedItems.filter(item => {
       const searchMatch = !normalizedSearch || normalizeText(item.title).includes(normalizedSearch) || normalizeText(item.id).includes(normalizedSearch);
-      
+
       const itemType = item.type || 'default';
-      const pageTypeMatch = filters.pageType === 'all' || itemType.startsWith(filters.pageType);
-      
-      // Ajuste: pinned -> isFixed
+
+      // New Logic for MultiSelect
+      let pageTypeMatch = true;
+      if (filters.pageType.length > 0) {
+        pageTypeMatch = filters.pageType.some(selectedLabel => {
+          const prefixes = TYPE_MAPPING[selectedLabel] || [];
+          return prefixes.some(prefix => itemType.startsWith(prefix));
+        });
+      }
+
       const pinnedMatch = !filters.isFixed || item.isFixed;
-      
-      // Ajuste: accessedAt -> timestamp
+
       const itemDate = new Date(item.timestamp);
       const dateMatch = (!filters.dateRange.from || itemDate >= filters.dateRange.from) && (!filters.dateRange.to || itemDate <= endOfDay(filters.dateRange.to));
-      
+
       return searchMatch && pageTypeMatch && pinnedMatch && dateMatch;
     });
 
     const groups = { 'Hoje': [], 'Ontem': [], 'Esta Semana': [], 'Mais Antigo': [] };
-    const today = startOfDay(new Date()); 
-    const yesterday = startOfDay(subDays(new Date(), 1)); 
+    const today = startOfDay(new Date());
+    const yesterday = startOfDay(subDays(new Date(), 1));
     const thisWeekStart = startOfWeek(new Date(), { locale: ptBR });
-    
+
     for (const item of filtered) {
       const itemDate = new Date(item.timestamp);
       if (itemDate >= today) groups['Hoje'].push(item);
@@ -126,7 +143,7 @@ export default function HistoryView() {
       else groups['Mais Antigo'].push(item);
     }
     return groups;
-  }, [recentAccesses, searchTerm, filters]);
+  }, [recentAccesses, pinnedIds, searchTerm, filters]);
 
   return (
     <div className="p-4 sm:p-6 md:p-8 bg-slate-50 min-h-full font-sans overflow-auto h-full">
@@ -137,10 +154,15 @@ export default function HistoryView() {
         </header>
 
         <FilterPanel onClear={clearFilters}>
-          <div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Filtrar por Tipo</label><div className="relative mt-1">
-            <select value={filters.pageType} onChange={(e) => handleFilterChange('pageType', e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8 bg-slate-50 outline-none"><option value="all">Todos os tipos</option><option value="dashboard">Dashboard</option><option value="sei">Processos SEI</option><option value="doc">Documentos</option></select>
-            <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div></div>
+          <div className="flex-grow min-w-[180px]">
+            <MultiSelect
+              label="Filtrar por Tipo"
+              placeholder="Todos os tipos"
+              options={['Processo SEI', 'Documento', 'Dashboard']}
+              value={filters.pageType}
+              onChange={(val) => handleFilterChange('pageType', val)}
+            />
+          </div>
           <div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Filtrar por Período</label><div className="relative mt-1">
             <select value={filters.datePreset} onChange={(e) => handleDatePresetChange(e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8 bg-slate-50 outline-none"><option value="all">Qualquer data</option><option value="today">Hoje</option><option value="thisWeek">Esta Semana</option><option value="lastWeek">Semana Passada</option><option value="thisMonth">Este Mês</option><option value="lastMonth">Mês Passado</option><option value="specific">Período Específico...</option></select>
             <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -155,7 +177,7 @@ export default function HistoryView() {
         </FilterPanel>
 
         <div className="flex flex-col sm:flex-row gap-4 items-center mb-6">
-          <div className="relative w-full"><MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Buscar no histórico por nome ou título..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" /></div>
+          <div className="relative w-full"><MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Número do processo ou documento e descrição..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" /></div>
           <Menu as="div" className="relative w-full sm:w-auto"><Menu.Button className="w-full flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"><MdDeleteSweep size={18} /><span>Limpar Histórico</span><MdExpandMore /></Menu.Button>
             <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
               <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-white divide-y divide-slate-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-20"><div className="px-1 py-1"><Menu.Item><button onClick={() => handleClearHistory('day')} className='group flex rounded-md items-center w-full px-2 py-2 text-sm text-slate-700 hover:bg-slate-100'>Limpar hoje</button></Menu.Item><Menu.Item><button onClick={() => handleClearHistory('week')} className='group flex rounded-md items-center w-full px-2 py-2 text-sm text-slate-700 hover:bg-slate-100'>Limpar última semana</button></Menu.Item><Menu.Item><button onClick={() => handleClearHistory('month')} className='group flex rounded-md items-center w-full px-2 py-2 text-sm text-slate-700 hover:bg-slate-100'>Limpar último mês</button></Menu.Item></div><div className="px-1 py-1"><Menu.Item><button onClick={() => handleClearHistory('all')} className='group flex rounded-md items-center w-full px-2 py-2 text-sm text-red-600 hover:bg-red-50'>Limpar todo o histórico</button></Menu.Item></div></Menu.Items>
@@ -166,14 +188,14 @@ export default function HistoryView() {
         <div className="space-y-8 pb-8">
           {Object.entries(groupedHistory).map(([groupName, items]) => items.length > 0 && (
             <section key={groupName}><h2 className="text-sm font-bold uppercase text-slate-500 tracking-wider pb-2 border-b-2 border-slate-200 mb-4">{groupName}</h2><ul>{items.map(access => (
-              <li key={access.id} className="relative py-3 group"><div className="absolute top-5 left-4 -ml-px h-full w-0.5 bg-slate-200"></div><div className="relative flex items-center space-x-4">
+              <li key={access.timestamp} className="relative py-3 group"><div className="absolute top-5 left-4 -ml-px h-full w-0.5 bg-slate-200"></div><div className="relative flex items-center space-x-4">
                 <div className="relative z-10 flex items-center justify-center w-8 h-8 bg-white rounded-full ring-4 ring-slate-50">{React.cloneElement(getPageInfo(access.type).icon, { size: 20 })}</div>
                 <div className="flex-1 min-w-0 bg-white p-4 rounded-lg border border-slate-200 shadow-sm group-hover:border-blue-300 transition-all"><div className="flex justify-between items-center gap-2">
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-slate-500 mb-1">{formatFullDateTime(access.timestamp)}</p>
                     <button onClick={() => handleAccessClick(access)} className="text-left w-full"><h3 className="text-md font-semibold text-slate-800 hover:underline underline-offset-2 truncate">{access.title}</h3></button>
-                    {/* Exibe ID se disponível como subtitulo */}
                     {access.id !== access.title && <p className="text-sm text-slate-600 mt-1 truncate">{access.id}</p>}
+                    {access.description && <p className="text-xs text-slate-400 mt-1 line-clamp-1">{access.description}</p>}
                   </div>
                   <div className="flex items-center flex-shrink-0">
                     <button onClick={() => handleTogglePin(access.id)} title={access.isFixed ? 'Desafixar do histórico' : 'Fixar no histórico'} className="p-1.5"><MdPushPin className={`w-4 h-4 rotate-45 transition-all ${access.isFixed ? 'text-slate-600 opacity-100' : 'text-slate-300 opacity-40 group-hover:opacity-80'}`} /></button>
@@ -182,7 +204,7 @@ export default function HistoryView() {
                         <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-20"><div className="p-1">
                           <Menu.Item>{({ active }) => (<button onClick={() => handleAccessClick(access)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdLaunch className="mr-2" /> Acessar</button>)}</Menu.Item>
                           <Menu.Item>{({ active }) => (<button onClick={() => handleShare(access.title)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdShare className="mr-2" /> Compartilhar</button>)}</Menu.Item>
-                          <Menu.Item>{({ active }) => (<button onClick={() => handleDeleteItem(access.id)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdClose className="mr-2" /> Excluir</button>)}</Menu.Item>
+                          <Menu.Item>{({ active }) => (<button onClick={() => handleDeleteItem(access.timestamp)} className={`${active ? 'bg-slate-100' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm text-slate-700`}><MdClose className="mr-2" /> Excluir</button>)}</Menu.Item>
                         </div></Menu.Items>
                       </Transition>
                     </Menu>

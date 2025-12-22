@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { MdVisibility, MdVisibilityOff, MdLockOutline, MdEmail } from 'react-icons/md';
-import ToastContainer from '@/components/ui/Toast';
+import ToastContainer from '@/components/ui/toast';
 import { login } from '@/services/authService';
 import ParticleBackground from '@/components/ui/ParticleBackground';
 
@@ -71,13 +70,12 @@ export default function LoginPage() {
                 {/* ESQUERDA: Formulário */}
                 <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
                     <div className="flex flex-col items-center mb-8">
-                        <Image
+                        <img
                             src="/logo.png"
                             alt="SEF Logo"
-                            width={140}
-                            height={46}
-                            priority
-                            className="mb-6 drop-shadow-sm"
+                            width={120}
+                            height={40}
+                            className="mb-2"
                         />
                         <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Bem-vindo de volta</h2>
                         <p className="text-slate-500 text-sm mt-2">Acesse sua conta para continuar</p>

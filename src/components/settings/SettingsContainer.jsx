@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { MdPerson, MdSettings, MdSecurity, MdInfo } from 'react-icons/md';
-import ProfileSettingsPage from '@/app/(main)/settings/profile/page';
-import PreferencesSettingsPage from '@/app/(main)/settings/preferences/page';
-import SecuritySettingsPage from '@/app/(main)/settings/security/page';
-import AboutSettingsPage from '@/app/(main)/settings/about/page';
+import ProfileSettingsPage from '@/views/settings/profile/page';
+import PreferencesSettingsPage from '@/views/settings/preferences/page';
+import SecuritySettingsPage from '@/views/settings/security/page';
+import AboutSettingsPage from '@/views/settings/about/page';
 
 const settingsTabs = [
     { id: 'profile', name: 'Editar Perfil', icon: MdPerson, component: ProfileSettingsPage },

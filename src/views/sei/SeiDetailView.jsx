@@ -10,8 +10,8 @@ export default function SeiDetailView({ id }) {
   const [processData, setProcessData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  const addToHistory = useHistoryStore((state) => state.addToHistory);
+
+  const { updateHistoryEntry } = useHistoryStore();
 
   useEffect(() => {
     if (id && id !== 'unknown') {
@@ -26,14 +26,9 @@ export default function SeiDetailView({ id }) {
       setProcessData(data);
 
       if (data && data.processo) {
-        const historyItem = {
-          id: data.processo.sei,
-          type: 'sei_detail',
-          title: data.processo.sei,
+        updateHistoryEntry(data.processo.sei, {
           description: data.processo.descricao
-        };
-
-        addToHistory(historyItem);
+        });
       }
     } catch (err) {
       console.error("Erro ao carregar detalhes:", err);
@@ -143,8 +138,8 @@ export default function SeiDetailView({ id }) {
               </div>
               <div className="flex items-center gap-2">
                 <span className={`px-3 py-1 rounded-full text-xs font-bold border ${processo.status.includes('Concluído') ? 'bg-green-100 text-green-700 border-green-200' :
-                    processo.status.includes('Análise') ? 'bg-amber-100 text-amber-700 border-amber-200' :
-                      'bg-slate-100 text-slate-600 border-slate-200'
+                  processo.status.includes('Análise') ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                    'bg-slate-100 text-slate-600 border-slate-200'
                   }`}>
                   {processo.status}
                 </span>
