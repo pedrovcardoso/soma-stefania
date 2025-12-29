@@ -1,22 +1,26 @@
 'use client';
 
-import { useState, useEffect, Fragment } from 'react';
-import { MdContentCopy, MdShare, MdEdit, MdOpenInNew, MdError, MdDeleteOutline, MdKeyboardArrowDown } from 'react-icons/md';
+import { useState, useEffect, useRef, Fragment } from 'react';
+import { MdContentCopy, MdShare, MdEdit, MdOpenInNew, MdError, MdDeleteOutline, MdKeyboardArrowDown, MdDescription, MdInfoOutline } from 'react-icons/md';
 import { Menu, Transition } from '@headlessui/react';
 import { fetchSeiProcessDetails } from '@/services/seiService';
 import ActionPlanSection from './ActionPlanSection';
 import useHistoryStore from '@/store/useHistoryStore';
 import StefaniaChatbot from './StefaniaChatbot';
+import DocumentsDetailView from './DocumentsDetailView';
 
 export default function SeiDetailView({ id }) {
   const [processData, setProcessData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [viewMode, setViewMode] = useState('details'); // 'details' | 'documents'
 
-  const { updateHistoryEntry } = useHistoryStore();
+  const updateHistoryEntry = useHistoryStore(state => state.updateHistoryEntry);
+  const loadedIdRef = useRef(null);
 
   useEffect(() => {
-    if (id && id !== 'unknown') {
+    if (id && id !== 'unknown' && loadedIdRef.current !== id) {
+      loadedIdRef.current = id;
       loadData();
     }
   }, [id]);
@@ -123,10 +127,10 @@ export default function SeiDetailView({ id }) {
   );
 
   return (
-    <div className="h-full bg-gray-50/50 p-6 md:p-10 overflow-auto font-sans relative">
-      <div className="max-w-5xl mx-auto space-y-8 pb-20">
+    <div className="h-full bg-gray-50/50 p-6 md:p-10 overflow-auto font-sans relative flex flex-col">
+      <div className="max-w-5xl mx-auto w-full space-y-6 pb-20 flex-grow flex flex-col">
 
-        {/* Header Section */}
+        {/* Header Section (Always Visible) */}
         <div>
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
             <div className="space-y-2">
@@ -209,115 +213,147 @@ export default function SeiDetailView({ id }) {
               </Menu>
             </div>
           </div>
+
+          {/* View Toggles */}
+          <div className="flex border-b border-slate-200 mb-6">
+            <button
+              onClick={() => setViewMode('details')}
+              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${viewMode === 'details'
+                ? 'border-blue-600 text-blue-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                }`}
+            >
+              <MdInfoOutline size={18} />
+              Detalhes
+            </button>
+            <button
+              onClick={() => setViewMode('documents')}
+              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${viewMode === 'documents'
+                ? 'border-blue-600 text-blue-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                }`}
+            >
+              <MdDescription size={18} />
+              Documentos
+            </button>
+          </div>
         </div>
 
-        {/* Main Card: Dados do Processo */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-white">
-            <h2 className="text-lg font-bold text-slate-800">Dados do Processo</h2>
-          </div>
+        {/* Content Area */}
+        {/* Content Area */}
+        <div className={viewMode === 'details' ? 'block space-y-8 animate-in fade-in zoom-in-95 duration-200' : 'hidden'}>
+          {/* Main Card: Dados do Processo */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 bg-white">
+              <h2 className="text-lg font-bold text-slate-800">Dados do Processo</h2>
+            </div>
 
-          <div className="p-6 md:p-8 space-y-8">
-            {/* Section 1: Basic Info */}
-            <div>
-              <h3 className="flex items-center gap-2 text-sm font-bold text-blue-800 uppercase tracking-wide mb-6 border-l-4 border-blue-600 pl-3">
-                Informações Básicas
-              </h3>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Field label="Ano de Referência" value={processo.ano_referencia} />
-                  <Field label="Tipo" value={processo.tipo} />
-                </div>
-                <Field label="Descrição" value={processo.descricao} fullWidth />
-                <div className="flex flex-col">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Tags Associadas</label>
-                  <div className="flex flex-wrap gap-2">
-                    {tags.length > 0 ? tags.map(tag => (
-                      <span key={tag.id_tag} className="px-3 py-1.5 bg-cyan-50 text-cyan-700 rounded-md text-xs font-semibold border border-cyan-100">
-                        {tag.tag}
-                      </span>
-                    )) : (
-                      <span className="text-slate-400 text-sm italic">Sem tags associadas</span>
-                    )}
+            <div className="p-6 md:p-8 space-y-8">
+              {/* Section 1: Basic Info */}
+              <div>
+                <h3 className="flex items-center gap-2 text-sm font-bold text-blue-800 uppercase tracking-wide mb-6 border-l-4 border-blue-600 pl-3">
+                  Informações Básicas
+                </h3>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Field label="Ano de Referência" value={processo.ano_referencia} />
+                    <Field label="Tipo" value={processo.tipo} />
+                  </div>
+                  <Field label="Descrição" value={processo.descricao} fullWidth />
+                  <div className="flex flex-col">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Tags Associadas</label>
+                    <div className="flex flex-wrap gap-2">
+                      {tags.length > 0 ? tags.map(tag => (
+                        <span key={tag.id_tag} className="px-3 py-1.5 bg-cyan-50 text-cyan-700 rounded-md text-xs font-semibold border border-cyan-100">
+                          {tag.tag}
+                        </span>
+                      )) : (
+                        <span className="text-slate-400 text-sm italic">Sem tags associadas</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <hr className="border-slate-100 my-8" />
+              <hr className="border-slate-100 my-8" />
 
-            {/* Section 2: Assignment & Status */}
-            <div>
-              <h3 className="flex items-center gap-2 text-sm font-bold text-blue-800 uppercase tracking-wide mb-6 border-l-4 border-blue-600 pl-3">
-                Trâmite e Responsabilidade
-              </h3>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Field label="Atribuído a" value={processo.atribuido} />
-                  <Field label="Unidade Atual" value="SEF/STE-SCAF" />
-                </div>
-                <Field label="Observações e Tramitação" value={processo.obs} fullWidth />
-              </div>
-            </div>
-
-            {/* Section 3: Dates */}
-            {(processo.dt_dilacao || processo.sei_dilacao || processo.dt_resposta) && (
+              {/* Section 2: Assignment & Status */}
               <div>
-                <hr className="border-slate-100 my-8" />
                 <h3 className="flex items-center gap-2 text-sm font-bold text-blue-800 uppercase tracking-wide mb-6 border-l-4 border-blue-600 pl-3">
-                  Prazos e Extensões
+                  Trâmite e Responsabilidade
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {processo.dt_dilacao && <Field label="Data Dilação" value={processo.dt_dilacao} />}
-                  {processo.sei_dilacao && <Field label="SEI Dilação" value={processo.sei_dilacao} />}
-                  {processo.dt_resposta && <Field label="Data Resposta" value={processo.dt_resposta} />}
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Field label="Atribuído a" value={processo.atribuido} />
+                    <Field label="Unidade Atual" value="SEF/STE-SCAF" />
+                  </div>
+                  <Field label="Observações e Tramitação" value={processo.obs} fullWidth />
                 </div>
               </div>
-            )}
-          </div>
 
-          <div className="bg-slate-50/50 px-6 py-4 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <FooterItem label="Recebimento" value={processo.dt_recebimento} />
-            <FooterItem label="Prazo Final" value={processo.dt_fim_prevista} colorClass="text-red-600" />
-            <FooterItem label="Última Movimentação" value="01/06/2025" />
-            <div className="text-right flex justify-end items-center"></div>
-          </div>
-        </div>
+              {/* Section 3: Dates */}
+              {(processo.dt_dilacao || processo.sei_dilacao || processo.dt_resposta) && (
+                <div>
+                  <hr className="border-slate-100 my-8" />
+                  <h3 className="flex items-center gap-2 text-sm font-bold text-blue-800 uppercase tracking-wide mb-6 border-l-4 border-blue-600 pl-3">
+                    Prazos e Extensões
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {processo.dt_dilacao && <Field label="Data Dilação" value={processo.dt_dilacao} />}
+                    {processo.sei_dilacao && <Field label="SEI Dilação" value={processo.sei_dilacao} />}
+                    {processo.dt_resposta && <Field label="Data Resposta" value={processo.dt_resposta} />}
+                  </div>
+                </div>
+              )}
+            </div>
 
-        {/* Process Tree Section */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-white">
-            <h2 className="text-lg font-bold text-slate-800">Árvore de Processos Relacionados</h2>
-          </div>
-          <div className="p-6 md:p-8">
-            <div className="pl-2">
-              <TreeItem
-                type="Processo Originário"
-                title="1190.01.000450/2024-12"
-                subtitle="Planejamento Orçamentário 2024 (Base para o atual)"
-                status="Arquivado"
-                statusColor="bg-slate-100 text-slate-500 border-slate-200"
-              />
-              <TreeItem
-                type="Você está aqui"
-                title={processo.sei}
-                subtitle="Certificação de RPP e Monitoramento"
-                isCurrent={true}
-              />
-              <TreeItem
-                type="Apensado"
-                title="1190.01.000912/2025-01"
-                subtitle="Solicitação de Crédito Suplementar (Depende deste)"
-                status="Em Andamento"
-                statusColor="bg-blue-100 text-blue-600 border-blue-200"
-                isLast={true}
-              />
+            <div className="bg-slate-50/50 px-6 py-4 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <FooterItem label="Recebimento" value={processo.dt_recebimento} />
+              <FooterItem label="Prazo Final" value={processo.dt_fim_prevista} colorClass="text-red-600" />
+              <FooterItem label="Última Movimentação" value="01/06/2025" />
+              <div className="text-right flex justify-end items-center"></div>
             </div>
           </div>
+
+          {/* Process Tree Section */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 bg-white">
+              <h2 className="text-lg font-bold text-slate-800">Árvore de Processos Relacionados</h2>
+            </div>
+            <div className="p-6 md:p-8">
+              <div className="pl-2">
+                <TreeItem
+                  type="Processo Originário"
+                  title="1190.01.000450/2024-12"
+                  subtitle="Planejamento Orçamentário 2024 (Base para o atual)"
+                  status="Arquivado"
+                  statusColor="bg-slate-100 text-slate-500 border-slate-200"
+                />
+                <TreeItem
+                  type="Você está aqui"
+                  title={processo.sei}
+                  subtitle="Certificação de RPP e Monitoramento"
+                  isCurrent={true}
+                />
+                <TreeItem
+                  type="Apensado"
+                  title="1190.01.000912/2025-01"
+                  subtitle="Solicitação de Crédito Suplementar (Depende deste)"
+                  status="Em Andamento"
+                  statusColor="bg-blue-100 text-blue-600 border-blue-200"
+                  isLast={true}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Action Plan Section */}
+          <ActionPlanSection seiNumber={processo.sei} />
         </div>
 
-        {/* Action Plan Section */}
-        <ActionPlanSection seiNumber={processo.sei} />
+        <div className={viewMode === 'documents' ? 'block h-full' : 'hidden'}>
+          <DocumentsDetailView processId={processo.sei} />
+        </div>
 
       </div>
 

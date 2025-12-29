@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { fetchActionPlan } from '@/services/seiService';
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from 'react-icons/md';
 import SmartTable from '@/components/ui/SmartTable';
@@ -15,10 +15,13 @@ export default function ActionPlanSection({ seiNumber }) {
     // Allows opening new tabs
     const openTab = useTabStore((state) => state.openTab);
 
+    const loadedRef = useRef(null);
+
     useEffect(() => {
-        if (!seiNumber) return;
+        if (!seiNumber || loadedRef.current === seiNumber) return;
 
         const loadData = async () => {
+            loadedRef.current = seiNumber;
             setLoading(true);
             try {
                 const result = await fetchActionPlan(seiNumber);
