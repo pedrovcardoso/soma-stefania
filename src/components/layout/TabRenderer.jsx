@@ -5,7 +5,7 @@ import HomeView from '@/views/HomeView'
 import SeiListView from '@/views/sei/SeiListView'
 import SeiDetailView from '@/views/sei/SeiDetailView'
 import HistoryView from '@/views/HistoryView'
-import SettingsContainer from '@/components/settings/SettingsContainer'
+import SettingsContainer from '@/views/settings/SettingsContainer'
 import DocumentsView from '@/views/DocumentsView'
 
 const viewMap = {
