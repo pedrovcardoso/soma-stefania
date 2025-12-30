@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { MdCloudDone, MdCloudOff, MdUpload, MdDescription, MdPictureAsPdf, MdImage, MdEmail } from 'react-icons/md';
 
 // Mock data - Em um cenário real, isso viria de uma API call baseada no processId
@@ -71,10 +71,21 @@ const getFileIcon = (type) => {
 };
 
 
-export default function DocumentsDetailView({ processId }) {
+export default function DocumentsDetailView({ processId, lastReload }) {
     // Em um cenário real, você faria um fetch usando o processId
     const [documents, setDocuments] = useState(mockDocuments);
     const [selectedDocument, setSelectedDocument] = useState(documents[0] || null);
+    const [isReloading, setIsReloading] = useState(false);
+
+    useEffect(() => {
+        if (lastReload) {
+            setIsReloading(true);
+            const timer = setTimeout(() => {
+                setIsReloading(false);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [lastReload]);
 
     const azureStats = useMemo(() => {
         const inAzureCount = documents.filter(doc => doc.inAzure).length;
@@ -90,6 +101,17 @@ export default function DocumentsDetailView({ processId }) {
     // Usamos o Google Docs Viewer para renderizar múltiplos formatos de arquivo em um iframe.
     // Isso evita a necessidade de bibliotecas pesadas no client-side.
     const viewerUrl = selectedDocument ? `https://docs.google.com/gview?url=${encodeURIComponent(selectedDocument.url)}&embedded=true` : '';
+
+    if (isReloading) {
+        return (
+            <div className="h-full flex items-center justify-center bg-slate-50/50">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-slate-500 text-sm font-medium">Recarregando documentos...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="h-full flex flex-col font-sans overflow-hidden">

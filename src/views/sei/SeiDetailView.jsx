@@ -10,7 +10,7 @@ import useHistoryStore from '@/store/useHistoryStore';
 import StefaniaChatbot from './StefaniaChatbot';
 import DocumentsDetailView from './DocumentsDetailView';
 
-export default function SeiDetailView({ id }) {
+export default function SeiDetailView({ id, lastReload }) {
   const [processData, setProcessData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,14 +26,12 @@ export default function SeiDetailView({ id }) {
   }, [id, viewMode, updateTab]);
 
   const updateHistoryEntry = useHistoryStore(state => state.updateHistoryEntry);
-  const loadedIdRef = useRef(null);
 
   useEffect(() => {
-    if (id && id !== 'unknown' && loadedIdRef.current !== id) {
-      loadedIdRef.current = id;
+    if (id && id !== 'unknown') {
       loadData();
     }
-  }, [id]);
+  }, [id, lastReload]);
 
   const loadData = async () => {
     setLoading(true);

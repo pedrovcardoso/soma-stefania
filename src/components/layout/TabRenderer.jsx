@@ -31,6 +31,6 @@ export default function TabRenderer({ tab }) {
   }
 
   return (
-    <ViewComponent id={tab.id} title={tab.title} data={tab.data} />
+    <ViewComponent id={tab.id} title={tab.title} data={tab.data} lastReload={tab.lastReload} />
   )
 }

@@ -23,7 +23,7 @@ const getStatusColor = (status) => {
   }
 };
 
-export default function SeiListView() {
+export default function SeiListView({ lastReload }) {
   const [activeView, setActiveView] = useState('block');
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -151,7 +151,7 @@ export default function SeiListView() {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [filters]);
+  }, [filters, lastReload]);
 
   const handleClearFilters = () => {
     setFilters({ year: '', type: [], status: [], assignedTo: [], search: '', datePreset: 'all', dateRange: { from: undefined, to: undefined } });

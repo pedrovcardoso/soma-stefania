@@ -72,6 +72,13 @@ const useTabStore = create(
         const newTabs = tabs.map((t) => (t.id === id ? { ...t, ...updates } : t));
         set({ tabs: newTabs });
       },
+      reloadTab: (id) => {
+        const { tabs } = get();
+        // Se for home, podemos tratar separadamente se necessário, 
+        // mas por enquanto focamos nos processos/documentos que estão em tabs
+        const newTabs = tabs.map((t) => (t.id === id ? { ...t, lastReload: Date.now() } : t));
+        set({ tabs: newTabs });
+      },
     }),
     {
       name: 'soma-tabs-storage',
