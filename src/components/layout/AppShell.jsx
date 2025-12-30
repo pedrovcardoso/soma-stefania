@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Sidebar from './Sidebar'
 import Navbar from './Navbar'
+import Breadcrumb from './Breadcrumb'
 import TabRenderer from './TabRenderer'
 import HomeView from '@/views/HomeView'
 import useTabStore from '@/store/useTabStore'
@@ -57,13 +58,14 @@ export default function AppShell() {
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <Navbar />
+          <Breadcrumb />
           <div className="flex-1 overflow-hidden relative bg-slate-50">
             <div className={`absolute inset-0 overflow-auto bg-slate-50 transition-opacity duration-200 ${activeTabId === 'home' ? 'z-10 opacity-100' : 'opacity-0 pointer-events-none'}`}>
               <HomeView />
             </div>
             {tabs.map((tab) => (
-              <div 
-                key={tab.id} 
+              <div
+                key={tab.id}
                 className={`absolute inset-0 overflow-hidden flex flex-col bg-white transition-opacity duration-200 ${activeTabId === tab.id ? 'z-10 opacity-100' : 'opacity-0 pointer-events-none'}`}
               >
                 <div className={`h-full w-full ${activeTabId === tab.id ? 'block' : 'hidden'}`}>

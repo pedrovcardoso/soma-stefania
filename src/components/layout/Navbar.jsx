@@ -30,7 +30,7 @@ const getTabIcon = (type, title) => {
   if (type === 'favorites') return MdFavorite
   if (type === 'action_plans') return MdAddToPhotos
   if (type === 'settings') return MdSettings
-  
+
   return MdDescription // Ícone padrão (Documento)
 }
 
@@ -110,7 +110,7 @@ export default function Navbar() {
         <MdHome className={`w-5 h-5 mt-0.5 ${isHomeActive ? 'text-blue-700' : 'text-gray-600'}`} />
       </button>
       <div className="w-px h-6 bg-gray-300 mx-1 flex-shrink-0 mt-2" />
-      <div className="flex items-center gap-0 flex-1 overflow-x-auto min-w-0 scrollbar-hide overflow-y-hidden h-full">
+      <div className="flex items-center flex-1 min-w-0 h-full overflow-hidden">
         {tabs.map((tab, index) => {
           const isActive = activeTabId === tab.id
           // Passamos tab.type em vez de tab.path
@@ -122,9 +122,14 @@ export default function Navbar() {
           const prevTabIsActive = prevTab ? activeTabId === prevTab.id : false
 
           return (
-            <div key={tab.id} className="flex items-center h-10 mt-2">
+            <div
+              key={tab.id}
+              className={`flex h-10 mt-2 transition-all duration-200 ease-in-out relative group/tab flex-shrink
+                ${isActive ? 'min-w-[120px] flex-[0_1_200px]' : 'min-w-[32px] flex-[0_1_200px]'}
+              `}
+            >
               {!isActive && !prevTabIsActive && index > 0 && (
-                <div className="w-px h-6 bg-gray-300 mx-0.5 flex-shrink-0" />
+                <div className="w-px h-6 bg-gray-300 absolute left-0 top-1/2 -translate-y-1/2 z-0" />
               )}
               <div
                 draggable
@@ -135,97 +140,46 @@ export default function Navbar() {
                 onDragEnd={handleDragEnd}
                 onClick={() => handleTabClick(tab.id)}
                 className={`
-                  flex items-center gap-2 px-3 py-2 cursor-pointer h-full
-                  transition-all duration-200 ease-out whitespace-nowrap flex-shrink-0 relative
+                  flex items-center gap-0 px-3 py-2 cursor-pointer h-full w-full
+                  transition-all duration-200 ease-out relative overflow-hidden
                   ${isActive
-                    ? 'bg-white border-t border-l border-r border-gray-200 shadow-sm tab-active'
-                    : 'bg-transparent hover:bg-gray-100'
+                    ? 'bg-white border-t border-l border-r border-gray-200 shadow-sm tab-active z-10'
+                    : 'bg-transparent hover:bg-gray-100 rounded-t-lg z-0'
                   }
                   ${isDragging ? 'opacity-50 cursor-move' : ''}
                   ${isDragOver ? 'border-l-2 border-blue-500' : ''}
                 `}
                 style={{
                   minHeight: '32px',
-                  alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
-                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-blue-800' : 'text-gray-500'}`} style={{ lineHeight: '1' }} />
-                <span className={`text-sm truncate max-w-[200px] leading-tight ${isActive ? 'font-medium text-gray-900' : 'text-gray-600'}`}>
+                {/* Icon Container */}
+                <div className="relative w-5 h-5 flex-shrink-0 flex items-center justify-center mr-2">
+                  <Icon
+                    className={`w-4 h-4 transition-opacity duration-200
+                      ${isActive ? 'text-blue-800' : 'text-gray-500'}
+                      group-hover/tab:opacity-0
+                    `}
+                  />
+                  {/* Close button that always overlays icon on hover for any tab */}
+                  <button
+                    onClick={(e) => handleCloseTab(e, tab.id)}
+                    className={`absolute inset-0 flex items-center justify-center rounded transition-all duration-200
+                      opacity-0 group-hover/tab:opacity-100 hover:bg-gray-200/80
+                      ${isActive ? 'text-gray-600' : 'text-gray-400'}
+                    `}
+                    aria-label="Close tab"
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
+                    <MdClose size={14} />
+                  </button>
+                </div>
+
+                <span className={`text-sm truncate leading-tight flex-1 ${isActive ? 'font-medium text-gray-900' : 'text-gray-600'}`}>
                   {tab.title}
                 </span>
-                <button
-                  onClick={(e) => handleCloseTab(e, tab.id)}
-                  className="hover:bg-gray-200 rounded p-0.5 transition-colors ml-1 flex-shrink-0"
-                  aria-label="Close tab"
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  <MdClose className={`w-3.5 h-3.5 ${isActive ? 'text-gray-600' : 'text-gray-400'}`} />
-                </button>
               </div>
-              {isLast && !isActive && (
-                <div
-                  className={`w-8 h-full flex-shrink-0 ${dragOverTabId === 'end' ? 'bg-blue-100' : ''}`}
-                  onDragOver={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    if (draggedTabId && draggedTabId !== tab.id) {
-                      setDragOverTabId('end')
-                    }
-                  }}
-                  onDragLeave={() => {
-                    if (dragOverTabId === 'end') {
-                      setDragOverTabId(null)
-                    }
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    if (draggedTabId) {
-                      const draggedIndex = tabs.findIndex(t => t.id === draggedTabId)
-                      if (draggedIndex !== -1) {
-                        const newTabs = [...tabs]
-                        const [removed] = newTabs.splice(draggedIndex, 1)
-                        newTabs.push(removed)
-                        if (reorderTabs) reorderTabs(newTabs)
-                      }
-                    }
-                    setDraggedTabId(null)
-                    setDragOverTabId(null)
-                  }}
-                />
-              )}
-              {isLast && isActive && (
-                <div
-                  className={`w-8 h-full flex-shrink-0 ${dragOverTabId === 'end' ? 'bg-blue-100' : ''}`}
-                  onDragOver={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    if (draggedTabId && draggedTabId !== tab.id) {
-                      setDragOverTabId('end')
-                    }
-                  }}
-                  onDragLeave={() => {
-                    if (dragOverTabId === 'end') {
-                      setDragOverTabId(null)
-                    }
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    if (draggedTabId) {
-                      const draggedIndex = tabs.findIndex(t => t.id === draggedTabId)
-                      if (draggedIndex !== -1) {
-                        const newTabs = [...tabs]
-                        const [removed] = newTabs.splice(draggedIndex, 1)
-                        newTabs.push(removed)
-                        if (reorderTabs) reorderTabs(newTabs)
-                      }
-                    }
-                    setDraggedTabId(null)
-                    setDragOverTabId(null)
-                  }}
-                />
-              )}
             </div>
           )
         })}

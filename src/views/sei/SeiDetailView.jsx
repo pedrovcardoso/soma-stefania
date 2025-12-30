@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, Fragment } from 'react';
 import { MdContentCopy, MdShare, MdEdit, MdOpenInNew, MdError, MdDeleteOutline, MdKeyboardArrowDown, MdDescription, MdInfoOutline } from 'react-icons/md';
 import { Menu, Transition } from '@headlessui/react';
+import useTabStore from '@/store/useTabStore';
 import { fetchSeiProcessDetails } from '@/services/seiService';
 import ActionPlanSection from './ActionPlanSection';
 import useHistoryStore from '@/store/useHistoryStore';
@@ -14,6 +15,15 @@ export default function SeiDetailView({ id }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('details'); // 'details' | 'documents'
+  const updateTab = useTabStore(state => state.updateTab);
+
+  useEffect(() => {
+    updateTab(id, {
+      data: {
+        subLabel: viewMode === 'details' ? 'Detalhes' : 'Documentos'
+      }
+    });
+  }, [id, viewMode, updateTab]);
 
   const updateHistoryEntry = useHistoryStore(state => state.updateHistoryEntry);
   const loadedIdRef = useRef(null);
@@ -127,15 +137,15 @@ export default function SeiDetailView({ id }) {
   );
 
   return (
-    <div className="h-full bg-gray-50/50 p-6 md:p-10 overflow-auto font-sans relative flex flex-col">
-      <div className="max-w-5xl mx-auto w-full space-y-6 pb-20 flex-grow flex flex-col">
+    <div className="h-full bg-gray-50/50 px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 overflow-auto font-sans relative flex flex-col">
+      <div className="max-w-7xl mx-auto w-full space-y-6 pb-20 flex-grow flex flex-col">
 
         {/* Header Section (Always Visible) */}
         <div>
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+                <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">
                   {processo.sei}
                 </h1>
                 <button onClick={() => copyToClipboard(processo.sei)} className="text-slate-300 hover:text-blue-600 transition-colors" title="Copiar">

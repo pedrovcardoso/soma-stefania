@@ -94,14 +94,14 @@ const HomeView = () => {
       `}</style>
 
       <div className="flex h-full flex-col overflow-y-auto bg-slate-50 text-slate-800 font-sans">
-        <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
+        <div className="w-full max-w-7xl mx-auto px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10">
 
           <section className="flex flex-col lg:flex-row items-center justify-between gap-10 mb-16 mt-4">
             <div className="lg:w-1/2 flex flex-col text-center lg:text-left animate-fade-in-right z-10">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 SOMA - Sistema de Orquestração de Manifestações ao TCE
               </h1>
-              <p className="text-lg text-slate-600 mt-6 leading-relaxed max-w-lg mx-auto lg:mx-0">
+              <p className="text-lg text-slate-500 mt-6 leading-relaxed max-w-lg mx-auto lg:mx-0">
                 Centralize processos, analise documentos e obtenha insights estratégicos com a
                 <span className="text-transparent font-bold bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500"> StefanIA</span>
                 , a inteligência artificial do Tesouro.

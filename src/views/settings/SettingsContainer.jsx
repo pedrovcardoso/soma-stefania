@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import useTabStore from '@/store/useTabStore';
 import { MdPerson, MdSettings, MdSecurity, MdInfo } from 'react-icons/md';
 import ProfileSettingsPage from '@/views/settings/profile/page';
 import PreferencesSettingsPage from '@/views/settings/preferences/page';
@@ -16,18 +17,27 @@ const settingsTabs = [
 
 export default function SettingsContainer() {
     const [activeTabId, setActiveTabId] = useState('profile');
+    const updateTab = useTabStore(state => state.updateTab);
+    const activeTab = settingsTabs.find(t => t.id === activeTabId);
+    const ActiveComponent = activeTab?.component || ProfileSettingsPage;
 
-    const ActiveComponent = settingsTabs.find(t => t.id === activeTabId)?.component || ProfileSettingsPage;
+    useEffect(() => {
+        updateTab('settings', {
+            data: {
+                ... (activeTab?.data || {}),
+                subLabel: activeTab?.name
+            }
+        });
+    }, [activeTabId, updateTab]);
 
     return (
-        <div className="flex flex-col h-full bg-slate-50">
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 px-8 py-6">
-                <h1 className="text-2xl font-bold text-slate-800">Configs</h1>
-                <p className="text-slate-500 mt-1">Gerencie suas configurações pessoais e preferências do sistema</p>
+        <div className="flex flex-col h-full bg-slate-50 overflow-auto px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10">
+            <div className="max-w-7xl w-full mx-auto mb-6">
+                <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Configurações</h1>
+                <p className="text-slate-500 mt-2">Gerencie suas informações, preferências e segurança</p>
             </div>
 
-            <div className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 overflow-hidden">
+            <div className="flex-1 max-w-7xl w-full mx-auto">
                 <div className="flex flex-col md:flex-row gap-8 h-full">
                     {/* Sidebar Navigation */}
                     <aside className="w-full md:w-64 shrink-0">

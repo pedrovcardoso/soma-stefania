@@ -67,6 +67,11 @@ const useTabStore = create(
       reorderTabs: (newTabs) => {
         set({ tabs: newTabs });
       },
+      updateTab: (id, updates) => {
+        const { tabs } = get();
+        const newTabs = tabs.map((t) => (t.id === id ? { ...t, ...updates } : t));
+        set({ tabs: newTabs });
+      },
     }),
     {
       name: 'soma-tabs-storage',

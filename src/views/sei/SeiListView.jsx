@@ -27,9 +27,18 @@ export default function SeiListView() {
   const [activeView, setActiveView] = useState('block');
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const openTab = useTabStore((state) => state.openTab);
-  
+  const updateTab = useTabStore((state) => state.updateTab);
+
+  useEffect(() => {
+    updateTab('sei', {
+      data: {
+        subLabel: activeView === 'block' ? 'Bloco' : activeView === 'table' ? 'Tabela' : 'Kanban'
+      }
+    });
+  }, [activeView, updateTab]);
+
   const [filters, setFilters] = useState({
     year: '',
     type: [],
@@ -51,8 +60,8 @@ export default function SeiListView() {
         <div className="flex flex-col">
           <button
             onClick={() => openTab({
-              id: row.sei_number, 
-              type: 'sei_detail', 
+              id: row.sei_number,
+              type: 'sei_detail',
               title: row.sei_number
             })}
             className="font-medium text-slate-700 hover:text-blue-600 hover:underline text-xs flex items-center gap-1 w-fit text-left"
@@ -154,7 +163,7 @@ export default function SeiListView() {
 
   const normalizeText = (text) =>
     text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
-    
+
   const filteredData = [...data].sort((a, b) => {
     let valA = a[sortBy];
     let valB = b[sortBy];
@@ -173,7 +182,7 @@ export default function SeiListView() {
   });
 
   return (
-    <div className="h-full bg-slate-50/50 p-6 md:p-10 overflow-auto font-sans">
+    <div className="h-full bg-slate-50/50 px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 overflow-auto font-sans">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Processos SEI</h1>
