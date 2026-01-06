@@ -1,75 +1,37 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { MdCloudDone, MdCloudOff, MdUpload, MdDescription, MdPictureAsPdf, MdImage, MdEmail } from 'react-icons/md';
-
-// Mock data - Em um cenário real, isso viria de uma API call baseada no processId
-const mockDocuments = [
-    {
-        id: 'doc-001',
-        name: 'Relatório de Atividades Fiscais - Q1 2025.docx',
-        type: 'docx',
-        url: 'https://calibre-ebook.com/downloads/demos/demo.docx',
-        inAzure: true,
-        size: '2.5 MB',
-        modifiedDate: '15/06/2025',
-    },
-    {
-        id: 'doc-002',
-        name: 'Parecer Jurídico sobre a Lei 12.345.pdf',
-        type: 'pdf',
-        url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-        inAzure: true,
-        size: '890 KB',
-        modifiedDate: '12/06/2025',
-    },
-    {
-        id: 'doc-003',
-        name: 'Comprovação de Despesas - Viagem.png',
-        type: 'png',
-        url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/png/dummy.png',
-        inAzure: false,
-        size: '1.2 MB',
-        modifiedDate: '10/06/2025',
-    },
-    {
-        id: 'doc-004',
-        name: 'Planilha de Cálculo de Multas.xlsx',
-        type: 'xlsx',
-        url: 'https://cdn.sheetjs.com/pres.xlsx',
-        inAzure: false,
-        size: '450 KB',
-        modifiedDate: '05/06/2025',
-    },
-    {
-        id: 'doc-005',
-        name: 'E-mail de Notificação.eml',
-        type: 'eml',
-        url: 'https://www.example.com/not_renderable.eml', // .eml não é renderizável diretamente
-        inAzure: true,
-        size: '50 KB',
-        modifiedDate: '02/06/2025',
-    },
-];
+import { MdCloudDone, MdCloudOff, MdUpload, MdDescription, MdPictureAsPdf, MdImage, MdEmail, MdTableChart, MdSlideshow, MdCode, MdVideocam, MdAudiotrack, MdStar, MdArchive } from 'react-icons/md';
+import UniversalDocumentViewer from '@/components/ui/UniversalDocumentViewer';
 
 const getFileIcon = (type) => {
-    switch (type.toLowerCase()) {
-        case 'pdf':
-            return <MdPictureAsPdf className="text-red-500" size={20} />;
-        case 'docx':
-        case 'doc':
-            return <MdDescription className="text-blue-500" size={20} />;
-        case 'png':
-        case 'jpeg':
-        case 'jpg':
-            return <MdImage className="text-green-500" size={20} />;
-        case 'eml':
-            return <MdEmail className="text-orange-500" size={20} />;
-        default:
-            return <MdDescription className="text-slate-400" size={20} />;
+    const props = { size: 20, className: 'flex-shrink-0' };
+    switch (type?.toLowerCase()) {
+        case 'pdf': return <MdPictureAsPdf {...props} className="text-red-500" />;
+        case 'docx': case 'odt': return <MdDescription {...props} className="text-blue-500" />;
+        case 'png': case 'jpeg': case 'jpg': case 'gif': case 'bmp': return <MdImage {...props} className="text-green-500" />;
+        case 'xlsx': case 'csv': return <MdTableChart {...props} className="text-emerald-500" />;
+        case 'pptx': return <MdSlideshow {...props} className="text-orange-500" />;
+        case 'json': case 'xml': return <MdCode {...props} className="text-gray-500" />;
+        case 'mp4': case 'webm': case 'avi': case 'mov': return <MdVideocam {...props} className="text-purple-500" />;
+        case 'mp3': case 'wav': return <MdAudiotrack {...props} className="text-pink-500" />;
+        case 'svg': return <MdStar {...props} className="text-yellow-500" />;
+        case 'zip': return <MdArchive {...props} className="text-amber-600" />;
+        case 'eml': case 'msg': return <MdEmail {...props} className="text-blue-400" />;
+        default: return <MdDescription {...props} className="text-slate-400" />;
     }
 };
-
+const mockDocuments = [
+    { id: 1, name: 'Edital de Licitação.pdf', type: 'pdf', size: '2.4 MB', modifiedDate: '10/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.pdf' },
+    { id: 2, name: 'Minuta do Contrato.docx', type: 'docx', size: '1.2 MB', modifiedDate: '12/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.docx' },
+    { id: 3, name: 'Planilha Orçamentária.xlsx', type: 'xlsx', size: '850 KB', modifiedDate: '15/01/2025', inAzure: false, url: '/api/mock/documentosProcesso/sample.xlsx' },
+    { id: 4, name: 'Evidência Fotográfica.png', type: 'png', size: '3.5 MB', modifiedDate: '16/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.png' },
+    { id: 5, name: 'Ofício Circular.odt', type: 'odt', size: '450 KB', modifiedDate: '18/01/2025', inAzure: false, url: '/api/mock/documentosProcesso/sample.odt' },
+    { id: 6, name: 'Anexos Diversos.zip', type: 'zip', size: '15 MB', modifiedDate: '20/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.zip' },
+    { id: 7, name: 'Vídeo da Vistoria.mp4', type: 'mp4', size: '45 MB', modifiedDate: '22/01/2025', inAzure: false, url: '/api/mock/documentosProcesso/sample.mp4' },
+    { id: 8, name: 'Áudio da Reunião.mp3', type: 'mp3', size: '12 MB', modifiedDate: '25/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.mp3' },
+    { id: 9, name: 'Email de Aprovação.msg', type: 'msg', size: '150 KB', modifiedDate: '28/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.msg' }
+];
 
 export default function DocumentsDetailView({ processId, lastReload }) {
     // Em um cenário real, você faria um fetch usando o processId
@@ -95,12 +57,6 @@ export default function DocumentsDetailView({ processId, lastReload }) {
             total: documents.length,
         };
     }, [documents]);
-
-    const canBePreviewed = selectedDocument && ['pdf', 'docx', 'xlsx', 'png', 'jpeg', 'jpg'].includes(selectedDocument.type);
-
-    // Usamos o Google Docs Viewer para renderizar múltiplos formatos de arquivo em um iframe.
-    // Isso evita a necessidade de bibliotecas pesadas no client-side.
-    const viewerUrl = selectedDocument ? `https://docs.google.com/gview?url=${encodeURIComponent(selectedDocument.url)}&embedded=true` : '';
 
     if (isReloading) {
         return (
@@ -148,7 +104,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                 </div>
 
                 {/* Main Content: Document List & Viewer */}
-                <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8 min-h-0">
+                <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8 min-h-0 h-[550px]">
 
                     {/* Left Column: Document List */}
                     <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
@@ -185,38 +141,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
 
                     {/* Right Column: Document Viewer */}
                     <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-                        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                            <h2 className="text-base font-bold text-slate-800 truncate" title={selectedDocument?.name}>{selectedDocument?.name || 'Visualizador'}</h2>
-                        </div>
-                        <div className="flex-grow bg-slate-100 relative">
-                            {selectedDocument ? (
-                                canBePreviewed ? (
-                                    <iframe
-                                        key={selectedDocument.id} // Important for re-rendering iframe on src change
-                                        src={viewerUrl}
-                                        className="w-full h-full border-0 absolute inset-0"
-                                        title="Document Viewer"
-                                    />
-                                ) : (
-                                    <div className="h-full flex flex-col items-center justify-center text-center p-6 absolute inset-0">
-                                        <div className="p-4 bg-slate-200 rounded-full mb-4">
-                                            {getFileIcon(selectedDocument.type)}
-                                        </div>
-                                        <h3 className="text-lg font-bold text-slate-700">Pré-visualização não disponível</h3>
-                                        <p className="text-sm text-slate-500 max-w-sm mt-1">
-                                            Arquivos do tipo `{selectedDocument.type}` não podem ser exibidos diretamente. Por favor, faça o download para visualizá-lo.
-                                        </p>
-                                        <button className="mt-6 px-4 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 shadow-sm text-sm">
-                                            Fazer Download
-                                        </button>
-                                    </div>
-                                )
-                            ) : (
-                                <div className="h-full flex items-center justify-center absolute inset-0">
-                                    <p className="text-slate-500">Selecione um documento da lista para visualizar.</p>
-                                </div>
-                            )}
-                        </div>
+                        <UniversalDocumentViewer document={selectedDocument} />
                     </div>
 
                 </div>

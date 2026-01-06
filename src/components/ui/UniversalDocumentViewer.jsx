@@ -93,27 +93,30 @@ export default function UniversalDocumentViewer({ document }) {
       </div>
 
       {/* Aviso */}
-      <div className="flex flex-col border-b border-slate-200 bg-white shadow-sm z-30 relative">
-        <div className="bg-amber-50 px-4 py-2 flex items-start gap-3 border-b border-amber-100">
-          <MdWarning className="text-amber-600 mt-0.5 flex-shrink-0" size={18} />
-          <div className="flex-grow">
-            <p className="text-xs text-amber-800 font-semibold">
-              Modo de Visualização Rápida
-            </p>
-            <p className="text-[10px] text-amber-700 leading-tight">
-              A renderização visual pode divergir do original. Para visualizar na formatação original, faça o download do arquivo.
-            </p>
+      {/* Aviso - Apenas se não for UnsupportedViewer */}
+      {ViewerComponent !== UnsupportedViewer && (
+        <div className="flex flex-col border-b border-slate-200 bg-white shadow-sm z-30 relative">
+          <div className="bg-amber-50 px-4 py-2 flex items-start gap-3 border-b border-amber-100">
+            <MdWarning className="text-amber-600 mt-0.5 flex-shrink-0" size={18} />
+            <div className="flex-grow">
+              <p className="text-xs text-amber-800 font-semibold">
+                Modo de Visualização Rápida
+              </p>
+              <p className="text-[10px] text-amber-700 leading-tight">
+                A renderização visual pode divergir do original. Para visualizar na formatação original, faça o download do arquivo.
+              </p>
+            </div>
+            <a
+              href={downloadUrl}
+              download={fileName}
+              className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors shadow-sm"
+            >
+              <MdFileDownload size={16} />
+              Baixar Original
+            </a>
           </div>
-          <a
-            href={downloadUrl}
-            download={fileName}
-            className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors shadow-sm"
-          >
-            <MdFileDownload size={16} />
-            Baixar Original
-          </a>
         </div>
-      </div>
+      )}
 
       {/* Viewer */}
       <div className="flex-grow min-h-0 flex flex-col">
