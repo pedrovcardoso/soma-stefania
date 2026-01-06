@@ -29,12 +29,12 @@ export default function RegisterPage() {
                 {/* Coluna Esquerda: Formulário de Registro */}
                 <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
                     <div className="flex flex-col items-center mb-8">
-                        <Image
+                        {/* Replaced next/image with standard img to resolve 'received null' error */}
+                        <img
                             src="/logo.png"
                             alt="SEF Logo"
                             width={140}
                             height={46}
-                            priority
                             className="mb-6 drop-shadow-sm"
                         />
                         <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Crie sua Conta</h2>
@@ -74,7 +74,7 @@ export default function RegisterPage() {
 
                         {/* Senha */}
                         <div className="relative group">
-                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <MdLockOutline className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             </div>
                             <input
@@ -89,7 +89,7 @@ export default function RegisterPage() {
 
                         {/* Confirmar Senha */}
                         <div className="relative group">
-                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <MdLockOutline className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             </div>
                             <input

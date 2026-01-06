@@ -1,15 +1,16 @@
-import './globals.css'
+import './globals.css';
 
 export const metadata = {
-  title: 'SOMA - SEF/MG',
+  title: 'SOMA - Tesouro Estadual MG',
   description: 'Sistema de Orquestração de Manifestações ao TCE',
-}
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body className="antialiased overflow-hidden h-screen w-screen">
+        {children}
+      </body>
     </html>
-  )
+  );
 }
-

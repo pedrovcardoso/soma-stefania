@@ -1,22 +1,26 @@
 import { NextResponse } from 'next/server';
 
-// Matches /detalheProcesso response schema
-// properties:
-//   processo: $ref: "#/components/schemas/ProcessoDetalhado"
-//   tags: array of $ref: "#/components/schemas/Tag"
-//   sei: object
-
 export async function POST(request) {
     try {
         await new Promise(resolve => setTimeout(resolve, 800));
 
-        // Get 'sei' from body to potentially return dynamic ID
-        const body = await request.json().catch(() => ({}));
-        const reqSei = body.sei || "1234.56789/2025-11";
+        let reqSei = null;
+
+        const contentType = request.headers.get('content-type') || '';
+
+        if (contentType.includes('multipart/form-data')) {
+            const formData = await request.formData();
+            reqSei = formData.get('sei');
+        } else {
+            const body = await request.json().catch(() => ({}));
+            reqSei = body.sei;
+        }
+
+        const finalSei = reqSei ? reqSei.toString() : "N/A";
 
         return NextResponse.json({
             processo: {
-                sei: reqSei,
+                sei: finalSei,
                 ano_referencia: "2025",
                 tipo: "Licitação",
                 descricao: "Processo administrativo referente à aquisição de equipamentos de TI para a nova sede da SEF/MG.",
@@ -40,6 +44,7 @@ export async function POST(request) {
             }
         });
     } catch (error) {
+        console.error("Mock Error:", error);
         return NextResponse.json({ error: 'Failed to fetch mock data' }, { status: 500 });
     }
 }
