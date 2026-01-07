@@ -5,8 +5,10 @@ const useSidebarStore = create(
   persist(
     (set) => ({
       isOpen: true,
+      isCollapsed: false,
       sidebarWidth: 260,
       toggleSidebar: () => set((state) => ({ isOpen: !state.isOpen })),
+      toggleCollapse: () => set((state) => ({ isCollapsed: !state.isCollapsed })),
       setSidebarOpen: (isOpen) => set({ isOpen }),
       setSidebarWidth: (width) => set({ sidebarWidth: width }),
     }),

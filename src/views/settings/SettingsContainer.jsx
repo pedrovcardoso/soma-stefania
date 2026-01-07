@@ -15,20 +15,28 @@ const settingsTabs = [
     { id: 'about', name: 'Sobre o Sistema', icon: MdInfo, component: AboutSettingsPage },
 ];
 
-export default function SettingsContainer() {
+export default function SettingsContainer({ data = {} }) {
     const [activeTabId, setActiveTabId] = useState('profile');
     const updateTab = useTabStore(state => state.updateTab);
+
+    // Effect to handle external navigation (e.g. from Sidebar)
+    useEffect(() => {
+        if (data?.activeSection) {
+            setActiveTabId(data.activeSection);
+        }
+    }, [data?.activeSection]);
+
     const activeTab = settingsTabs.find(t => t.id === activeTabId);
     const ActiveComponent = activeTab?.component || ProfileSettingsPage;
 
     useEffect(() => {
         updateTab('settings', {
             data: {
-                ... (activeTab?.data || {}),
+                ...data, // preserve existing data
                 subLabel: activeTab?.name
             }
         });
-    }, [activeTabId, updateTab]);
+    }, [activeTabId, updateTab, activeTab?.name]);
 
     return (
         <div className="flex flex-col h-full bg-slate-50 overflow-auto px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10">
