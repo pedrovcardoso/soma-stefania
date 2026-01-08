@@ -3,8 +3,7 @@ import { apiClient } from './api';
 const seiConfig = {
     endpoints: {
         processo: '/processo',
-        detalheProcesso: '/detalheProcesso',
-        planoAcao: '/planoAcao'
+        detalheProcesso: '/detalheProcesso'
     },
     filters: {
         ano_ref: 'ano_referencia',
@@ -80,18 +79,6 @@ export const fetchSeiProcessDetails = async (seiNumber) => {
         return response;
     } catch (error) {
         console.error('Error fetching SEI process details:', error);
-        throw error;
-    }
-};
-
-export const fetchActionPlan = async (seiNumber) => {
-    try {
-        const formData = new FormData();
-        formData.append('sei', seiNumber);
-        const response = await apiClient.post(seiConfig.endpoints.planoAcao, formData);
-        return response;
-    } catch (error) {
-        console.error('Error fetching Action Plan:', error);
         throw error;
     }
 };

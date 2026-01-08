@@ -13,16 +13,16 @@ function toFormData(data) {
 }
 
 async function request(endpoint, { method = 'GET', data, headers: customHeaders = {} } = {}) {
-  const headers = { 
+  const headers = {
     'Content-Type': 'application/json',
-    ...customHeaders 
+    ...customHeaders
   };
 
   let body = undefined;
 
   if (method !== 'GET' && data) {
     if (data instanceof FormData) {
-      delete headers['Content-Type']; 
+      delete headers['Content-Type'];
       body = data;
     } else {
       body = JSON.stringify(data);
@@ -36,12 +36,13 @@ async function request(endpoint, { method = 'GET', data, headers: customHeaders 
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    const baseUrl = (USE_MOCK && endpoint === '/planoAcao') ? '/api' : API_BASE_URL;
+    const response = await fetch(`${baseUrl}${endpoint}`, config);
 
     if (response.status === 401) {
-        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-            window.location.href = '/login';
-        }
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
     }
 
     if (!response.ok) {

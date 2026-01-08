@@ -92,6 +92,9 @@ Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de
    # URL da API real
    API_URL=http://10.180.168.23:5000
 
+   # URL da API de Plano de Ação, Power Automate Cloud
+   PLANO_ACAO_URL=https://default4c86fd71d0164231a16057311d68b9.51.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/bf5db0b9668a4807aa43a854a44529c4/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=XUWG2Xlc8cRTjWvU7EgMMDMPy9g_6b0Yw_Y6qHJJJAY
+
    # Chave mestra para assinar o JWT (HS256)
    JWT_SECRET=super-secret-key
 

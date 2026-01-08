@@ -358,7 +358,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                             Hitbox is wide (w-4), visual line is thin (w-[1px]).
                                             Centering: right-[-8px] (half of w-4) to center on border.
                                         */}
-                                        {col.key !== 'actions' && (
+                                        {col.key !== 'actions' && index < orderedColumns.length - 1 && (
                                             <div
                                                 className="absolute right-[-8px] top-0 bottom-0 w-4 cursor-col-resize z-30 group/resizer flex justify-center"
                                                 onMouseDown={(e) => startResizing(e, col.key)}
