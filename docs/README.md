@@ -89,15 +89,12 @@ Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de
 3. **Configurar Ambiente**
    Crie um arquivo `.env` na raiz do projeto com a URL da API:
    ```env
-   # --- SEGURANÇA (Apenas Servidor) ---
-   # URL da API real (ex: Python/FastAPI)
+   # URL da API real
    API_URL=http://10.180.168.23:5000
 
    # Chave mestra para assinar o JWT (HS256)
-   # Mude para uma string longa e aleatória em produção
    JWT_SECRET=super-secret-key
 
-   # --- DESENVOLVIMENTO (Público) ---
    # Define se o sistema usará a pasta /api/mock ou a API_URL real
    NEXT_PUBLIC_USE_MOCK_API=false
    ```

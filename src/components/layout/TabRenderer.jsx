@@ -5,8 +5,8 @@ import SeiListView from '@/views/sei/SeiListView'
 import SeiDetailView from '@/views/sei/SeiDetailView'
 import HistoryView from '@/views/HistoryView'
 import SettingsContainer from '@/views/settings/SettingsContainer'
-import DocumentsDetailView from '@/views/sei/DocumentsDetailView'
-import DocumentsView from '@/views/DocumentsView' // Kept for legacy if needed, but logic moved
+import ActionPlansView from '@/views/ActionPlans'
+import DocumentsView from '@/views/DocumentsView'
 
 const viewMap = {
   'home': HomeView,
@@ -15,6 +15,7 @@ const viewMap = {
   'history': HistoryView,
   'settings': SettingsContainer,
   'doc_list': DocumentsView,
+  'action_plans': ActionPlansView
 }
 
 export default function TabRenderer({ tab }) {
