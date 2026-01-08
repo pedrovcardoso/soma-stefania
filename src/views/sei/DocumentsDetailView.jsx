@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { MdCloudDone, MdCloudOff, MdUpload, MdDescription, MdPictureAsPdf, MdImage, MdEmail, MdTableChart, MdSlideshow, MdCode, MdVideocam, MdAudiotrack, MdStar, MdArchive } from 'react-icons/md';
+import { MdCloudDone, MdCloudOff, MdUpload, MdDescription, MdPictureAsPdf, MdImage, MdEmail, MdTableChart, MdSlideshow, MdCode, MdVideocam, MdAudiotrack, MdStar, MdArchive, MdModeEdit, MdFilterList, MdSearch } from 'react-icons/md';
 import UniversalDocumentViewer from '@/components/ui/UniversalDocumentViewer';
+import StefanIAEditor from '@/components/sei/StefanIAEditor';
 
 const getFileIcon = (type) => {
-    const props = { size: 20, className: 'flex-shrink-0' };
+    const props = { size: 22, className: 'flex-shrink-0' };
     switch (type?.toLowerCase()) {
         case 'pdf': return <MdPictureAsPdf {...props} className="text-red-500" />;
         case 'docx': case 'odt': return <MdDescription {...props} className="text-blue-500" />;
@@ -21,6 +22,7 @@ const getFileIcon = (type) => {
         default: return <MdDescription {...props} className="text-slate-400" />;
     }
 };
+
 const mockDocuments = [
     { id: 1, name: 'Edital de Licitação.pdf', type: 'pdf', size: '2.4 MB', modifiedDate: '10/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.pdf' },
     { id: 2, name: 'Minuta do Contrato.docx', type: 'docx', size: '1.2 MB', modifiedDate: '12/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.docx' },
@@ -34,10 +36,10 @@ const mockDocuments = [
 ];
 
 export default function DocumentsDetailView({ processId, lastReload }) {
-    // Em um cenário real, você faria um fetch usando o processId
     const [documents, setDocuments] = useState(mockDocuments);
     const [selectedDocument, setSelectedDocument] = useState(documents[0] || null);
     const [isReloading, setIsReloading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         if (lastReload) {
@@ -48,6 +50,11 @@ export default function DocumentsDetailView({ processId, lastReload }) {
             return () => clearTimeout(timer);
         }
     }, [lastReload]);
+
+    const filteredDocuments = useMemo(() => {
+        if (!searchTerm) return documents;
+        return documents.filter(doc => doc.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }, [documents, searchTerm]);
 
     const azureStats = useMemo(() => {
         const inAzureCount = documents.filter(doc => doc.inAzure).length;
@@ -60,92 +67,140 @@ export default function DocumentsDetailView({ processId, lastReload }) {
 
     if (isReloading) {
         return (
-            <div className="h-full flex items-center justify-center bg-slate-50/50">
-                <div className="flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-slate-500 text-sm font-medium">Recarregando documentos...</p>
+            <div className="h-full flex items-center justify-center bg-white/50 backdrop-blur-sm">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin shadow-inner"></div>
+                    <p className="text-slate-500 text-sm font-semibold tracking-wide uppercase">Atualizando repositório...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="h-full flex flex-col font-sans overflow-hidden">
-            <div className="max-w-7xl w-full mx-auto space-y-8 flex-grow flex flex-col h-full">
+        <div className="h-full flex flex-col font-sans overflow-hidden bg-slate-50/30">
+            <div className="max-w-7xl w-full mx-auto space-y-8 flex-grow flex flex-col h-full py-6 px-4 md:px-6">
 
-                {/* Azure Sync Status Card */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between p-6 gap-6 shrink-0">
-                    <div className='flex items-center gap-6'>
+                {/* Status Bar */}
+                <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+                    <div className="flex flex-wrap items-center gap-8">
                         <div className="flex items-center gap-3">
-                            <div className="p-3 bg-green-100 rounded-full">
-                                <MdCloudDone size={24} className="text-green-600" />
+                            <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center border border-green-100 shadow-sm">
+                                <MdCloudDone size={20} className="text-green-600" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-slate-800">{azureStats.inAzure}</p>
-                                <p className="text-xs text-slate-500">Sincronizados com Azure</p>
+                                <p className="text-xs font-bold text-slate-400 tracking-wider uppercase">Sincronizados</p>
+                                <p className="text-lg font-bold text-slate-800 leading-none">{azureStats.inAzure}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="p-3 bg-amber-100 rounded-full">
-                                <MdCloudOff size={24} className="text-amber-600" />
+                            <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center border border-amber-100 shadow-sm">
+                                <MdCloudOff size={20} className="text-amber-600" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-slate-800">{azureStats.notInAzure}</p>
-                                <p className="text-xs text-slate-500">Pendentes de Upload</p>
+                                <p className="text-xs font-bold text-slate-400 tracking-wider uppercase">Pendentes</p>
+                                <p className="text-lg font-bold text-slate-800 leading-none">{azureStats.notInAzure}</p>
                             </div>
                         </div>
                     </div>
+
                     {azureStats.notInAzure > 0 && (
-                        <button className="flex items-center justify-center gap-2 w-full md:w-auto px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50 active:scale-95">
-                            <MdUpload size={18} />
-                            Sincronizar {azureStats.notInAzure} Documentos
+                        <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 transition-all active:scale-95 group">
+                            <MdUpload size={20} className="group-hover:-translate-y-0.5 transition-transform" />
+                            Efetuar Upload ({azureStats.notInAzure})
                         </button>
                     )}
                 </div>
 
-                {/* Main Content: Document List & Viewer */}
-                <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8 min-h-0 h-[550px]">
+                {/* Main Workspace */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[650px] min-h-0">
 
-                    {/* Left Column: Document List */}
-                    <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-                        <div className="p-4 border-b border-slate-100">
-                            <h2 className="text-base font-bold text-slate-800">Documentos ({azureStats.total})</h2>
-                        </div>
-                        <div className="overflow-y-auto flex-grow custom-scrollbar">
-                            <ul className="divide-y divide-slate-100">
-                                {documents.map(doc => (
-                                    <li key={doc.id}>
-                                        <button
-                                            onClick={() => setSelectedDocument(doc)}
-                                            className={`w-full text-left p-4 transition-colors border-l-4 ${selectedDocument?.id === doc.id ? 'bg-blue-50 border-blue-500' : 'border-transparent hover:bg-slate-50'}`}
-                                        >
-                                            <div className="flex items-start gap-3">
-                                                <div className="flex-shrink-0 pt-1">{getFileIcon(doc.type)}</div>
-                                                <div className="flex-grow">
-                                                    <p className={`text-sm font-semibold ${selectedDocument?.id === doc.id ? 'text-blue-800' : 'text-slate-700'}`}>{doc.name}</p>
-                                                    <div className="flex items-center gap-3 text-xs text-slate-400 mt-1.5">
-                                                        <span>{doc.size}</span>
-                                                        <span className="text-slate-300">•</span>
-                                                        <span>{doc.modifiedDate}</span>
-                                                        <span className="text-slate-300">•</span>
-                                                        {doc.inAzure ? <MdCloudDone className="text-green-500" /> : <MdCloudOff className="text-amber-500" />}
+                    {/* Sidebar: Navigation & Filters */}
+                    <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-4 min-h-0">
+                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden min-h-0 flex-grow">
+                            <div className="p-4 border-b border-slate-100 flex flex-col gap-3">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-sm font-bold text-slate-800 uppercase tracking-widest">Documentos</h2>
+                                    <span className="bg-slate-100 text-slate-500 text-[10px] px-2 py-0.5 rounded-full font-bold">{azureStats.total}</span>
+                                </div>
+                                <div className="relative">
+                                    <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                        type="text"
+                                        placeholder="Filtrar por nome..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-9 pr-4 py-2 bg-slate-50 border-none rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="overflow-y-auto flex-grow custom-scrollbar overscroll-contain">
+                                <ul className="divide-y divide-slate-50">
+                                    {filteredDocuments.map(doc => (
+                                        <li key={doc.id}>
+                                            <button
+                                                onClick={() => setSelectedDocument(doc)}
+                                                className={`w-full text-left p-4 transition-all relative ${selectedDocument?.id === doc.id ? 'bg-indigo-50/50' : 'hover:bg-slate-50'}`}
+                                            >
+                                                {selectedDocument?.id === doc.id && (
+                                                    <div className="absolute left-0 top-3 bottom-3 w-1 bg-indigo-600 rounded-r-full shadow-[0_0_8px_rgba(79,70,229,0.4)]" />
+                                                )}
+                                                <div className="flex items-start gap-4">
+                                                    <div className={`p-2 rounded-lg ${selectedDocument?.id === doc.id ? 'bg-white shadow-sm scale-110' : 'bg-slate-50'} transition-all`}>
+                                                        {getFileIcon(doc.type)}
+                                                    </div>
+                                                    <div className="min-w-0 flex-grow">
+                                                        <p className={`text-sm font-bold truncate ${selectedDocument?.id === doc.id ? 'text-indigo-900' : 'text-slate-700'}`}>
+                                                            {doc.name}
+                                                        </p>
+                                                        <div className="flex items-center gap-3 text-[10px] text-slate-400 mt-1 font-medium tracking-wide">
+                                                            <span>{doc.size}</span>
+                                                            <span className="opacity-30">•</span>
+                                                            <span className="uppercase">{doc.type}</span>
+                                                            <span className="ml-auto">
+                                                                {doc.inAzure ? <MdCloudDone className="text-green-500" size={14} /> : <MdCloudOff className="text-amber-400" size={14} />}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
+                                            </button>
+                                        </li>
+                                    ))}
+                                    {filteredDocuments.length === 0 && (
+                                        <div className="p-8 text-center bg-slate-50/50">
+                                            <p className="text-xs text-slate-400 font-medium italic">Nenhum documento encontrado.</p>
+                                        </div>
+                                    )}
+                                </ul>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Right Column: Document Viewer */}
-                    <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+                    {/* Viewer: Large Area */}
+                    <div className="lg:col-span-8 xl:col-span-9 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden flex flex-col">
                         <UniversalDocumentViewer document={selectedDocument} />
                     </div>
+                </div>
 
+                {/* Editor Section */}
+                <div className="flex flex-col gap-6 pb-20 pt-8 border-t border-slate-100">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-white rounded-2xl shadow-lg border border-slate-100 flex items-center justify-center text-indigo-600">
+                                <MdModeEdit size={26} />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-lg font-bold text-slate-800 tracking-tight leading-none">Redigir Manifestação</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="h-[750px] relative">
+                        <StefanIAEditor />
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
+
