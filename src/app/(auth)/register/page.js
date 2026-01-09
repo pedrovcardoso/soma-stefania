@@ -17,7 +17,6 @@ export default function RegisterPage() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Adicionar lógica de registro aqui
         console.log('Form data submitted:', formData);
         router.push('/login');
     };
@@ -25,11 +24,8 @@ export default function RegisterPage() {
     return (
         <div className="relative min-h-screen flex items-center justify-center p-4 bg-slate-100">
             <main className="relative z-10 w-full max-w-4xl bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white/50">
-
-                {/* Coluna Esquerda: Formulário de Registro */}
                 <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
                     <div className="flex flex-col items-center mb-8">
-                        {/* Replaced next/image with standard img to resolve 'received null' error */}
                         <img
                             src="/logo.png"
                             alt="SEF Logo"
@@ -42,7 +38,6 @@ export default function RegisterPage() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* Nome */}
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <MdPerson className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
@@ -57,7 +52,6 @@ export default function RegisterPage() {
                             />
                         </div>
 
-                        {/* Email */}
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <MdEmail className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
@@ -72,7 +66,6 @@ export default function RegisterPage() {
                             />
                         </div>
 
-                        {/* Senha */}
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <MdLockOutline className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
@@ -87,7 +80,6 @@ export default function RegisterPage() {
                             />
                         </div>
 
-                        {/* Confirmar Senha */}
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <MdLockOutline className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
@@ -118,7 +110,6 @@ export default function RegisterPage() {
                     </form>
                 </div>
 
-                {/* Coluna Direita: Animação e Identidade */}
                 <div className="hidden md:flex w-1/2 relative overflow-hidden bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white p-12 flex-col justify-between">
                     <ParticleBackground
                         particleColor="rgba(203, 213, 225, 0.5)"

@@ -4,7 +4,6 @@ import React, { useMemo, Suspense } from 'react';
 import { ImSpinner8 } from 'react-icons/im';
 import { MdWarning, MdFileDownload } from 'react-icons/md';
 
-// Lazy loading dos visualizadores
 const PdfViewer = React.lazy(() => import('./FileReaders/PdfViewer'));
 const DocxViewer = React.lazy(() => import('./FileReaders/DocxViewer'));
 const ImageViewer = React.lazy(() => import('./FileReaders/ImageViewer'));
@@ -85,15 +84,12 @@ export default function UniversalDocumentViewer({ document }) {
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Header */}
       <div className="flex-shrink-0 p-4 border-b border-slate-200">
         <h2 className="font-bold text-slate-800 truncate" title={document.name}>
           {document.name}
         </h2>
       </div>
 
-      {/* Aviso */}
-      {/* Aviso - Apenas se não for UnsupportedViewer */}
       {ViewerComponent !== UnsupportedViewer && (
         <div className="flex flex-col border-b border-slate-200 bg-white shadow-sm z-30 relative">
           <div className="bg-amber-50 px-4 py-2 flex items-start gap-3 border-b border-amber-100">
@@ -118,7 +114,6 @@ export default function UniversalDocumentViewer({ document }) {
         </div>
       )}
 
-      {/* Viewer */}
       <div className="flex-grow min-h-0 flex flex-col">
         <div className="flex-grow bg-slate-100 overflow-hidden">
           <Suspense fallback={<LoadingFallback />}>

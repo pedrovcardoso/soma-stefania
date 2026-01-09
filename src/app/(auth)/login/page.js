@@ -67,7 +67,6 @@ export default function LoginPage() {
         <div className="relative min-h-screen flex items-center justify-center p-4 bg-slate-100">
             <main className="relative z-10 w-full max-w-4xl bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white/50">
 
-                {/* ESQUERDA: Formulário */}
                 <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
                     <div className="flex flex-col items-center mb-8">
                         <img

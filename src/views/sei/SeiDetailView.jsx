@@ -14,7 +14,7 @@ export default function SeiDetailView({ id, lastReload }) {
   const [processData, setProcessData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('details'); // 'details' | 'documents'
+  const [viewMode, setViewMode] = useState('details');
   const updateTab = useTabStore(state => state.updateTab);
 
   useEffect(() => {
@@ -138,7 +138,6 @@ export default function SeiDetailView({ id, lastReload }) {
     <div className="h-full bg-gray-50/50 px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 overflow-auto font-sans relative flex flex-col">
       <div className="max-w-7xl mx-auto w-full space-y-6 pb-20 flex-grow flex flex-col">
 
-        {/* Header Section (Always Visible) */}
         <div>
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
             <div className="space-y-2">
@@ -222,7 +221,6 @@ export default function SeiDetailView({ id, lastReload }) {
             </div>
           </div>
 
-          {/* View Toggles */}
           <div className="flex border-b border-slate-200 mb-6">
             <button
               onClick={() => setViewMode('details')}
@@ -247,17 +245,13 @@ export default function SeiDetailView({ id, lastReload }) {
           </div>
         </div>
 
-        {/* Content Area */}
-        {/* Content Area */}
         <div className={viewMode === 'details' ? 'block space-y-8 animate-in fade-in zoom-in-95 duration-200' : 'hidden'}>
-          {/* Main Card: Dados do Processo */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 bg-white">
               <h2 className="text-lg font-bold text-slate-800">Dados do Processo</h2>
             </div>
 
             <div className="p-6 md:p-8 space-y-8">
-              {/* Section 1: Basic Info */}
               <div>
                 <h3 className="flex items-center gap-2 text-sm font-bold text-blue-800 uppercase tracking-wide mb-6 border-l-4 border-blue-600 pl-3">
                   Informações Básicas
@@ -285,7 +279,6 @@ export default function SeiDetailView({ id, lastReload }) {
 
               <hr className="border-slate-100 my-8" />
 
-              {/* Section 2: Assignment & Status */}
               <div>
                 <h3 className="flex items-center gap-2 text-sm font-bold text-blue-800 uppercase tracking-wide mb-6 border-l-4 border-blue-600 pl-3">
                   Trâmite e Responsabilidade
@@ -299,7 +292,6 @@ export default function SeiDetailView({ id, lastReload }) {
                 </div>
               </div>
 
-              {/* Section 3: Dates */}
               {(processo.dt_dilacao || processo.sei_dilacao || processo.dt_resposta) && (
                 <div>
                   <hr className="border-slate-100 my-8" />
@@ -323,7 +315,6 @@ export default function SeiDetailView({ id, lastReload }) {
             </div>
           </div>
 
-          {/* Process Tree Section */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 bg-white">
               <h2 className="text-lg font-bold text-slate-800">Árvore de Processos Relacionados</h2>
@@ -355,7 +346,6 @@ export default function SeiDetailView({ id, lastReload }) {
             </div>
           </div>
 
-          {/* Action Plan Section */}
           <ActionPlanSection seiNumber={processo.sei} />
         </div>
 
@@ -365,7 +355,6 @@ export default function SeiDetailView({ id, lastReload }) {
 
       </div>
 
-      {/* Chatbot - Fixed Position, relative to viewport usually but put here for strict React hierarchy */}
       <StefaniaChatbot />
 
     </div>

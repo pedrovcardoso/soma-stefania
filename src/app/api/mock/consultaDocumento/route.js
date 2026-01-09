@@ -6,7 +6,6 @@ export async function POST(request) {
     return NextResponse.json({
         ok: true,
         sei: {
-            // Simulated SEI response
             url_conteudo: "#",
             protocolo: "123456"
         },

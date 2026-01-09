@@ -32,7 +32,6 @@ const getMimeType = (filename) => {
 export async function GET(request, { params }) {
     const { filename } = params;
 
-    // Security check: ensure no directory traversal
     if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
         return new NextResponse('Invalid filename', { status: 400 });
     }

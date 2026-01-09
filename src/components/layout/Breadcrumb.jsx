@@ -63,7 +63,6 @@ export default function Breadcrumb() {
         const normalized = url.trim().toLowerCase();
         const path = normalized.startsWith('/') ? normalized : `/${normalized}`;
 
-        // Remove trailing slash if any
         const cleanPath = path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
 
         if (cleanPath === '/main/inicio' || cleanPath === '/main' || cleanPath === '/') return switchTab('home');
@@ -99,7 +98,6 @@ export default function Breadcrumb() {
 
     const breadcrumbs = [];
 
-    // Permanent Home root
     breadcrumbs.push({
         id: 'home',
         label: 'Início',

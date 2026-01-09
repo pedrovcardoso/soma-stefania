@@ -33,7 +33,6 @@ export default function Sidebar() {
   const openTab = useTabStore((state) => state.openTab)
   const activeTabId = useTabStore((state) => state.activeTabId)
 
-  // Store checks
   const sidebarWidth = useSidebarStore((state) => state.sidebarWidth)
   const setSidebarWidth = useSidebarStore((state) => state.setSidebarWidth)
   const isCollapsed = useSidebarStore((state) => state.isCollapsed)
@@ -41,7 +40,6 @@ export default function Sidebar() {
 
   const { recentAccesses, pinnedIds, togglePin } = useHistoryStore()
 
-  // --- Logic for Visible Accesses (Preserved) ---
   const visibleAccesses = useMemo(() => {
     const uniqueMap = new Map();
     for (const item of recentAccesses) {
@@ -63,24 +61,20 @@ export default function Sidebar() {
 
   const filteredAccesses = visibleAccesses;
 
-  // --- Resize State & Refs ---
   const [maxVisibleItems, setMaxVisibleItems] = useState(0)
   const wrapperRef = useRef(null)
   const sidebarRef = useRef(null)
   const [isResizing, setIsResizing] = useState(false)
-
-  // --- User Menu State ---
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const userMenuRef = useRef(null)
 
-  // --- Resize Calculation Logic ---
   useEffect(() => {
     const calculateVisibleItems = () => {
       if (!wrapperRef.current || isCollapsed) return
 
       const containerHeight = wrapperRef.current.clientHeight
-      const itemHeight = 52 // Approx height of one item (36px text + padding)
-      const viewMoreBtnHeight = 44 // Height of "Ver mais" button
+      const itemHeight = 52
+      const viewMoreBtnHeight = 44
 
       if (containerHeight <= 0) return
 
@@ -90,13 +84,11 @@ export default function Sidebar() {
         setMaxVisibleItems(filteredAccesses.length)
       } else {
         const spaceForItems = containerHeight - viewMoreBtnHeight
-        // Ensure at least 0 item shows
         const maxFit = Math.max(0, Math.floor(spaceForItems / itemHeight))
         setMaxVisibleItems(maxFit)
       }
     }
 
-    // Initial calculation
     calculateVisibleItems()
 
     const observer = new ResizeObserver(calculateVisibleItems)
@@ -110,14 +102,11 @@ export default function Sidebar() {
       observer.disconnect()
       window.removeEventListener('resize', calculateVisibleItems)
     }
-  }, [filteredAccesses.length, sidebarWidth, isCollapsed]) // Add isCollapsed dependency
+  }, [filteredAccesses.length, sidebarWidth, isCollapsed])
 
-  // --- Sidebar Resizing Logic ---
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!isResizing) return
-
-      // Limit width between 220 and 480
       const newWidth = Math.max(220, Math.min(480, e.clientX))
       setSidebarWidth(newWidth)
     }
@@ -141,7 +130,6 @@ export default function Sidebar() {
     }
   }, [isResizing, setSidebarWidth])
 
-  // --- Click Outside User Menu ---
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
@@ -156,8 +144,6 @@ export default function Sidebar() {
     }
   }, [isUserMenuOpen])
 
-
-  // --- Handlers ---
   const handleMenuClick = (item) => {
     openTab({ id: item.id, type: item.type, title: item.title })
   }
@@ -197,9 +183,7 @@ export default function Sidebar() {
   const visibleRecentAccesses = filteredAccesses.slice(0, maxVisibleItems)
   const hasMore = filteredAccesses.length > maxVisibleItems
 
-  // Dynamic Styles
   const validWidth = isCollapsed ? 64 : sidebarWidth;
-  // Disable transition during resizing to prevent lag
   const transitionClass = isResizing ? '' : 'transition-all duration-300 ease-in-out';
 
   return (
@@ -209,7 +193,6 @@ export default function Sidebar() {
         className="h-full flex flex-col bg-white border-r border-gray-200"
         style={{ width: `${validWidth}px`, maxWidth: '100%' }}
       >
-        {/* LOGO & TOGGLE */}
         <div className={`border-b border-gray-200 flex-shrink-0 bg-white flex transition-all duration-300 ${isCollapsed ? 'flex-col items-center gap-1 py-1.5' : 'items-center justify-start px-4 h-16 gap-3'}`}>
           <button
             onClick={toggleCollapse}
@@ -234,9 +217,7 @@ export default function Sidebar() {
           )}
         </div>
 
-        {/* NAVIGATION Area (Flex Grow) */}
         <nav className="flex-1 flex flex-col min-h-0 overflow-y-auto overflow-x-visible custom-scrollbar">
-          {/* Fixed Menu Items */}
           <div className={`flex-shrink-0 py-1 ${isCollapsed ? 'px-1' : 'px-2'}`}>
             {menuItems.map((item) => {
               const Icon = item.icon
@@ -257,7 +238,6 @@ export default function Sidebar() {
                     ${isActive && isCollapsed ? 'bg-blue-100' : ''}
                     `}
                 >
-                  {/* Active Indicator for Collapsed Mode */}
                   {isCollapsed && isActive && (
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-md" />
                   )}
@@ -270,14 +250,12 @@ export default function Sidebar() {
             })}
           </div>
 
-          {/* Recent Access Section (Grows to fill space) - HIDDEN IN COLLAPSED */}
           {!isCollapsed && (
             <div className={`flex-1 flex flex-col min-h-0 border-t border-gray-100 mx-2 mt-2 pt-4 animate-in fade-in duration-300`}>
               <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex-shrink-0">
                 Acessos recentes
               </h3>
 
-              {/* Wrapper for list measurement - Fills remaining space */}
               <div ref={wrapperRef} className="flex-1 overflow-hidden relative">
                 <div className="flex flex-col gap-0.5">
                   {visibleRecentAccesses.map((access) => (
@@ -287,7 +265,6 @@ export default function Sidebar() {
                                       text-left hover:bg-gray-50 transition-colors min-w-0 cursor-pointer"
                       onClick={() => handleRecentClick(access)}
                     >
-                      {/* Text Container */}
                       <div className="flex-1 min-w-0 pr-3">
                         <p className="text-sm text-gray-700 font-medium truncate">
                           {access.title}
@@ -297,7 +274,6 @@ export default function Sidebar() {
                         </p>
                       </div>
 
-                      {/* Pin Button */}
                       <button
                         onClick={(e) => handlePinClick(e, access.id)}
                         className={`p-1.5 rounded-md transition-all flex-shrink-0 
@@ -323,12 +299,8 @@ export default function Sidebar() {
           )}
         </nav>
 
-        {/* USER PROFILE - Fixed at Bottom */}
         <div ref={userMenuRef} className={`p-1 border-t border-gray-200 bg-white flex-shrink-0 relative ${isCollapsed ? 'flex justify-center' : ''}`}>
 
-
-
-          {/* Popover Menu - Positioned nicely above */}
           {isUserMenuOpen && (
             <div className={`absolute mb-2 bg-white rounded-xl shadow-[0_4px_25px_rgba(0,0,0,0.12)] border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-[100]
                 ${isCollapsed ? 'left-full bottom-0 ml-2 w-56' : 'bottom-full left-2 right-2'}
@@ -387,7 +359,6 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Resizer Handle - Disable when collapsed */}
       {!isCollapsed && (
         <div
           onMouseDown={handleResizerMouseDown}

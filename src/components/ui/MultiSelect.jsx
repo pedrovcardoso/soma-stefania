@@ -14,7 +14,6 @@ export default function MultiSelect({
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
 
-    // Handle outside click to close dropdown
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (containerRef.current && !containerRef.current.contains(event.target)) {
@@ -76,7 +75,6 @@ export default function MultiSelect({
                     />
                 </div>
 
-                {/* Dropdown Panel */}
                 {isOpen && (
                     <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden animate-scaleIn origin-top">
                         <SearchableList

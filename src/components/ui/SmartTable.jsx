@@ -10,7 +10,6 @@ function classNames(...classes) {
 }
 
 export default function SmartTable({ data = [], columns = [], className = '' }) {
-    // State
     const [tableColumns, setTableColumns] = useState(columns);
     const [activeFilters, setActiveFilters] = useState({});
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -19,27 +18,21 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
 
     const tableRef = useRef(null);
 
-    // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    // Resizing State
     const resizingRef = useRef(null);
     const [resizingKey, setResizingKey] = useState(null);
 
-    // Reordering State
     const draggingRef = useRef(null);
     const [dragTarget, setDragTarget] = useState({ key: null, side: null });
     const [isDragging, setIsDragging] = useState(false);
     const [dragOrder, setDragOrder] = useState(columns.map(c => c.key));
 
     useEffect(() => {
-        // Initialize/Sync columns
         setTableColumns(columns);
         setDragOrder(columns.map(c => c.key));
     }, [columns]);
-
-    // --- Filtering Logic ---
     const getUniqueValues = (key) => {
         const values = new Set();
         data.forEach(item => {
@@ -66,22 +59,19 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
         });
     };
 
-    // --- Sorting Logic ---
     const handleSort = (key) => {
         setSortConfig(current => {
             if (current.key === key) {
                 if (current.direction === 'asc') return { key, direction: 'desc' };
-                if (current.direction === 'desc') return { key: null, direction: 'asc' }; // Reset
+                if (current.direction === 'desc') return { key: null, direction: 'asc' };
             }
             return { key, direction: 'asc' };
         });
     };
 
-    // --- Process Data (Filter & Sort) ---
     const processedData = useMemo(() => {
         let result = [...data];
 
-        // Filter
         Object.keys(activeFilters).forEach(key => {
             const requiredValues = activeFilters[key];
             if (requiredValues.length === 0) return;
@@ -95,7 +85,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
             });
         });
 
-        // Sort
         if (sortConfig.key) {
             result.sort((a, b) => {
                 const aVal = a[sortConfig.key];
@@ -110,24 +99,20 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
         return result;
     }, [data, activeFilters, sortConfig]);
 
-    // --- Pagination Logic ---
     const totalPages = Math.ceil(processedData.length / itemsPerPage);
     const paginatedData = useMemo(() => {
         const start = (currentPage - 1) * itemsPerPage;
         return processedData.slice(start, start + itemsPerPage);
     }, [processedData, currentPage, itemsPerPage]);
 
-    // Reset page when filters change
     useEffect(() => {
         setCurrentPage(1);
     }, [activeFilters, sortConfig, itemsPerPage]);
 
-    // Helper for pagination range
     const paginationRange = useMemo(() => {
         const siblingCount = 1;
-        const totalPageNumbers = siblingCount + 5; // sibling + current + first + last + dots
+        const totalPageNumbers = siblingCount + 5;
 
-        // Case 1: Total pages is less than page numbers we want to show
         if (totalPages <= totalPageNumbers) {
             return Array.from({ length: totalPages }, (_, i) => i + 1);
         }
@@ -161,18 +146,17 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
         return [];
     }, [totalPages, currentPage]);
 
-    // --- Resizing Handler ---
     const startResizing = (e, key) => {
         e.preventDefault();
         e.stopPropagation();
 
         const table = tableRef.current;
-        const th = e.target.closest('th'); // Get the specific header
+        const th = e.target.closest('th');
         if (!table || !th) return;
 
         const startX = e.pageX;
-        const startWidth = th.offsetWidth; // Use current computed width
-        const startTableWidth = table.offsetWidth; // Use current table width
+        const startWidth = th.offsetWidth;
+        const startTableWidth = table.offsetWidth;
 
         resizingRef.current = { key, startX, startWidth, startTableWidth };
         setResizingKey(key);
@@ -182,15 +166,13 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
             const { startX, startWidth, startTableWidth } = resizingRef.current;
             const deltaX = moveEvent.pageX - startX;
 
-            const newColWidth = Math.max(80, startWidth + deltaX); // Min col width 80px
+            const newColWidth = Math.max(80, startWidth + deltaX);
 
             setColumnWidths(prev => ({
                 ...prev,
                 [key]: newColWidth
             }));
 
-            // Adjust table width to force overflow and prevent other columns from shrinking
-            // We apply the same delta to the table width
             setTableWidth(`${startTableWidth + deltaX}px`);
         };
 
@@ -205,9 +187,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
         document.addEventListener('mouseup', onMouseUp);
     };
 
-    // --- Reordering Logic (HTML5 Drag & Drop) ---
     const handleDragStart = (e, key) => {
-        // Prevent drag if resizing
         if (resizingRef.current) {
             e.preventDefault();
             return;
@@ -241,9 +221,8 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
             const oldIndex = dragOrder.indexOf(draggedKey);
             let newIndex = dragOrder.indexOf(targetKey);
 
-            if (side === 'right') newIndex += 1; // Insert after if right side
+            if (side === 'right') newIndex += 1;
 
-            // Adjust index if dragging from left to right to account for removal
             if (oldIndex < newIndex) newIndex -= 1;
 
             const newOrder = [...dragOrder];
@@ -261,14 +240,12 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
         draggingRef.current = null;
     };
 
-    // Derived columns based on order
     const orderedColumns = useMemo(() => {
         return dragOrder.map(key => tableColumns.find(c => c.key === key)).filter(Boolean);
     }, [dragOrder, tableColumns]);
 
     return (
         <div className={`border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm flex flex-col ${className}`}>
-            {/* Table Container - Added min-h to prevent filter menu clipping */}
             <div className="overflow-x-auto custom-scrollbar relative w-full min-h-[400px]">
                 <table
                     ref={tableRef}
@@ -302,7 +279,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                             />
                                         )}
                                         <div className={`flex items-center gap-2 ${col.key === 'actions' ? 'justify-center' : 'justify-between'}`}>
-                                            {/* Header Content */}
                                             <div className={`flex items-center gap-2 overflow-hidden cursor-pointer ${col.key === 'actions' ? '' : 'flex-1'}`} onClick={() => handleSort(col.key)}>
                                                 <span className={`${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}>
                                                     <MdDragIndicator className="text-slate-300 opacity-0 group-hover:opacity-100" />
@@ -315,7 +291,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                                 )}
                                             </div>
 
-                                            {/* Filter Menu (Hide for actions) */}
                                             {col.key !== 'actions' && (
                                                 <Popover className="relative">
                                                     {({ open }) => (
@@ -337,7 +312,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                                                         options={uniqueValues}
                                                                         selected={activeFilters[col.key] || []}
                                                                         onChange={(newVals) => {
-                                                                            // Direct update
                                                                             setActiveFilters(prev => {
                                                                                 const newFilters = { ...prev, [col.key]: newVals };
                                                                                 if (newVals.length === 0) delete newFilters[col.key];
@@ -354,10 +328,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                             )}
                                         </div>
 
-                                        {/* Resize Handle - Invisible by default, visible on hover/resize. 
-                                            Hitbox is wide (w-4), visual line is thin (w-[1px]).
-                                            Centering: right-[-8px] (half of w-4) to center on border.
-                                        */}
                                         {col.key !== 'actions' && index < orderedColumns.length - 1 && (
                                             <div
                                                 className="absolute right-[-8px] top-0 bottom-0 w-4 cursor-col-resize z-30 group/resizer flex justify-center"
@@ -396,7 +366,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
 
             <div className="px-4 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
 
-                {/* Items Per Page Selector & Info */}
                 <div className="flex items-center gap-4 text-xs text-slate-500">
                     <div className="flex items-center gap-2">
                         <span className="text-slate-500">Exibir:</span>
@@ -448,7 +417,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                                     const val = parseInt(e.target.value);
                                                     if (val > 0) {
                                                         setItemsPerPage(val);
-                                                        e.target.value = ''; // Clean input for feedback
+                                                        e.target.value = '';
                                                     }
                                                 }
                                             }}
@@ -464,10 +433,8 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                     </span>
                 </div>
 
-                {/* Pagination Controls */}
                 {totalPages > 1 && (
                     <div className="flex items-center gap-4">
-                        {/* Go To Page Input (Discreet) - Only visible if there are many pages (ellipses) */}
                         {paginationRange.includes('DOTS') && (
                             <div className="flex items-center gap-2 text-xs text-slate-400">
                                 <span>Ir para:</span>
@@ -491,7 +458,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                         )}
 
                         <div className="flex items-center gap-1">
-                            {/* First Page */}
                             <button
                                 onClick={() => setCurrentPage(1)}
                                 disabled={currentPage === 1}
@@ -501,7 +467,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                 <MdFirstPage size={20} />
                             </button>
 
-                            {/* Previous */}
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
@@ -511,7 +476,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                 <MdChevronLeft size={20} />
                             </button>
 
-                            {/* Numbered Pages with Ellipsis */}
                             {paginationRange.map((pageNumber, i) => {
                                 if (pageNumber === 'DOTS') {
                                     return <span key={i} className="px-2 text-slate-400 select-none">...</span>;
@@ -531,7 +495,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                 );
                             })}
 
-                            {/* Next */}
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
@@ -541,7 +504,6 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                 <MdChevronRight size={20} />
                             </button>
 
-                            {/* Last Page */}
                             <button
                                 onClick={() => setCurrentPage(totalPages)}
                                 disabled={currentPage === totalPages}

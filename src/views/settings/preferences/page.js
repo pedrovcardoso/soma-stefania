@@ -15,7 +15,6 @@ export default function PreferencesSettingsPage() {
             </h2>
 
             <div className="flex flex-col gap-10">
-                {/* Font Settings */}
                 <section>
                     <div className="flex items-center gap-2 mb-4">
                         <MdFormatSize className="text-blue-600 text-xl" />
@@ -23,7 +22,6 @@ export default function PreferencesSettingsPage() {
                     </div>
 
                     <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 flex flex-col gap-6">
-                        {/* Font Family */}
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-2">Fonte do Sistema</label>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -45,7 +43,6 @@ export default function PreferencesSettingsPage() {
 
                         <div className="h-px bg-slate-200" />
 
-                        {/* Font Size */}
                         <div>
                             <div className="flex items-center justify-between gap-4 mb-4">
                                 <span className="text-xs text-slate-500 font-medium">Tamanho da Fonte - Pequeno</span>
@@ -75,7 +72,6 @@ export default function PreferencesSettingsPage() {
                     </div>
                 </section>
 
-                {/* Theme Settings */}
                 <section>
                     <div className="flex items-center gap-2 mb-4">
                         <MdPalette className="text-blue-600 text-xl" />
@@ -83,7 +79,6 @@ export default function PreferencesSettingsPage() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {/* Light Theme */}
                         <button
                             onClick={() => setTheme('light')}
                             className={`group relative flex flex-col items-center gap-3 p-3 rounded-xl border-2 transition-all text-left
@@ -99,7 +94,6 @@ export default function PreferencesSettingsPage() {
                             <span className={`text-sm font-medium ${theme === 'light' ? 'text-blue-700' : 'text-slate-600'}`}>Claro</span>
                         </button>
 
-                        {/* Dark Theme */}
                         <button
                             onClick={() => setTheme('dark')}
                             className={`group relative flex flex-col items-center gap-3 p-3 rounded-xl border-2 transition-all text-left
@@ -115,7 +109,6 @@ export default function PreferencesSettingsPage() {
                             <span className={`text-sm font-medium ${theme === 'dark' ? 'text-blue-700' : 'text-slate-600'}`}>Escuro</span>
                         </button>
 
-                        {/* High Contrast */}
                         <button
                             onClick={() => setTheme('contrast')}
                             className={`group relative flex flex-col items-center gap-3 p-3 rounded-xl border-2 transition-all text-left
@@ -131,7 +124,6 @@ export default function PreferencesSettingsPage() {
                             <span className={`text-sm font-medium ${theme === 'contrast' ? 'text-blue-700' : 'text-slate-600'}`}>Alto Contraste</span>
                         </button>
 
-                        {/* Pink & Green */}
                         <button
                             onClick={() => setTheme('pink-green')}
                             className={`group relative flex flex-col items-center gap-3 p-3 rounded-xl border-2 transition-all text-left

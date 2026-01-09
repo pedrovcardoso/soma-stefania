@@ -19,7 +19,6 @@ export default function SettingsContainer({ data = {} }) {
     const [activeTabId, setActiveTabId] = useState('profile');
     const updateTab = useTabStore(state => state.updateTab);
 
-    // Effect to handle external navigation (e.g. from Sidebar)
     useEffect(() => {
         if (data?.activeSection) {
             setActiveTabId(data.activeSection);
@@ -32,7 +31,7 @@ export default function SettingsContainer({ data = {} }) {
     useEffect(() => {
         updateTab('settings', {
             data: {
-                ...data, // preserve existing data
+                ...data,
                 subLabel: activeTab?.name
             }
         });
@@ -47,7 +46,6 @@ export default function SettingsContainer({ data = {} }) {
 
             <div className="flex-1 max-w-7xl w-full mx-auto">
                 <div className="flex flex-col md:flex-row gap-8 h-full">
-                    {/* Sidebar Navigation */}
                     <aside className="w-full md:w-64 shrink-0">
                         <nav className="flex flex-col gap-1">
                             {settingsTabs.map((tab) => {
@@ -70,7 +68,6 @@ export default function SettingsContainer({ data = {} }) {
                         </nav>
                     </aside>
 
-                    {/* Main Content Area */}
                     <main className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
                             <ActiveComponent />

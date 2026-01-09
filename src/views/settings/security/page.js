@@ -116,7 +116,6 @@ export default function SecuritySettingsPage() {
                     </div>
                 </div>
 
-                {/* Password Strength Indicator (Visual only) */}
                 {passwords.new && (
                     <div className="space-y-2">
                         <div className="flex gap-1 h-1">

@@ -11,7 +11,6 @@ import {
   MdFitScreen
 } from 'react-icons/md';
 
-// Utilitários e Parsers (mantidos iguais)
 const getFileExtension = (url) => {
   if (!url) return '';
   return url.split('?')[0].split('.').pop().toLowerCase();
@@ -129,28 +128,26 @@ export default function DocumentViewer({ url }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [zoom, setZoom] = useState(1);
-  const [contentHeight, setContentHeight] = useState(1000); // Altura inicial estimada
+  const [contentHeight, setContentHeight] = useState(1000);
 
   const containerRef = useRef(null);
-  const contentRef = useRef(null); // Ref para medir o conteúdo real
+  const contentRef = useRef(null);
 
   const BASE_WIDTH = 816;
   const VIEWER_PADDING = 40;
 
-  // Monitora a altura real do conteúdo para ajustar o scroll
   useLayoutEffect(() => {
     if (!contentRef.current) return;
 
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
-        // Atualiza a altura baseada no conteúdo real (sem zoom)
         setContentHeight(entry.contentRect.height);
       }
     });
 
     observer.observe(contentRef.current);
     return () => observer.disconnect();
-  }, [htmlContent]); // Re-executa se o HTML mudar
+  }, [htmlContent]);
 
   useEffect(() => {
     if (!url) {
@@ -244,15 +241,13 @@ export default function DocumentViewer({ url }) {
     .document-content a { color: #2563eb; text-decoration: underline; }
   `;
 
-  // Calcula dimensões do container "fantasma" que forçará o scroll correto
   const wrapperStyle = {
     width: BASE_WIDTH * zoom,
     height: contentHeight * zoom,
     position: 'relative',
-    transition: 'width 0.1s ease-out, height 0.1s ease-out' // Suaviza a mudança de tamanho do container
+    transition: 'width 0.1s ease-out, height 0.1s ease-out'
   };
 
-  // O conteúdo real é transformado, mas usa 'top left' para alinhar perfeitamente dentro do wrapper
   const contentStyle = {
     width: BASE_WIDTH,
     minHeight: BASE_WIDTH * 1.41,
@@ -283,13 +278,9 @@ export default function DocumentViewer({ url }) {
           className="flex-1 overflow-auto bg-slate-500/10 relative scroll-smooth"
           onWheel={handleWheel}
         >
-          {/* Flex container centraliza o wrapper no espaço disponível */}
           <div className="min-w-full min-h-full flex justify-center py-10 items-start">
 
-            {/* 1. Wrapper Fantasma: Tem o tamanho exato que o documento teria se fosse físico */}
             <div style={wrapperStyle}>
-
-              {/* 2. Documento Real: Escalado visualmente para caber no wrapper */}
               <div
                 ref={contentRef}
                 className="bg-white shadow-lg p-16 document-content absolute top-0 left-0 origin-top-left"

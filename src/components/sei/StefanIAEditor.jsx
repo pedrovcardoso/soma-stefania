@@ -29,9 +29,6 @@ import {
     MdTextFields
 } from 'react-icons/md';
 
-/**
- * Custom Extension for Font Size using TextStyle
- */
 const FontSize = Extension.create({
     name: 'fontSize',
     addOptions() {
@@ -68,9 +65,6 @@ const FontSize = Extension.create({
     },
 });
 
-/**
- * Toolbar Button Component
- */
 const ToolbarButton = ({ onClick, isActive, disabled, children, title }) => (
     <button
         type="button"
@@ -179,14 +173,12 @@ Atenciosamente,
     const stats = editor.storage.characterCount;
     const lineCount = editor.getText().split('\n').length;
 
-    // Logic for Redo/Undo buttons state
     const canUndo = editor.can().undo();
     const canRedo = editor.can().redo();
 
     return (
         <div className="flex flex-col h-full bg-slate-50 rounded-2xl border border-slate-200 shadow-xl overflow-hidden font-sans">
 
-            {/* Toolbar */}
             <div className="flex flex-wrap items-center justify-between px-4 py-2 bg-white border-b border-slate-200">
                 <div className="flex items-center gap-1.5">
                     <ToolbarButton
@@ -225,7 +217,6 @@ Atenciosamente,
 
                     <div className="w-px h-6 bg-slate-200 mx-1" />
 
-                    {/* Font Size Control - Per Selection */}
                     <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-200">
                         <button
                             type="button"
@@ -285,14 +276,12 @@ Atenciosamente,
             </div>
 
             <div className="flex flex-grow overflow-hidden relative">
-                {/* Writing Area */}
                 <div className="flex-grow flex flex-col overflow-y-auto custom-scrollbar bg-slate-100 p-8 items-center">
                     <div className="w-full max-w-[816px] min-h-[1056px] bg-white shadow-2xl relative">
                         <EditorContent editor={editor} />
                     </div>
                 </div>
 
-                {/* AI Sidebar */}
                 <div className="w-72 border-l border-slate-200 bg-white flex flex-col p-5 gap-5 overflow-y-auto custom-scrollbar shadow-inner">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-100">
@@ -325,7 +314,6 @@ Atenciosamente,
                     </div>
 
                     <div className="mt-auto flex flex-col gap-4">
-                        {/* Status Messages */}
                         <div className="flex flex-col gap-2">
                             {messages.map(msg => (
                                 <div
@@ -363,7 +351,6 @@ Atenciosamente,
                 </div>
             </div>
 
-            {/* Footer Stats */}
             <div className="flex items-center justify-between px-6 py-2 bg-slate-50 border-t border-slate-200">
                 <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">

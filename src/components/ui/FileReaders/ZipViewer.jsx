@@ -85,7 +85,6 @@ async function downloadZipEntry(zipEntry) {
 function TreeNode({ node, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
 
-  // Sincroniza o estado aberto se defaultOpen mudar (ex: ao pesquisar)
   useEffect(() => {
     if (defaultOpen) {
       setOpen(true);
@@ -184,7 +183,6 @@ export default function ZipViewer({ url, name }) {
 
   return (
     <div className="flex flex-col h-full w-full bg-slate-100 overflow-hidden font-sans select-none">
-      {/* Toolbar */}
       <div className="h-12 bg-white border-b border-slate-200 px-4 flex items-center justify-between shadow-sm z-20 shrink-0">
         <div className="flex items-center gap-2 bg-slate-100 rounded-md p-1 border border-slate-200">
           <MdSearch className="text-slate-400 ml-1" />
@@ -201,7 +199,6 @@ export default function ZipViewer({ url, name }) {
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-auto p-4">
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 min-h-full">
           {Object.values(tree).length > 0 ? (

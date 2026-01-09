@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 export async function POST(request) {
   const response = NextResponse.json({ success: true });
 
-  // Remove o cookie definindo maxAge como 0
   response.cookies.set({
     name: 'auth_token',
     value: '',

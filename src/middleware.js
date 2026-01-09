@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'defina-uma-chave-secreta-forte-no-env'
-);
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const AUTH_ROUTES = ['/login', '/register'];
 const PUBLIC_ASSETS = ['/_next', '/favicon.ico', '/api/auth', '/static'];

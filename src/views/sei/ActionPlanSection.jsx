@@ -14,11 +14,9 @@ function SinglePlanItem({ planData, isFirst }) {
 
     if (!planData) return null;
 
-    // Handle both old {plano, acoes} and new flat structure
     const plano = planData.plano || planData;
-    const acoes = planData.acoes || (Array.isArray(planData) ? [] : []); // In case it's the flat structure with actions inside
+    const acoes = planData.acoes || (Array.isArray(planData) ? [] : []);
 
-    // Helper for date formatting
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
         if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
@@ -28,13 +26,11 @@ function SinglePlanItem({ planData, isFirst }) {
         return dateStr;
     };
 
-    // Calculate Stats
     const totalActions = acoes?.length || 0;
     const completed = acoes?.filter(a => a.Status === 'Concluído' || a.Status === 'Implementado').length || 0;
     const inProgress = acoes?.filter(a => ['Em curso', 'Pendente', 'Em revisão', 'Em andamento'].includes(a.Status)).length || 0;
     const progressPercent = totalActions > 0 ? Math.round((completed / totalActions) * 100) : 0;
 
-    // Define Columns for SmartTable
     const columns = [
         {
             key: 'Atividade',
@@ -87,9 +83,7 @@ function SinglePlanItem({ planData, isFirst }) {
     return (
         <div className={`p-6 md:p-8 ${!isFirst ? 'border-t border-slate-100' : ''}`}>
             <div className="flex flex-col xl:flex-row gap-10">
-                {/* Left Side: Summary */}
                 <div className="w-full xl:w-1/3 flex flex-col gap-6">
-                    {/* Header Info */}
                     <div>
                         <div className="flex justify-between items-start mb-2">
                             <button
@@ -119,7 +113,6 @@ function SinglePlanItem({ planData, isFirst }) {
                         </div>
                     </div>
 
-                    {/* Progress */}
                     <div className="bg-slate-50 rounded-lg p-4 border border-slate-100">
                         <div className="flex justify-between items-end mb-2">
                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Progresso Geral</span>
@@ -135,7 +128,6 @@ function SinglePlanItem({ planData, isFirst }) {
                         </div>
                     </div>
 
-                    {/* Resolution */}
                     {plano.Resolução && (
                         <div>
                             <span className="font-bold block text-slate-400 text-[10px] uppercase mb-1.5 tracking-wider">Objetivo / Resolução</span>
@@ -143,7 +135,6 @@ function SinglePlanItem({ planData, isFirst }) {
                         </div>
                     )}
 
-                    {/* Team */}
                     {plano.objPessoas && plano.objPessoas.length > 0 && (
                         <div>
                             <span className="font-bold block text-slate-400 text-[10px] uppercase mb-2 tracking-wider">Equipe Responsável</span>
@@ -173,7 +164,6 @@ function SinglePlanItem({ planData, isFirst }) {
                         </div>
                     )}
 
-                    {/* Action Toggles for Small Screens / Mid-range */}
                     <div className="flex flex-col gap-3 xl:hidden">
                         <button
                             onClick={handleViewFullPlan}
@@ -185,7 +175,6 @@ function SinglePlanItem({ planData, isFirst }) {
                     </div>
                 </div>
 
-                {/* Right Side: SmartTable - ONLY on large screens */}
                 <div className="hidden xl:block w-full xl:w-2/3 min-w-0">
                     <SmartTable
                         data={acoes}
@@ -212,7 +201,6 @@ export default function ActionPlanSection({ seiNumber }) {
             setLoading(true);
             try {
                 const result = await fetchActionPlan(seiNumber);
-                // Handle different response formats
                 let plansArray = [];
                 if (Array.isArray(result)) {
                     plansArray = result;
@@ -247,7 +235,6 @@ export default function ActionPlanSection({ seiNumber }) {
 
     if (error) return null;
 
-    // Empty state
     if (!data || data.length === 0) {
         return (
             <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 flex flex-col items-center justify-center mt-8 text-center bg-slate-50/30">

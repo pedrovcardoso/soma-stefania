@@ -80,7 +80,6 @@ export default function DocumentsDetailView({ processId, lastReload }) {
         <div className="h-full flex flex-col font-sans overflow-hidden bg-slate-50/30">
             <div className="max-w-7xl w-full mx-auto space-y-8 flex-grow flex flex-col h-full py-6 px-4 md:px-6">
 
-                {/* Status Bar */}
                 <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
                     <div className="flex flex-wrap items-center gap-8">
                         <div className="flex items-center gap-3">
@@ -111,10 +110,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                     )}
                 </div>
 
-                {/* Main Workspace */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[650px] min-h-0">
-
-                    {/* Sidebar: Navigation & Filters */}
                     <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-4 min-h-0">
                         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden min-h-0 flex-grow">
                             <div className="p-4 border-b border-slate-100 flex flex-col gap-3">
@@ -176,13 +172,11 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                         </div>
                     </div>
 
-                    {/* Viewer: Large Area */}
                     <div className="lg:col-span-8 xl:col-span-9 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden flex flex-col">
                         <UniversalDocumentViewer document={selectedDocument} />
                     </div>
                 </div>
 
-                {/* Editor Section */}
                 <div className="flex flex-col gap-6 pb-20 pt-8 border-t border-slate-100">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">

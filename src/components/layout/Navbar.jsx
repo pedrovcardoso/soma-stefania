@@ -19,7 +19,6 @@ import {
 } from 'react-icons/md'
 
 const getTabIcon = (type, title) => {
-  // Mapeamento baseado no 'type' da arquitetura SOMA
   if (type === 'home') return MdHome
   if (type === 'dashboard') return MdBarChart
   if (type === 'sei_list') return MdLanguage
@@ -31,12 +30,10 @@ const getTabIcon = (type, title) => {
   if (type === 'action_plans') return MdAddToPhotos
   if (type === 'settings') return MdSettings
 
-  return MdDescription // Ícone padrão (Documento)
+  return MdDescription
 }
 
 export default function Navbar() {
-  // 'addTab' renomeado para 'openTab' conforme a Store
-  // 'reorderTabs' deve ser adicionado ao Store para o D&D funcionar
   const { tabs, activeTabId, switchTab, closeTab, openTab, reorderTabs } = useTabStore()
 
   const handleTabClick = (tabId) => {
@@ -84,7 +81,6 @@ export default function Navbar() {
         const [removed] = newTabs.splice(draggedIndex, 1)
         newTabs.splice(targetIndex, 0, removed)
 
-        // Verifica se a função existe na store antes de chamar
         if (reorderTabs) reorderTabs(newTabs)
       }
     }
@@ -97,7 +93,6 @@ export default function Navbar() {
     setDragOverTabId(null)
   }
 
-  // Define se a Home está ativa
   const isHomeActive = activeTabId === 'home'
 
   return (
@@ -113,7 +108,6 @@ export default function Navbar() {
       <div className="flex items-center flex-1 min-w-0 h-full overflow-hidden">
         {tabs.map((tab, index) => {
           const isActive = activeTabId === tab.id
-          // Passamos tab.type em vez de tab.path
           const Icon = getTabIcon(tab.type, tab.title)
           const isLast = index === tabs.length - 1
           const isDragging = draggedTabId === tab.id
@@ -154,7 +148,6 @@ export default function Navbar() {
                   alignItems: 'center',
                 }}
               >
-                {/* Icon Container */}
                 <div className="relative w-5 h-5 flex-shrink-0 flex items-center justify-center mr-2">
                   <Icon
                     className={`w-4 h-4 transition-opacity duration-200
@@ -162,7 +155,6 @@ export default function Navbar() {
                       group-hover/tab:opacity-0
                     `}
                   />
-                  {/* Close button that always overlays icon on hover for any tab */}
                   <button
                     onClick={(e) => handleCloseTab(e, tab.id)}
                     className={`absolute inset-0 flex items-center justify-center rounded transition-all duration-200

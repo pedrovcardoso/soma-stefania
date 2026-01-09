@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate longer upload time
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     return NextResponse.json({
         status: "finalizado",

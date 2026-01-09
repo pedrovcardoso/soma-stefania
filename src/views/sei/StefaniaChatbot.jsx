@@ -52,7 +52,6 @@ export default function StefaniaChatbot() {
         e.preventDefault();
         if (!inputValue.trim()) return;
 
-        // User Message
         const userMsg = {
             id: Date.now(),
             text: inputValue,
@@ -64,7 +63,6 @@ export default function StefaniaChatbot() {
         setInputValue("");
         setIsTyping(true);
 
-        // Simulate API delay (longer if context is enabled)
         const delay = useTreeContext ? Math.random() * 2000 + 2000 : Math.random() * 1000 + 1000;
 
         setTimeout(() => {
@@ -109,7 +107,6 @@ export default function StefaniaChatbot() {
 
     return (
         <>
-            {/* Floating Toggle Button */}
             <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
                 <button
                     type="button"
@@ -123,7 +120,6 @@ export default function StefaniaChatbot() {
                 </button>
             </div>
 
-            {/* Chat Interface */}
             <Transition
                 as="div"
                 show={isOpen}
@@ -136,7 +132,6 @@ export default function StefaniaChatbot() {
                 className={`fixed bottom-24 right-6 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden ring-1 ring-black/5 transition-all duration-500 ease-in-out ${isExpanded ? 'w-[80vw] h-[85vh] max-h-[85vh] md:w-[70vw]' : 'w-[90vw] md:w-[400px] h-[600px] max-h-[80vh]'
                     }`}
             >
-                {/* Header */}
                 <div className="bg-blue-800 p-4 flex items-center justify-between text-white shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 flex items-center justify-center">
@@ -152,7 +147,6 @@ export default function StefaniaChatbot() {
                     </button>
                 </div>
 
-                {/* Settings / Context Alert */}
                 <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 shrink-0">
                     <label className="flex items-start gap-3 cursor-pointer group">
                         <div className="relative flex items-center mt-1">
@@ -178,7 +172,6 @@ export default function StefaniaChatbot() {
                     </label>
                 </div>
 
-                {/* Messages Area */}
                 <div className="flex-1 overflow-y-auto p-4 bg-slate-50/30 scroll-smooth">
                     <div className="space-y-1">
                         {messages.map((msg, index) => {
@@ -250,7 +243,6 @@ export default function StefaniaChatbot() {
                     <div ref={messagesEndRef} />
                 </div>
 
-                {/* Input Area */}
                 <div className="p-4 bg-white border-t border-slate-100 shrink-0">
                     <form onSubmit={handleSendMessage} className="relative flex items-center gap-2">
                         <input

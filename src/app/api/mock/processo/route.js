@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-// Massa de dados baseada no seu JSON
 const RAW_DATA = [
     {
         "id": "1500.01.0237225/2023-69",
@@ -3472,7 +3471,7 @@ async function parseBody(request) {
 export async function POST(request) {
     await new Promise(r => setTimeout(r, 400));
     const rawBody = await parseBody(request);
-    
+
     const toArray = (v) => v ? (Array.isArray(v) ? v : [v]) : [];
     const filtros = {
         anos: toArray(rawBody.ano_referencia || rawBody.year),
@@ -3492,7 +3491,7 @@ export async function POST(request) {
         const d = new Date(p.deadline);
         if (filtros.dt_inicio && d < new Date(filtros.dt_inicio)) return false;
         if (filtros.dt_fim && d > new Date(filtros.dt_fim)) return false;
-        
+
         return true;
     });
 

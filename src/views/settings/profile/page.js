@@ -23,11 +23,9 @@ export default function ProfileSettingsPage() {
             </h2>
 
             <div className="flex flex-col gap-8">
-                {/* Photo Section */}
                 <div className="flex items-start gap-6">
                     <div className="relative group cursor-pointer">
                         <div className="w-24 h-24 rounded-full bg-slate-200 border-4 border-white shadow-md overflow-hidden flex items-center justify-center">
-                            {/* Placeholder for actual image */}
                             <span className="text-2xl font-bold text-slate-400">ST</span>
                         </div>
                         <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -45,7 +43,6 @@ export default function ProfileSettingsPage() {
                     </div>
                 </div>
 
-                {/* Form Fields */}
                 <div className="grid gap-6">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -108,7 +105,6 @@ export default function ProfileSettingsPage() {
                     </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100 mt-2">
                     <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
                         Cancelar

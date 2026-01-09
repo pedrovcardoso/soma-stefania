@@ -11,7 +11,6 @@ const useTabStore = create(
       openTab: (newTab) => {
         const { tabs } = get();
 
-        // Log to history directly using the store's getState()
         useHistoryStore.getState().addToHistory(newTab);
 
         if (newTab.id === 'home') {
@@ -74,8 +73,6 @@ const useTabStore = create(
       },
       reloadTab: (id) => {
         const { tabs } = get();
-        // Se for home, podemos tratar separadamente se necessário, 
-        // mas por enquanto focamos nos processos/documentos que estão em tabs
         const newTabs = tabs.map((t) => (t.id === id ? { ...t, lastReload: Date.now() } : t));
         set({ tabs: newTabs });
       },

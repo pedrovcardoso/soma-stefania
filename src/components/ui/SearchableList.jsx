@@ -6,19 +6,17 @@ import { MdSearch, MdRefresh } from 'react-icons/md';
 export default function SearchableList({
     options = [],
     selected = [],
-    onChange, // (newSelectedValues) => void
+    onChange,
     placeholder = 'Pesquisar...',
     enableSelectAll = false
 }) {
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Normalize text for fuzzy search
     const normalizeText = (text) => {
         if (!text) return '';
         return text.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     };
 
-    // Filter and Sort options
     const filteredOptions = useMemo(() => {
         let result = options;
         if (searchTerm) {
@@ -27,7 +25,6 @@ export default function SearchableList({
                 normalizeText(option).includes(normalizedSearch)
             );
         }
-        // Sort: Selected items first, then alphabetical
         return [...result].sort((a, b) => {
             const aSelected = selected.includes(a);
             const bSelected = selected.includes(b);
@@ -45,9 +42,6 @@ export default function SearchableList({
     };
 
     const handleSelectAll = () => {
-        // If sorting/filtering is active, only select filtered? 
-        // For simplicity and consistency with previous SmartTable logic, usually selects all available in the list context.
-        // But usually "Select All" means all options in the column.
         onChange(options);
     };
 
@@ -57,7 +51,6 @@ export default function SearchableList({
 
     return (
         <div className="flex flex-col h-full bg-white">
-            {/* Search Bar */}
             <div className="p-2 border-b border-slate-100 bg-slate-50/50 sticky top-0 z-10">
                 <div className="relative">
                     <MdSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -73,7 +66,6 @@ export default function SearchableList({
                 </div>
             </div>
 
-            {/* Options List */}
             <div className="max-h-60 overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
                 {filteredOptions.length > 0 ? (
                     filteredOptions.map(option => {
@@ -99,7 +91,6 @@ export default function SearchableList({
                 )}
             </div>
 
-            {/* Footer Actions - Always Visible */}
             <div className="bg-slate-50 border-t border-slate-100 px-3 py-2 text-xs text-slate-500 flex justify-between items-center gap-3 shrink-0">
                 <button
                     onClick={(e) => { e.stopPropagation(); handleSelectAll(); }}

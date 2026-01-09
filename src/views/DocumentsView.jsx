@@ -1,4 +1,3 @@
-// File cleared for future use
 export default function DocumentsPage() {
   return (
     <div className="px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 bg-slate-50 min-h-full font-sans">

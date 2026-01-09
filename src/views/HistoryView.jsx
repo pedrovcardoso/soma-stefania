@@ -6,21 +6,18 @@ import useHistoryStore from '@/store/useHistoryStore';
 import FilterPanel from '@/components/ui/FilterPanel';
 import MultiSelect from '@/components/ui/MultiSelect';
 
-// --- DEPENDÊNCIAS ---
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, subWeeks, subDays, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Menu, Popover, Transition } from '@headlessui/react';
 
-// --- ÍCONES ---
 import {
   MdSearch, MdClose, MdBarChart, MdLanguage, MdDescription,
   MdDeleteSweep, MdHistory, MdFilterList, MdMoreVert, MdCalendarToday,
   MdExpandMore, MdRefresh, MdPushPin, MdLaunch, MdShare, MdFavorite, MdFavoriteBorder
 } from 'react-icons/md';
 
-// --- HELPERS ---
 const PAGE_TYPES = {
   dashboard: { label: 'Dashboard', icon: <MdBarChart className="text-slate-500" /> },
   sei_list: { label: 'Processos SEI', icon: <MdLanguage className="text-slate-500" /> },
@@ -39,7 +36,7 @@ const TYPE_MAPPING = {
 const getPageInfo = (type) => {
   if (!type) return PAGE_TYPES.default;
   if (type === 'dashboard') return PAGE_TYPES.dashboard;
-  if (type.startsWith('sei')) return PAGE_TYPES.sei_list; // Mapeia ambos
+  if (type.startsWith('sei')) return PAGE_TYPES.sei_list;
   if (type.startsWith('doc')) return PAGE_TYPES.doc_list;
   return PAGE_TYPES.default;
 };
@@ -58,7 +55,7 @@ export default function HistoryView() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    pageType: [], // Changed from 'all' string to empty array for MultiSelect
+    pageType: [],
     datePreset: 'all',
     dateRange: { from: undefined, to: undefined },
     isFixed: false,
@@ -113,7 +110,6 @@ export default function HistoryView() {
 
       const itemType = item.type || 'default';
 
-      // New Logic for MultiSelect
       let pageTypeMatch = true;
       if (filters.pageType.length > 0) {
         pageTypeMatch = filters.pageType.some(selectedLabel => {

@@ -5,9 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true'
   ? 'http://localhost:3000/api/mock'
   : process.env.API_URL;
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'defina-uma-chave-secreta-forte-no-env'
-);
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function POST(request) {
   const { email, password } = await request.json();
@@ -42,7 +40,7 @@ export async function POST(request) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
-      maxAge: 7200 // 2 horas em segundos
+      maxAge: 7200
     });
 
     return response;

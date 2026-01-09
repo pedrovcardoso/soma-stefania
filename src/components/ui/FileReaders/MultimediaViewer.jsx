@@ -10,7 +10,6 @@ export default function MultimediaViewer({ url, name, type }) {
 
   const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'avi'].includes(type);
 
-  // Apenas para consistência com os outros viewers, o carregamento de mídia é rápido
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -57,18 +56,13 @@ export default function MultimediaViewer({ url, name, type }) {
         </div>
       ) : (
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full flex flex-col items-center border border-white/50 backdrop-blur-sm relative overflow-hidden">
-          {/* Decorações de fundo */}
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-100 rounded-full blur-3xl opacity-60"></div>
           <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-60"></div>
-
-          {/* Ícone */}
           <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mb-6 shadow-inner relative z-10 border border-slate-100">
             <div className="bg-gradient-to-tr from-purple-500 to-blue-500 text-white rounded-full p-6 shadow-lg">
               <MdMusicNote size={48} />
             </div>
           </div>
-
-          {/* Player de Áudio */}
           <div className="w-full bg-slate-50 p-4 rounded-xl relative z-10 border border-slate-200/60 shadow-sm">
             <audio
               controls
