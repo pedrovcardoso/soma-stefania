@@ -48,6 +48,7 @@ Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)**: Aprofundamento na arquitetura de abas "Hidden View", Gerenciamento de Estado e hierarquia de Componentes.
 - **[AUTH.md](docs/AUTH.md)**: Guia para autenticação e autorização do sistema.
 - **[ICONS.md](docs/ICONS.md)**: Guia para ícones padrão reutilizáveis do sistema.
+- **[COLORS.md](docs/COLORS.md)**: Documentação detalhada do sistema de cores semânticas e temas.
 - **Documentação da API**: O Swagger UI com os endpoints atuais está disponível dentro da aplicação em **Configurações > Sobre o Sistema**.
 
 ## Pré-requisitos

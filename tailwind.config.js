@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     './src/pages/**/*.{js,jsx}',
@@ -12,10 +11,15 @@ module.exports = {
         primary: 'var(--color-primary)',
         secondary: 'var(--color-secondary)',
         accent: 'var(--color-accent)',
+        'accent-100': 'var(--color-accent-100)',
+        'accent-soft': 'var(--color-accent-soft)',
         background: 'var(--color-background)',
         surface: 'var(--color-surface)',
+        'surface-alt': 'var(--color-surface-alt)',
+        elevated: 'var(--color-elevated)',
         text: 'var(--color-text)',
         'text-secondary': 'var(--color-text-secondary)',
+        'text-muted': 'var(--color-text-muted)',
         border: 'var(--color-border)',
         error: 'var(--color-error)',
         success: 'var(--color-success)',

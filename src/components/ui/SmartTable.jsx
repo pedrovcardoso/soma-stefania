@@ -33,6 +33,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
         setTableColumns(columns);
         setDragOrder(columns.map(c => c.key));
     }, [columns]);
+
     const getUniqueValues = (key) => {
         const values = new Set();
         data.forEach(item => {
@@ -245,14 +246,14 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
     }, [dragOrder, tableColumns]);
 
     return (
-        <div className={`border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm flex flex-col ${className}`}>
+        <div className={`border border-border rounded-lg overflow-hidden bg-surface shadow-sm flex flex-col ${className}`}>
             <div className="overflow-x-auto custom-scrollbar relative w-full min-h-[400px]">
                 <table
                     ref={tableRef}
                     className="text-left border-collapse"
                     style={{ tableLayout: 'fixed', width: tableWidth, minWidth: '100%' }}
                 >
-                    <thead className="bg-slate-50 sticky top-0 z-20 shadow-sm border-b border-slate-200">
+                    <thead className="bg-surface-alt sticky top-0 z-20 shadow-sm border-b border-border">
                         <tr>
                             {orderedColumns.map((col, index) => {
                                 const uniqueValues = getUniqueValues(col.key);
@@ -271,21 +272,21 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                         onDrop={handleDrop}
                                         onDragEnd={handleDragEnd}
                                         style={{ width: columnWidths[col.key] || col.width ? `${columnWidths[col.key] || col.width}px` : undefined }}
-                                        className="relative px-3 py-3 text-xs font-semibold text-slate-500 tracking-wider group select-none hover:bg-slate-100/50 transition-colors"
+                                        className="relative px-3 py-3 text-xs font-semibold text-text-muted tracking-wider group select-none hover:bg-surface-alt transition-colors"
                                     >
                                         {isDragOver && (
                                             <div
-                                                className={`absolute top-0 bottom-0 w-1 bg-slate-300 z-50 pointer-events-none ${dragSide === 'left' ? 'left-0' : 'right-0'}`}
+                                                className={`absolute top-0 bottom-0 w-1 bg-accent z-50 pointer-events-none ${dragSide === 'left' ? 'left-0' : 'right-0'}`}
                                             />
                                         )}
                                         <div className={`flex items-center gap-2 ${col.key === 'actions' ? 'justify-center' : 'justify-between'}`}>
                                             <div className={`flex items-center gap-2 overflow-hidden cursor-pointer ${col.key === 'actions' ? '' : 'flex-1'}`} onClick={() => handleSort(col.key)}>
                                                 <span className={`${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}>
-                                                    <MdDragIndicator className="text-slate-300 opacity-0 group-hover:opacity-100" />
+                                                    <MdDragIndicator className="text-text-muted opacity-0 group-hover:opacity-100" />
                                                 </span>
                                                 <span className="truncate">{col.label}</span>
                                                 {sortConfig.key === col.key && (
-                                                    <span className="text-blue-600">
+                                                    <span className="text-accent">
                                                         {sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />}
                                                     </span>
                                                 )}
@@ -295,7 +296,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                                 <Popover className="relative">
                                                     {({ open }) => (
                                                         <>
-                                                            <Popover.Button className={`p-1 rounded-full hover:bg-slate-200 outline-none transition-colors ${open || (isFiltered && activeFilters[col.key]?.length < uniqueValues.length) ? 'text-blue-600 bg-blue-50' : 'text-slate-300 opacity-0 group-hover:opacity-100'}`}>
+                                                            <Popover.Button className={`p-1 rounded-full hover:bg-surface-alt outline-none transition-colors ${open || (isFiltered && activeFilters[col.key]?.length < uniqueValues.length) ? 'text-accent bg-accent-soft' : 'text-text-muted opacity-0 group-hover:opacity-100'}`}>
                                                                 <MdFilterList size={16} />
                                                             </Popover.Button>
                                                             <Transition
@@ -307,7 +308,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                                                 leaveFrom="transform opacity-100 scale-100"
                                                                 leaveTo="transform opacity-0 scale-95"
                                                             >
-                                                                <Popover.Panel className={`absolute mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-100 ring-1 ring-black ring-opacity-5 focus:outline-none z-[100] overflow-hidden ${index === 0 ? 'left-0' : 'right-0'}`}>
+                                                                <Popover.Panel className={`absolute mt-2 w-64 bg-surface rounded-xl shadow-xl border border-border z-[100] overflow-hidden ${index === 0 ? 'left-0' : 'right-0'}`}>
                                                                     <SearchableList
                                                                         options={uniqueValues}
                                                                         selected={activeFilters[col.key] || []}
@@ -334,8 +335,8 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                                 onMouseDown={(e) => startResizing(e, col.key)}
                                             >
                                                 <div className={`w-[1px] h-full transition-colors ${isResizingThis
-                                                    ? 'bg-blue-500 text-blue-500'
-                                                    : 'bg-slate-300 opacity-0 group-hover/resizer:opacity-100'
+                                                    ? 'bg-accent'
+                                                    : 'bg-border opacity-0 group-hover/resizer:opacity-100'
                                                     }`} />
                                             </div>
                                         )}
@@ -344,18 +345,18 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                             })}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
+                    <tbody className="divide-y divide-border bg-surface">
                         {paginatedData.length > 0 ? paginatedData.map((row, rowIndex) => (
-                            <tr key={rowIndex} className="hover:bg-slate-100 transition-colors">
+                            <tr key={rowIndex} className="hover:bg-surface-alt transition-colors">
                                 {orderedColumns.map(col => (
-                                    <td key={col.key} className="px-4 py-3 text-sm text-slate-600 border-b border-slate-50 truncate" title={typeof row[col.key] === 'string' ? row[col.key] : ''} >
+                                    <td key={col.key} className="px-4 py-3 text-sm text-text border-b border-surface-alt truncate" title={typeof row[col.key] === 'string' ? row[col.key] : ''} >
                                         {col.render ? col.render(row) : row[col.key]}
                                     </td>
                                 ))}
                             </tr>
                         )) : (
                             <tr>
-                                <td colSpan={orderedColumns.length} className="px-6 py-10 text-center text-slate-500 italic">
+                                <td colSpan={orderedColumns.length} className="px-6 py-10 text-center text-text-muted italic">
                                     Nenhum dado encontrado com os filtros atuais.
                                 </td>
                             </tr>
@@ -364,15 +365,15 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                 </table>
             </div>
 
-            <div className="px-4 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+            <div className="px-4 py-3 bg-surface-alt border-t border-border flex items-center justify-between">
 
-                <div className="flex items-center gap-4 text-xs text-slate-500">
+                <div className="flex items-center gap-4 text-xs text-text-muted">
                     <div className="flex items-center gap-2">
-                        <span className="text-slate-500">Exibir:</span>
+                        <span>Exibir:</span>
                         <Popover className="relative">
-                            <Popover.Button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all outline-none focus:ring-2 focus:ring-blue-500/20 active:scale-95">
+                            <Popover.Button className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-border rounded-md text-xs font-medium text-text hover:bg-surface-alt hover:border-border transition-all outline-none focus:ring-2 focus:ring-accent/20 active:scale-95">
                                 <span>{itemsPerPage}</span>
-                                <MdKeyboardArrowDown className="text-slate-400" size={16} />
+                                <MdKeyboardArrowDown className="text-text-muted" size={16} />
                             </Popover.Button>
 
                             <Transition
@@ -384,8 +385,8 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                 leaveFrom="transform opacity-100 scale-100 translate-y-0"
                                 leaveTo="transform opacity-0 scale-95 translate-y-2"
                             >
-                                <Popover.Panel className="absolute bottom-full left-0 mb-2 w-40 bg-white rounded-xl shadow-xl border border-slate-100 ring-1 ring-black ring-opacity-5 focus:outline-none z-[100] p-1.5 flex flex-col gap-0.5 origin-bottom-left">
-                                    <div className="text-[10px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider">
+                                <Popover.Panel className="absolute bottom-full left-0 mb-2 w-40 bg-surface rounded-xl shadow-xl border border-border z-[100] p-1.5 flex flex-col gap-0.5 origin-bottom-left">
+                                    <div className="text-[10px] font-semibold text-text-muted px-2 py-1 uppercase tracking-wider">
                                         Linhas por página
                                     </div>
 
@@ -394,24 +395,23 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                             key={size}
                                             onClick={() => setItemsPerPage(size)}
                                             className={`flex items-center justify-between w-full px-2 py-1.5 rounded-lg text-xs transition-colors ${itemsPerPage === size
-                                                ? 'bg-blue-50 text-blue-700 font-medium'
-                                                : 'text-slate-600 hover:bg-slate-50'
+                                                ? 'bg-accent-soft text-accent font-medium'
+                                                : 'text-text hover:bg-surface-alt'
                                                 }`}
                                         >
                                             <span>{size}</span>
-                                            {itemsPerPage === size && <MdCheck size={14} className="text-blue-600" />}
+                                            {itemsPerPage === size && <MdCheck size={14} className="text-accent" />}
                                         </button>
                                     ))}
 
-                                    <div className="h-px bg-slate-100 my-1 mx-1" />
+                                    <div className="h-px bg-border my-1 mx-1" />
 
                                     <div className="px-2 py-1">
-                                        <div className="text-[10px] text-slate-400 mb-1">Personalizado</div>
+                                        <div className="text-[10px] text-text-muted mb-1">Personalizado</div>
                                         <input
                                             type="number"
                                             min="1"
                                             max="1000"
-                                            placeholder="..."
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter') {
                                                     const val = parseInt(e.target.value);
@@ -421,7 +421,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                                     }
                                                 }
                                             }}
-                                            className="w-full px-2 py-1 text-xs border border-slate-200 rounded-md outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-300"
+                                            className="w-full px-2 py-1 text-xs border border-border rounded-md outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all bg-surface text-text"
                                         />
                                     </div>
                                 </Popover.Panel>
@@ -436,13 +436,13 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                 {totalPages > 1 && (
                     <div className="flex items-center gap-4">
                         {paginationRange.includes('DOTS') && (
-                            <div className="flex items-center gap-2 text-xs text-slate-400">
+                            <div className="flex items-center gap-2 text-xs text-text-muted">
                                 <span>Ir para:</span>
                                 <input
                                     type="number"
                                     min="1"
                                     max={totalPages}
-                                    className="w-10 px-1 py-0.5 border border-slate-200 rounded text-center text-slate-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all bg-white"
+                                    className="w-12 px-2 py-1 border border-border rounded text-center text-text outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all bg-surface shadow-inner"
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                             const val = parseInt(e.target.value);
@@ -461,8 +461,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                             <button
                                 onClick={() => setCurrentPage(1)}
                                 disabled={currentPage === 1}
-                                className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-slate-500"
-                                title="Primeira página"
+                                className="p-1 rounded hover:bg-surface-alt disabled:opacity-30 transition-colors text-text-muted"
                             >
                                 <MdFirstPage size={20} />
                             </button>
@@ -470,15 +469,14 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-slate-500"
-                                title="Página anterior"
+                                className="p-1 rounded hover:bg-surface-alt disabled:opacity-30 transition-colors text-text-muted"
                             >
                                 <MdChevronLeft size={20} />
                             </button>
 
                             {paginationRange.map((pageNumber, i) => {
                                 if (pageNumber === 'DOTS') {
-                                    return <span key={i} className="px-2 text-slate-400 select-none">...</span>;
+                                    return <span key={i} className="px-2 text-text-muted select-none">...</span>;
                                 }
 
                                 return (
@@ -486,8 +484,8 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                         key={i}
                                         onClick={() => setCurrentPage(pageNumber)}
                                         className={`w-7 h-7 flex items-center justify-center rounded-md text-xs font-medium transition-all ${currentPage === pageNumber
-                                            ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-600'
-                                            : 'text-slate-600 hover:bg-slate-100 border border-transparent hover:border-slate-200'
+                                            ? 'bg-accent text-accent-contrast shadow-sm ring-1 ring-accent'
+                                            : 'text-text hover:bg-surface-alt border border-transparent hover:border-border'
                                             }`}
                                     >
                                         {pageNumber}
@@ -498,8 +496,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-slate-500"
-                                title="Próxima página"
+                                className="p-1 rounded hover:bg-surface-alt disabled:opacity-30 transition-colors text-text-muted"
                             >
                                 <MdChevronRight size={20} />
                             </button>
@@ -507,8 +504,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                             <button
                                 onClick={() => setCurrentPage(totalPages)}
                                 disabled={currentPage === totalPages}
-                                className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-slate-500"
-                                title="Última página"
+                                className="p-1 rounded hover:bg-surface-alt disabled:opacity-30 transition-colors text-text-muted"
                             >
                                 <MdLastPage size={20} />
                             </button>

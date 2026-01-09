@@ -149,7 +149,7 @@ export default function Breadcrumb() {
 
     return (
         <nav
-            className="flex items-center justify-between px-4 py-2 bg-white border-b border-slate-200 cursor-text"
+            className="flex items-center justify-between px-4 py-2 bg-surface border-b border-border cursor-text"
             onClick={(e) => {
                 if (e.target.closest('button') || e.target.closest('.crumb-link')) return;
                 enterEditMode();
@@ -167,16 +167,16 @@ export default function Breadcrumb() {
                             if (e.key === 'Escape') setIsEditing(false);
                         }}
                         onBlur={() => setIsEditing(false)}
-                        className="w-full h-6 text-[11px] font-medium text-blue-600 bg-blue-50/50 border border-blue-200 rounded px-2 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                        className="w-full h-6 text-[11px] font-medium text-accent bg-accent-soft border border-accent/20 rounded px-2 focus:outline-none focus:ring-1 focus:ring-accent"
                         spellCheck={false}
                     />
                 ) : (
-                    <div className="flex items-center space-x-2 text-[11px] font-medium text-slate-500 uppercase tracking-wider">
+                    <div className="flex items-center space-x-2 text-[11px] font-medium text-text-muted uppercase tracking-wider">
                         {breadcrumbs.map((crumb, index) => (
                             <React.Fragment key={crumb.id + index}>
-                                {index > 0 && <MdChevronRight size={14} className="text-slate-300 flex-shrink-0" />}
+                                {index > 0 && <MdChevronRight size={14} className="text-text-muted opacity-50 flex-shrink-0" />}
                                 <div
-                                    className={`flex items-center gap-1.5 flex-shrink-0 ${crumb.onClick ? 'hover:text-blue-600 cursor-pointer transition-colors crumb-link' : ''} ${crumb.isLast ? 'text-slate-900 font-bold' : ''}`}
+                                    className={`flex items-center gap-1.5 flex-shrink-0 ${crumb.onClick ? 'hover:text-accent cursor-pointer transition-colors crumb-link' : ''} ${crumb.isLast ? 'text-text font-bold' : ''}`}
                                     onClick={(e) => {
                                         if (crumb.onClick) {
                                             e.stopPropagation();
@@ -187,7 +187,7 @@ export default function Breadcrumb() {
                                     {crumb.icon}
                                     <span className="truncate max-w-[200px] md:max-w-xs">{crumb.label}</span>
                                     {crumb.subLabel && (
-                                        <span className="text-[10px] text-slate-400 font-normal lowercase bg-slate-100 px-1.5 py-0.5 rounded ml-1">
+                                        <span className="text-[10px] text-text-muted font-normal lowercase bg-surface-alt px-1.5 py-0.5 rounded ml-1 border border-border">
                                             {crumb.subLabel}
                                         </span>
                                     )}
@@ -204,10 +204,10 @@ export default function Breadcrumb() {
                         e.stopPropagation();
                         reloadTab(activeTabId);
                     }}
-                    className="p-1 hover:bg-slate-100 rounded-full transition-all duration-200 active:rotate-180 group ml-2 flex-shrink-0"
+                    className="p-1 hover:bg-surface-alt rounded-full transition-all duration-200 active:rotate-180 group ml-2 flex-shrink-0"
                     title="Atualizar dados"
                 >
-                    <MdRefresh size={16} className="text-slate-400 group-hover:text-blue-600" />
+                    <MdRefresh size={16} className="text-text-muted group-hover:text-accent" />
                 </button>
             )}
         </nav>

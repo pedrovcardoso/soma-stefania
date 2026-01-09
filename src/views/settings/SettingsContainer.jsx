@@ -38,10 +38,10 @@ export default function SettingsContainer({ data = {} }) {
     }, [activeTabId, updateTab, activeTab?.name]);
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 overflow-auto px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10">
+        <div className="flex flex-col h-full bg-surface-alt overflow-auto px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10">
             <div className="max-w-7xl w-full mx-auto mb-6">
-                <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Configurações</h1>
-                <p className="text-slate-500 mt-2">Gerencie suas informações, preferências e segurança</p>
+                <h1 className="text-4xl font-extrabold text-text tracking-tight">Configurações</h1>
+                <p className="text-text-muted mt-2">Gerencie suas informações, preferências e segurança</p>
             </div>
 
             <div className="flex-1 max-w-7xl w-full mx-auto">
@@ -56,11 +56,11 @@ export default function SettingsContainer({ data = {} }) {
                                         onClick={() => setActiveTabId(tab.id)}
                                         className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all text-left
                                             ${isActive
-                                                ? 'bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-100'
-                                                : 'text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm'
+                                                ? 'bg-accent-soft text-accent shadow-sm ring-1 ring-accent/20'
+                                                : 'text-text-secondary hover:bg-surface hover:text-text hover:shadow-sm'
                                             }`}
                                     >
-                                        <tab.icon className={`text-lg ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
+                                        <tab.icon className={`text-lg ${isActive ? 'text-accent' : 'text-text-muted'}`} />
                                         {tab.name}
                                     </button>
                                 );
@@ -68,7 +68,7 @@ export default function SettingsContainer({ data = {} }) {
                         </nav>
                     </aside>
 
-                    <main className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    <main className="flex-1 bg-surface rounded-xl shadow-sm border border-border overflow-hidden flex flex-col">
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
                             <ActiveComponent />
                         </div>

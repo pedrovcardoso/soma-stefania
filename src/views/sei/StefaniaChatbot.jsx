@@ -112,8 +112,8 @@ export default function StefaniaChatbot() {
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
                     className={`p-4 rounded-full shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center ${isOpen
-                        ? 'bg-slate-700 text-white rotate-90'
-                        : 'bg-blue-800 text-white hover:shadow-blue-500/30'
+                        ? 'bg-elevated text-text'
+                        : 'bg-accent text-accent-contrast shadow-accent/20'
                         }`}
                 >
                     {isOpen ? <MdClose size={28} /> : <MdAutoAwesome size={28} />}
@@ -129,25 +129,25 @@ export default function StefaniaChatbot() {
                 leave="transition-all ease-in duration-300 transform origin-bottom-right"
                 leaveFrom="opacity-100 scale-100 translate-y-0"
                 leaveTo="opacity-0 scale-95 translate-y-10"
-                className={`fixed bottom-24 right-6 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden ring-1 ring-black/5 transition-all duration-500 ease-in-out ${isExpanded ? 'w-[80vw] h-[85vh] max-h-[85vh] md:w-[70vw]' : 'w-[90vw] md:w-[400px] h-[600px] max-h-[80vh]'
+                className={`fixed bottom-24 right-6 bg-surface rounded-2xl shadow-2xl border border-border z-50 flex flex-col overflow-hidden ring-1 ring-black/5 transition-all duration-500 ease-in-out ${isExpanded ? 'w-[80vw] h-[85vh] max-h-[85vh] md:w-[70vw]' : 'w-[90vw] md:w-[400px] h-[600px] max-h-[80vh]'
                     }`}
             >
-                <div className="bg-blue-800 p-4 flex items-center justify-between text-white shrink-0">
+                <div className="bg-accent p-4 flex items-center justify-between text-accent-contrast shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 flex items-center justify-center">
                             <Image src="/stefan.svg" alt="Stefania" width={40} height={40} />
                         </div>
                         <div>
                             <h3 className="font-bold text-lg leading-tight">Stefania</h3>
-                            <p className="text-xs text-blue-200">Sua assistente virtual</p>
+                            <p className="text-xs text-accent-contrast/70">Sua assistente virtual</p>
                         </div>
                     </div>
-                    <button onClick={() => setIsExpanded(!isExpanded)} className="text-white p-2 hover:bg-white/10 rounded-full">
+                    <button onClick={() => setIsExpanded(!isExpanded)} className="text-accent-contrast p-2 hover:bg-white/10 rounded-full">
                         {isExpanded ? <MdCloseFullscreen size={20} /> : <MdOpenInFull size={20} />}
                     </button>
                 </div>
 
-                <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 shrink-0">
+                <div className="bg-surface-alt px-4 py-3 border-b border-border shrink-0">
                     <label className="flex items-start gap-3 cursor-pointer group">
                         <div className="relative flex items-center mt-1">
                             <input
@@ -156,15 +156,15 @@ export default function StefaniaChatbot() {
                                 onChange={(e) => setUseTreeContext(e.target.checked)}
                                 className="peer sr-only"
                             />
-                            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-800"></div>
+                            <div className="w-9 h-5 bg-border peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
                         </div>
                         <div className="flex-1">
-                            <span className="text-sm font-semibold text-slate-700 block group-hover:text-blue-700 transition-colors">
+                            <span className="text-sm font-semibold text-text block group-hover:text-accent transition-colors">
                                 Contexto expandido
                             </span>
-                            <span className="text-[11px] text-slate-500 leading-tight block mt-0.5">
+                            <span className="text-[11px] text-text-muted leading-tight block mt-0.5">
                                 Considerar outros processos da árvore.
-                                <span className="text-amber-600 font-medium ml-1 inline-flex items-center gap-1">
+                                <span className="text-warning font-medium ml-1 inline-flex items-center gap-1">
                                     (Pode demorar mais)
                                 </span>
                             </span>
@@ -172,7 +172,7 @@ export default function StefaniaChatbot() {
                     </label>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 bg-slate-50/30 scroll-smooth">
+                <div className="flex-1 overflow-y-auto p-4 bg-surface-alt/30 scroll-smooth">
                     <div className="space-y-1">
                         {messages.map((msg, index) => {
                             const isLastMessage = index === messages.length - 1;
@@ -185,7 +185,7 @@ export default function StefaniaChatbot() {
                                     const timeDiffSeconds = Math.round((msg.timestamp - startTime) / 1000);
                                     if (timeDiffSeconds > 0) {
                                         timeDiffLabel = (
-                                            <div className="text-left italic text-xs text-slate-500 mt-1 pl-3">
+                                            <div className="text-left italic text-xs text-text-muted mt-1 pl-3">
                                                 {`resposta em ${timeDiffSeconds}s`}
                                             </div>
                                         );
@@ -208,17 +208,17 @@ export default function StefaniaChatbot() {
                                         >
                                             <div
                                                 className={`max-w-[80%] rounded-2xl px-3 py-2 shadow-sm text-sm ${msg.sender === 'user'
-                                                    ? 'bg-blue-700 text-white rounded-br-none'
-                                                    : 'bg-white border border-slate-200 text-slate-700 rounded-bl-none'
+                                                    ? 'bg-accent text-accent-contrast rounded-br-none'
+                                                    : 'bg-surface border border-border text-text rounded-bl-none'
                                                     }`}
                                             >
                                                 <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-                                                <span className={`text-[10px] block mt-0.5 text-right ${msg.sender === 'user' ? 'text-blue-200' : 'text-slate-400'}`}>
+                                                <span className={`text-[10px] block mt-0.5 text-right ${msg.sender === 'user' ? 'text-accent-contrast/60' : 'text-text-muted/60'}`}>
                                                     {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
                                             {msg.sender === 'bot' && isLastMessage && !isTyping && (
-                                                <button onClick={handleRegenerate} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-200 rounded-full transition-colors">
+                                                <button onClick={handleRegenerate} className="p-1.5 text-text-muted/40 hover:text-accent hover:bg-surface-alt rounded-full transition-colors">
                                                     <MdRefresh size={18} />
                                                 </button>
                                             )}
@@ -231,11 +231,11 @@ export default function StefaniaChatbot() {
                     </div>
                     {isTyping && (
                         <div className="flex justify-start mt-4">
-                            <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none px-3 py-2 shadow-sm">
+                            <div className="bg-surface border border-border rounded-2xl rounded-bl-none px-3 py-2 shadow-sm">
                                 <div className="flex space-x-1.5">
-                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+                                    <div className="w-2 h-2 bg-text-muted/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                                    <div className="w-2 h-2 bg-text-muted/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                                    <div className="w-2 h-2 bg-text-muted/40 rounded-full animate-bounce"></div>
                                 </div>
                             </div>
                         </div>
@@ -243,7 +243,7 @@ export default function StefaniaChatbot() {
                     <div ref={messagesEndRef} />
                 </div>
 
-                <div className="p-4 bg-white border-t border-slate-100 shrink-0">
+                <div className="p-4 bg-surface border-t border-border shrink-0">
                     <form onSubmit={handleSendMessage} className="relative flex items-center gap-2">
                         <input
                             ref={inputRef}
@@ -251,18 +251,18 @@ export default function StefaniaChatbot() {
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             placeholder="Digite sua mensagem..."
-                            className="flex-1 bg-slate-50 text-slate-800 text-sm rounded-xl border border-slate-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400"
+                            className="flex-1 bg-surface-alt text-text text-sm rounded-xl border border-border px-3 py-3 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all placeholder:text-text-muted/40"
                         />
                         <button
                             type="submit"
                             disabled={!inputValue.trim() || isTyping}
-                            className="p-3 bg-blue-800 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-800 transition-colors shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            className="p-3 bg-accent text-accent-contrast rounded-xl hover:bg-accent hover:opacity-90 disabled:opacity-50 transition-colors shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-accent"
                         >
                             <MdSend size={20} />
                         </button>
                     </form>
                     <div className="text-center mt-2">
-                        <span className="text-[10px] text-slate-400">Stefania pode cometer erros. Verifique informações importantes.</span>
+                        <span className="text-[10px] text-text-muted/60">Stefania pode cometer erros. Verifique informações importantes.</span>
                     </div>
                 </div>
             </Transition>

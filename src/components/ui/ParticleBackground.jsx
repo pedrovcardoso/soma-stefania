@@ -14,8 +14,8 @@ const ParticleBackground = ({ className, particleColor = 'rgba(156, 163, 175, 0.
         const ctx = canvas.getContext('2d');
         let animationFrameId;
 
-        const particleCount = 45;
-        const connectionDistance = 90;
+        const particleCount = 40;
+        const connectionDistance = 100;
         const mouseDistance = 120;
 
         let width = canvas.width = container.clientWidth;
@@ -23,6 +23,17 @@ const ParticleBackground = ({ className, particleColor = 'rgba(156, 163, 175, 0.
 
         let particles = [];
         const mouse = { x: null, y: null };
+
+        const resolveColor = (color) => {
+            if (color.startsWith('var(')) {
+                const varName = color.match(/var\(([^)]+)\)/)[1];
+                return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+            }
+            return color;
+        };
+
+        const currentParticleColor = resolveColor(particleColor);
+        const resolvedLineColorBase = resolveColor(`var(--color-accent-rgb)`) || lineColorBase;
 
         class Particle {
             constructor() {
@@ -57,7 +68,7 @@ const ParticleBackground = ({ className, particleColor = 'rgba(156, 163, 175, 0.
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = particleColor;
+                ctx.fillStyle = currentParticleColor;
                 ctx.fill();
             }
         }
@@ -88,7 +99,7 @@ const ParticleBackground = ({ className, particleColor = 'rgba(156, 163, 175, 0.
 
                     if (distance < connectionDistance) {
                         const opacity = 1 - (distance / connectionDistance);
-                        ctx.strokeStyle = `rgba(${lineColorBase}, ${opacity * 0.4})`;
+                        ctx.strokeStyle = `rgba(${resolvedLineColorBase}, ${opacity * 0.4})`;
                         ctx.lineWidth = 0.8;
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);

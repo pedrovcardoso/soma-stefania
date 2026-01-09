@@ -37,7 +37,7 @@ function SinglePlanItem({ planData, isFirst }) {
             label: 'Atividade',
             width: 300,
             render: (row) => (
-                <div className="font-medium text-slate-800 truncate" title={row.Atividade}>
+                <div className="font-medium text-text truncate" title={row.Atividade}>
                     {row.Atividade}
                 </div>
             )
@@ -52,10 +52,10 @@ function SinglePlanItem({ planData, isFirst }) {
                 const isPlanned = row.Status === 'Planejado';
 
                 return (
-                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap ${isDone ? 'bg-green-100 text-green-700' :
-                        isRunning ? 'bg-cyan-100 text-cyan-700' :
-                            isPlanned ? 'bg-slate-100 text-slate-500' :
-                                'bg-amber-100 text-amber-700'
+                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap ${isDone ? 'bg-success/10 text-success' :
+                        isRunning ? 'bg-accent/10 text-accent' :
+                            isPlanned ? 'bg-surface-alt text-text-muted' :
+                                'bg-warning/10 text-warning'
                         }`}>
                         {row.Status}
                     </span>
@@ -66,13 +66,13 @@ function SinglePlanItem({ planData, isFirst }) {
             key: 'Inicio',
             label: 'Início',
             width: 100,
-            render: (row) => <span className="text-slate-500 font-mono text-xs">{formatDate(row['Data início'] || row['Data de início'])}</span>
+            render: (row) => <span className="text-text-muted font-mono text-xs">{formatDate(row['Data início'] || row['Data de início'])}</span>
         },
         {
             key: 'Fim',
             label: 'Fim',
             width: 100,
-            render: (row) => <span className="text-slate-500 font-mono text-xs">{formatDate(row['Data fim'])}</span>
+            render: (row) => <span className="text-text-muted font-mono text-xs">{formatDate(row['Data fim'])}</span>
         }
     ];
 
@@ -81,7 +81,7 @@ function SinglePlanItem({ planData, isFirst }) {
     };
 
     return (
-        <div className={`p-6 md:p-8 ${!isFirst ? 'border-t border-slate-100' : ''}`}>
+        <div className={`p-6 md:p-8 ${!isFirst ? 'border-t border-border' : ''}`}>
             <div className="flex flex-col xl:flex-row gap-10">
                 <div className="w-full xl:w-1/3 flex flex-col gap-6">
                     <div>
@@ -90,60 +90,60 @@ function SinglePlanItem({ planData, isFirst }) {
                                 onClick={handleViewFullPlan}
                                 className="text-left group"
                             >
-                                <h3 className="text-xl font-bold text-slate-900 leading-tight pr-4 group-hover:text-blue-600 transition-colors uppercase">
+                                <h3 className="text-xl font-bold text-text leading-tight pr-4 group-hover:text-accent transition-colors uppercase">
                                     {plano.Nome}
                                 </h3>
                             </button>
                             <button
                                 onClick={handleViewFullPlan}
-                                className="hidden xl:block text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap"
+                                className="hidden xl:block text-xs font-semibold text-accent hover:text-accent hover:underline transition-colors whitespace-nowrap"
                             >
                                 Ver plano completo
                             </button>
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wide ${plano.Status === 'Em curso' ? 'bg-cyan-100 text-cyan-700' : 'bg-slate-100 text-slate-600'
+                            <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wide ${plano.Status === 'Em curso' ? 'bg-accent/10 text-accent' : 'bg-surface-alt text-text-muted'
                                 }`}>
                                 {plano.Status}
                             </span>
-                            <span className="text-xs text-slate-400 font-medium">
+                            <span className="text-xs text-text-muted font-medium">
                                 {formatDate(plano['Data início'])} — {formatDate(plano['Data fim'])}
                             </span>
                         </div>
                     </div>
 
-                    <div className="bg-slate-50 rounded-lg p-4 border border-slate-100">
+                    <div className="bg-surface-alt rounded-lg p-4 border border-border">
                         <div className="flex justify-between items-end mb-2">
-                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Progresso Geral</span>
-                            <span className="text-sm font-bold text-slate-700">{progressPercent}%</span>
+                            <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Progresso Geral</span>
+                            <span className="text-sm font-bold text-text">{progressPercent}%</span>
                         </div>
-                        <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden mb-3">
-                            <div className="h-full bg-blue-600 rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
+                        <div className="h-1.5 w-full bg-border rounded-full overflow-hidden mb-3">
+                            <div className="h-full bg-accent rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
                         </div>
-                        <div className="flex justify-between text-xs text-slate-400">
-                            <span>Total: <strong className="text-slate-600">{totalActions}</strong></span>
-                            <span>Concluídas: <strong className="text-slate-600">{completed}</strong></span>
-                            <span>Em curso: <strong className="text-slate-600">{inProgress}</strong></span>
+                        <div className="flex justify-between text-xs text-text-muted/60">
+                            <span>Total: <strong className="text-text">{totalActions}</strong></span>
+                            <span>Concluídas: <strong className="text-text">{completed}</strong></span>
+                            <span>Em curso: <strong className="text-text">{inProgress}</strong></span>
                         </div>
                     </div>
 
                     {plano.Resolução && (
                         <div>
-                            <span className="font-bold block text-slate-400 text-[10px] uppercase mb-1.5 tracking-wider">Objetivo / Resolução</span>
-                            <p className="text-sm text-slate-600 leading-relaxed line-clamp-3 hover:line-clamp-none cursor-default transition-all duration-300">{plano.Resolução}</p>
+                            <span className="font-bold block text-text-muted text-[10px] uppercase mb-1.5 tracking-wider">Objetivo / Resolução</span>
+                            <p className="text-sm text-text-secondary leading-relaxed line-clamp-3 hover:line-clamp-none cursor-default transition-all duration-300">{plano.Resolução}</p>
                         </div>
                     )}
 
                     {plano.objPessoas && plano.objPessoas.length > 0 && (
                         <div>
-                            <span className="font-bold block text-slate-400 text-[10px] uppercase mb-2 tracking-wider">Equipe Responsável</span>
+                            <span className="font-bold block text-text-muted text-[10px] uppercase mb-2 tracking-wider">Equipe Responsável</span>
                             <div className="flex flex-col gap-1.5">
                                 {plano.objPessoas.slice(0, showAllTeam ? undefined : 5).map((p, i) => (
-                                    <div key={i} className="flex items-center gap-2 text-sm text-slate-600">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                                        <span className="font-medium text-slate-700">{p.Unidade}</span>
-                                        <span className="text-slate-300">/</span>
+                                    <div key={i} className="flex items-center gap-2 text-sm text-text-secondary">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-border"></div>
+                                        <span className="font-medium text-text">{p.Unidade}</span>
+                                        <span className="text-text-muted/40">/</span>
                                         <span className="truncate" title={p.Email}>{p.Nome}</span>
                                     </div>
                                 ))}
@@ -152,7 +152,7 @@ function SinglePlanItem({ planData, isFirst }) {
                             {plano.objPessoas.length > 5 && (
                                 <button
                                     onClick={() => setShowAllTeam(!showAllTeam)}
-                                    className="mt-2 text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors"
+                                    className="mt-2 text-xs font-semibold text-accent hover:text-accent hover:underline flex items-center gap-1 transition-colors"
                                 >
                                     {showAllTeam ? (
                                         <>Ver menos <MdKeyboardArrowUp /></>
@@ -167,9 +167,9 @@ function SinglePlanItem({ planData, isFirst }) {
                     <div className="flex flex-col gap-3 xl:hidden">
                         <button
                             onClick={handleViewFullPlan}
-                            className="w-full py-2.5 px-4 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-600 flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.98] shadow-sm"
+                            className="w-full py-2.5 px-4 bg-surface border border-border rounded-lg text-sm font-bold text-text-secondary flex items-center justify-center gap-2 hover:bg-surface-alt hover:border-border transition-all active:scale-[0.98] shadow-sm"
                         >
-                            <MdListAlt className="text-lg text-slate-400" />
+                            <MdListAlt className="text-lg text-text-muted/40" />
                             Ver atividades do plano
                         </button>
                     </div>
@@ -179,7 +179,7 @@ function SinglePlanItem({ planData, isFirst }) {
                     <SmartTable
                         data={acoes}
                         columns={columns}
-                        className="bg-white shadow-none border border-slate-200"
+                        className="bg-surface shadow-none border border-border"
                     />
                 </div>
             </div>
@@ -224,10 +224,10 @@ export default function ActionPlanSection({ seiNumber }) {
 
     if (loading) {
         return (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-12 flex justify-center items-center mt-8">
+            <div className="bg-surface rounded-xl border border-border shadow-sm p-12 flex justify-center items-center mt-8">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
-                    <span className="text-sm font-medium text-slate-500 animate-pulse">Consultando planos de ação...</span>
+                    <div className="w-10 h-10 border-4 border-border border-t-accent rounded-full animate-spin"></div>
+                    <span className="text-sm font-medium text-text-muted animate-pulse">Consultando planos de ação...</span>
                 </div>
             </div>
         );
@@ -237,23 +237,23 @@ export default function ActionPlanSection({ seiNumber }) {
 
     if (!data || data.length === 0) {
         return (
-            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 flex flex-col items-center justify-center mt-8 text-center bg-slate-50/30">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                    <MdAssignment className="text-3xl text-slate-400" />
+            <div className="bg-surface rounded-xl border border-dashed border-border p-12 flex flex-col items-center justify-center mt-8 text-center bg-surface-alt/30">
+                <div className="w-16 h-16 bg-surface-alt rounded-full flex items-center justify-center mb-4">
+                    <MdAssignment className="text-3xl text-text-muted/40" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-700 mb-1">Cuidado: Nenhum plano detectado</h3>
-                <p className="text-sm text-slate-500 max-w-xs">Não encontramos planos de ação vinculados a este processo SEI no momento.</p>
+                <h3 className="text-lg font-bold text-text mb-1">Cuidado: Nenhum plano detectado</h3>
+                <p className="text-sm text-text-muted max-w-xs">Não encontramos planos de ação vinculados a este processo SEI no momento.</p>
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mt-8">
-            <div className="px-6 py-4 border-b border-slate-100 bg-white">
-                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <MdAssignment className="text-blue-500" />
+        <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mt-8">
+            <div className="px-6 py-4 border-b border-border bg-surface">
+                <h2 className="text-lg font-bold text-text flex items-center gap-2">
+                    <MdAssignment className="text-accent" />
                     Planos de ação envolvidos
-                    <span className="ml-2 px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full text-xs font-bold">
+                    <span className="ml-2 px-2 py-0.5 bg-surface-alt text-text-muted rounded-full text-xs font-bold">
                         {data.length}
                     </span>
                 </h2>

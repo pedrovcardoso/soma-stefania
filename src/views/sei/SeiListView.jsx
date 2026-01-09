@@ -19,7 +19,7 @@ const getStatusColor = (status) => {
     case 'Finalizado com Desdobramentos': return 'bg-teal-100 text-teal-700';
     case 'Aguarda resposta': return 'bg-purple-100 text-purple-700';
     case 'Acompanhamento especial': return 'bg-red-100 text-red-700';
-    default: return 'bg-slate-100 text-slate-600';
+    default: return 'bg-accent-soft text-text-secondary';
   }
 };
 
@@ -64,7 +64,7 @@ export default function SeiListView({ lastReload }) {
               type: 'sei_detail',
               title: row.sei_number
             })}
-            className="font-medium text-slate-700 hover:text-blue-600 hover:underline text-xs flex items-center gap-1 w-fit text-left"
+            className="font-medium text-text hover:text-accent hover:underline text-xs flex items-center gap-1 w-fit text-left"
           >
             {row.sei_number} <MdLaunch size={10} />
           </button>
@@ -74,19 +74,19 @@ export default function SeiListView({ lastReload }) {
     {
       key: 'description',
       label: 'Descrição',
-      render: (row) => <div className="line-clamp-2 whitespace-normal text-xs text-slate-600" title={row.description}>{row.description}</div>
+      render: (row) => <div className="line-clamp-2 whitespace-normal text-xs text-text-secondary" title={row.description}>{row.description}</div>
     },
     {
       key: 'assigned_to',
       label: 'Atribuído para',
-      render: (row) => <span className="font-medium text-slate-700 text-sm">{row.assigned_to}</span>
+      render: (row) => <span className="font-medium text-text text-sm">{row.assigned_to}</span>
     },
     {
       key: 'deadline',
       label: 'Prazo Final',
       render: (row) => (
-        <div className="flex items-center gap-2 text-slate-600">
-          <MdCalendarToday size={14} className="text-slate-400" />
+        <div className="flex items-center gap-2 text-text-secondary">
+          <MdCalendarToday size={14} className="text-text-muted" />
           <span>{format(new Date(row.deadline), 'dd/MM/yyyy')}</span>
         </div>
       )
@@ -94,7 +94,7 @@ export default function SeiListView({ lastReload }) {
     {
       key: 'type',
       label: 'Tipo',
-      render: (row) => <div className="line-clamp-2 whitespace-normal text-xs text-slate-600" title={row.type}>{row.type}</div>
+      render: (row) => <div className="line-clamp-2 whitespace-normal text-xs text-text-muted" title={row.type}>{row.type}</div>
     },
     {
       key: 'status',
@@ -111,7 +111,7 @@ export default function SeiListView({ lastReload }) {
       width: 80,
       render: () => (
         <div className="flex justify-center">
-          <button className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-colors">
+          <button className="text-text-muted hover:text-text p-1 rounded-full hover:bg-surface-alt transition-colors">
             <MdMoreVert size={20} />
           </button>
         </div>
@@ -161,9 +161,6 @@ export default function SeiListView({ lastReload }) {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const normalizeText = (text) =>
-    text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
-
   const filteredData = [...data].sort((a, b) => {
     let valA = a[sortBy];
     let valB = b[sortBy];
@@ -181,38 +178,44 @@ export default function SeiListView({ lastReload }) {
     return 0;
   });
 
+  const filterInputClass = "w-full h-[42px] px-3 text-sm border border-border rounded-lg bg-surface-alt hover:border-text-muted/50 focus:ring-2 focus:ring-accent/20 focus:border-accent appearance-none outline-none transition-all text-text";
+
   return (
-    <div className="h-full bg-slate-50/50 px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 overflow-auto font-sans">
+    <div className="h-full bg-surface-alt/50 px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 overflow-auto font-sans">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Processos SEI</h1>
-          <p className="text-slate-500 mt-2">Gerencie e acompanhe as tramitações, prazos e documentos oficiais.</p>
+          <h1 className="text-4xl font-extrabold text-text tracking-tight">Processos SEI</h1>
+          <p className="text-text-secondary mt-2">Gerencie e acompanhe as tramitações, prazos e documentos oficiais.</p>
         </div>
 
         <FilterPanel onClear={handleClearFilters}>
           <div className="flex-grow min-w-[150px]">
-            <label className="text-xs font-semibold text-slate-500">Ano de Referência</label>
+            <label className="text-xs font-semibold text-text-muted">Ano de Referência</label>
             <div className="relative mt-1">
               <select
                 value={filters.year}
                 onChange={(e) => handleFilterChange('year', e.target.value)}
-                className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none bg-slate-50 outline-none pr-8"
+                className={filterInputClass}
               >
                 <option value="">Todos os anos</option>
                 <option value="2025">2025</option>
                 <option value="2024">2024</option>
               </select>
-              <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <MdExpandMore className="text-text-muted/60 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" size={20} />
             </div>
           </div>
 
           <div className="flex-grow min-w-[180px]">
-            <label className="text-xs font-semibold text-slate-500 flex gap-2">
+            <label className="text-xs font-semibold text-text-muted flex items-center gap-1">
               <MdCalendarToday />
               Filtrar por Prazo
             </label>
             <div className="relative mt-1">
-              <select value={filters.datePreset} onChange={(e) => handleDatePresetChange(e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8 bg-slate-50 outline-none">
+              <select
+                value={filters.datePreset}
+                onChange={(e) => handleDatePresetChange(e.target.value)}
+                className={filterInputClass}
+              >
                 <option value="all">Qualquer data</option>
                 <option value="today">Hoje</option>
                 <option value="thisWeek">Esta Semana</option>
@@ -221,22 +224,22 @@ export default function SeiListView({ lastReload }) {
                 <option value="lastMonth">Mês Passado</option>
                 <option value="specific">Período Específico...</option>
               </select>
-              <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <MdExpandMore className="text-text-muted/60 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" size={20} />
             </div>
           </div>
           {filters.datePreset === 'specific' && (
             <div className="flex-grow min-w-[180px]">
-              <label className="text-xs font-semibold text-slate-500">Datas</label>
-              <Popover className="relative mt-1 z-30">
-                <Popover.Button className="w-full flex items-center justify-between p-2 text-sm text-left bg-slate-50 border border-slate-300 hover:border-slate-400 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
-                  <span className='flex items-center gap-2 text-slate-500'>
-                    <MdCalendarToday className="text-slate-400" />
+              <label className="text-xs font-semibold text-text-muted">Datas</label>
+              <Popover className="relative z-30 mt-1">
+                <Popover.Button className={`${filterInputClass} text-left flex items-center justify-between`}>
+                  <span className='flex items-center gap-2 truncate'>
+                    <MdCalendarToday className="text-text-muted/60" size={16} />
                     {filters.dateRange.from ? `${format(filters.dateRange.from, 'dd/MM/yyyy')} - ${filters.dateRange.to ? format(filters.dateRange.to, 'dd/MM/yyyy') : ''}` : 'Selecione...'}
                   </span>
-                  <MdExpandMore className="text-slate-400" />
+                  <MdExpandMore className="text-text-muted/60" size={20} />
                 </Popover.Button>
                 <Transition as={Fragment} enter="transition ease-out duration-200" enterFrom="opacity-0 translate-y-1" enterTo="opacity-100 translate-y-0" leave="transition ease-in duration-150" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-1">
-                  <Popover.Panel className="absolute z-20 mt-1 bg-white border rounded-md shadow-lg">
+                  <Popover.Panel className="absolute z-20 mt-1 bg-surface border border-border rounded-xl shadow-xl overflow-hidden">
                     <DayPicker mode="range" selected={filters.dateRange} onSelect={(range) => handleFilterChange('dateRange', range)} locale={ptBR} className="p-2" captionLayout="dropdown-buttons" fromYear={2020} toYear={new Date().getFullYear()} />
                   </Popover.Panel>
                 </Transition>
@@ -285,35 +288,35 @@ export default function SeiListView({ lastReload }) {
 
         <div className="flex flex-col sm:flex-row gap-4 items-center mb-6">
           <div className="relative w-full">
-            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <MdSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
             <input
               type="text"
               placeholder="Buscar processos por número, descrição ou tags..."
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+              className="w-full h-12 pl-12 pr-4 text-sm border border-border rounded-xl focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none shadow-sm bg-surface text-text placeholder:text-text-muted transition-all"
             />
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-6 gap-4 border-b border-slate-200">
+        <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-6 gap-4 border-b border-border">
 
           <div className="flex space-x-6 w-full sm:w-auto overflow-x-auto">
             <button
               onClick={() => setActiveView('block')}
-              className={`pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'block' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+              className={`pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'block' ? 'border-accent text-accent' : 'border-transparent text-text-secondary hover:text-text'}`}
             >
               Bloco
             </button>
             <button
               onClick={() => setActiveView('table')}
-              className={`pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'table' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+              className={`pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'table' ? 'border-accent text-accent' : 'border-transparent text-text-secondary hover:text-text'}`}
             >
               Tabela
             </button>
             <button
               onClick={() => setActiveView('kanban')}
-              className={`hidden pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'kanban' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+              className={`hidden pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeView === 'kanban' ? 'border-accent text-accent' : 'border-transparent text-text-secondary hover:text-text'}`}
             >
               Kanban
             </button>
@@ -322,15 +325,15 @@ export default function SeiListView({ lastReload }) {
           <div className="flex items-center gap-3 w-full sm:w-auto justify-end pb-2">
 
             <Popover className="relative">
-              <Popover.Button className="flex items-center gap-2 px-3 py-1.5 text-slate-600 font-medium text-sm transition-colors hover:bg-slate-100 rounded-lg outline-none">
-                <MdSort size={18} className="text-slate-500" />
+              <Popover.Button className="flex items-center gap-2 px-3 py-1.5 text-text-secondary font-medium text-sm transition-colors hover:bg-surface-alt rounded-lg outline-none">
+                <MdSort size={18} className="text-text-muted" />
                 <span>
-                  Ordenar: <span className="text-blue-600">{
+                  Ordenar: <span className="text-accent">{
                     sortBy === 'deadline' ? 'Prazo' :
                       sortBy === 'received_date' ? 'Recebimento' : 'Número SEI'
                   }</span>
                 </span>
-                <MdExpandMore size={16} className="text-slate-400" />
+                <MdExpandMore size={16} className="text-text-muted/60" />
               </Popover.Button>
 
               <Transition
@@ -342,7 +345,7 @@ export default function SeiListView({ lastReload }) {
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <Popover.Panel className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 ring-1 ring-black ring-opacity-5 focus:outline-none z-50 p-1">
+                <Popover.Panel className="absolute right-0 mt-2 w-56 bg-surface rounded-xl shadow-xl border border-border z-50 p-1">
                   {[
                     { id: 'deadline', label: 'Prazo Final' },
                     { id: 'received_date', label: 'Data de Recebimento' },
@@ -352,12 +355,12 @@ export default function SeiListView({ lastReload }) {
                       key={option.id}
                       onClick={() => setSortBy(option.id)}
                       className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-colors ${sortBy === option.id
-                        ? 'bg-blue-50 text-blue-700 font-medium'
-                        : 'text-slate-600 hover:bg-slate-50'
+                        ? 'bg-accent-soft text-accent font-medium'
+                        : 'text-text-secondary hover:bg-surface-alt'
                         }`}
                     >
                       {option.label}
-                      {sortBy === option.id && <MdCheck size={16} className="text-blue-600" />}
+                      {sortBy === option.id && <MdCheck size={16} className="text-accent" />}
                     </button>
                   ))}
                 </Popover.Panel>
@@ -366,7 +369,7 @@ export default function SeiListView({ lastReload }) {
 
             <button
               onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-              className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-1.5 text-text-muted hover:text-accent hover:bg-surface-alt rounded-lg transition-colors"
               title={sortOrder === 'asc' ? 'Crescente' : 'Decrescente'}
             >
               {sortOrder === 'asc' ? <MdArrowUpward size={18} /> : <MdArrowDownward size={18} />}
@@ -377,7 +380,7 @@ export default function SeiListView({ lastReload }) {
         {
           isLoading ? (
             <div className="flex justify-center py-20">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-accent"></div>
             </div>
           ) : (
             <>
@@ -390,13 +393,13 @@ export default function SeiListView({ lastReload }) {
               {activeView === 'block' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredData.length > 0 ? filteredData.map((item) => (
-                    <div key={item.id} className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col h-full group">
+                    <div key={item.id} className="bg-surface rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col h-full group">
                       <div className="flex justify-between items-start mb-3">
-                        <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider border border-slate-200">
+                        <span className="px-2 py-1 rounded-md bg-surface-alt text-text-secondary text-[10px] font-bold uppercase tracking-wider border border-border">
                           {item.type}
                         </span>
                         <div className="relative">
-                          <button className="text-slate-400 hover:text-slate-600 p-1 -mr-2">
+                          <button className="text-text-muted hover:text-text p-1 -mr-2">
                             <MdMoreVert size={20} />
                           </button>
                         </div>
@@ -409,25 +412,25 @@ export default function SeiListView({ lastReload }) {
                             type: 'sei_detail',
                             title: item.sei_number
                           })}
-                          className="font-medium text-slate-700 hover:text-blue-600 hover:underline text-sm flex items-center gap-2 mb-2 text-left w-full break-all"
+                          className="font-medium text-text hover:text-accent hover:underline text-sm flex items-center gap-2 mb-2 text-left w-full break-all"
                         >
                           {item.sei_number} <MdLaunch size={12} />
                         </button>
-                        <p className="text-slate-600 text-sm line-clamp-3 leading-relaxed">
+                        <p className="text-text-secondary text-sm line-clamp-3 leading-relaxed">
                           {item.description}
                         </p>
                       </div>
 
-                      <div className="mt-auto border-t border-slate-100 pt-3 space-y-3">
+                      <div className="mt-auto border-t border-border pt-3 space-y-3">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Atribuído para:</span>
-                          <span className="font-medium text-slate-700 truncate max-w-[120px]" title={item.assigned_to}>{item.assigned_to}</span>
+                          <span className="text-text-muted">Atribuído para:</span>
+                          <span className="font-medium text-text truncate max-w-[120px]" title={item.assigned_to}>{item.assigned_to}</span>
                         </div>
 
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Prazo:</span>
-                          <div className="flex items-center gap-1.5 font-medium text-slate-700">
-                            <MdCalendarToday size={14} className="text-slate-400" />
+                          <span className="text-text-muted">Prazo:</span>
+                          <div className="flex items-center gap-1.5 font-medium text-text">
+                            <MdCalendarToday size={14} className="text-text-muted" />
                             {format(new Date(item.deadline), 'dd/MM/yyyy')}
                           </div>
                         </div>
@@ -440,15 +443,15 @@ export default function SeiListView({ lastReload }) {
                       </div>
                     </div>
                   )) : (
-                    <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-xl border border-dashed border-slate-300">
+                    <div className="col-span-full py-12 text-center text-text-muted bg-surface rounded-xl border border-dashed border-border">
                       Nenhum processo encontrado.
                     </div>
                   )}
                 </div>
               )}
               {activeView === 'kanban' && (
-                <div className="bg-white p-10 rounded-xl border border-slate-200/80 text-center shadow-sm">
-                  <p className="text-slate-400">Visualização Kanban em desenvolvimento.</p>
+                <div className="bg-surface p-10 rounded-xl border border-border text-center shadow-sm">
+                  <p className="text-text-muted">Visualização Kanban em desenvolvimento.</p>
                 </div>
               )}
             </>

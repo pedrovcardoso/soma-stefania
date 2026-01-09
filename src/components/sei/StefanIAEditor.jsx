@@ -5,7 +5,7 @@ import { useEditor, EditorContent, Extension } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
-import TextStyle from '@tiptap/extension-text-style';
+import { TextStyle } from '@tiptap/extension-text-style';
 import FontFamily from '@tiptap/extension-font-family';
 import { Markdown } from 'tiptap-markdown';
 import {
@@ -72,8 +72,8 @@ const ToolbarButton = ({ onClick, isActive, disabled, children, title }) => (
         disabled={disabled}
         title={title}
         className={`p-2 rounded-md transition-all flex items-center justify-center ${isActive
-            ? 'bg-blue-50 text-blue-600 shadow-sm border border-blue-100'
-            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 border border-transparent'
+            ? 'bg-accent-soft text-accent shadow-sm border border-accent/20'
+            : 'text-text-muted hover:bg-surface-alt hover:text-text border border-transparent'
             } ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
     >
         {children}
@@ -112,7 +112,7 @@ export default function StefanIAEditor() {
         immediatelyRender: false,
         editorProps: {
             attributes: {
-                class: 'editor-canvas focus:outline-none min-h-[500px] p-12 text-slate-800 bg-white shadow-inner font-sans',
+                class: 'editor-canvas focus:outline-none min-h-[500px] p-12 text-text bg-surface shadow-inner font-sans',
                 style: `line-height: 1.5; font-size: 12pt;`,
             },
         },
@@ -177,9 +177,9 @@ Atenciosamente,
     const canRedo = editor.can().redo();
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 rounded-2xl border border-slate-200 shadow-xl overflow-hidden font-sans">
+        <div className="flex flex-col h-full bg-surface-alt rounded-2xl border border-border shadow-xl overflow-hidden font-sans">
 
-            <div className="flex flex-wrap items-center justify-between px-4 py-2 bg-white border-b border-slate-200">
+            <div className="flex flex-wrap items-center justify-between px-4 py-2 bg-surface border-b border-border">
                 <div className="flex items-center gap-1.5">
                     <ToolbarButton
                         onClick={() => editor.chain().focus().undo().run()}
@@ -198,7 +198,7 @@ Atenciosamente,
                         <MdRedo size={18} />
                     </ToolbarButton>
 
-                    <div className="w-px h-6 bg-slate-200 mx-1" />
+                    <div className="w-px h-6 bg-border mx-1" />
 
                     <ToolbarButton
                         onClick={() => editor.chain().focus().toggleBold().run()}
@@ -215,31 +215,31 @@ Atenciosamente,
                         <MdFormatItalic size={20} />
                     </ToolbarButton>
 
-                    <div className="w-px h-6 bg-slate-200 mx-1" />
+                    <div className="w-px h-6 bg-border mx-1" />
 
-                    <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-200">
+                    <div className="flex items-center gap-1 bg-surface-alt px-2 py-1 rounded-md border border-border">
                         <button
                             type="button"
                             onClick={() => changeFontSize(-1)}
-                            className="p-1 hover:text-blue-600 text-slate-400"
+                            className="p-1 hover:text-accent text-text-muted"
                             title="Diminuir fonte da seleção"
                         >
                             <MdTextFields size={14} />
                         </button>
-                        <span className="text-[10px] font-bold text-slate-600 min-w-[28px] text-center">
+                        <span className="text-[10px] font-bold text-text-secondary min-w-[28px] text-center">
                             {parseInt(editor.getAttributes('textStyle').fontSize || '12')}pt
                         </span>
                         <button
                             type="button"
                             onClick={() => changeFontSize(1)}
-                            className="p-1 hover:text-blue-600 text-slate-400"
+                            className="p-1 hover:text-accent text-text-muted"
                             title="Aumentar fonte da seleção"
                         >
                             <MdTextFormat size={16} />
                         </button>
                     </div>
 
-                    <div className="w-px h-6 bg-slate-200 mx-1" />
+                    <div className="w-px h-6 bg-border mx-1" />
 
                     <ToolbarButton
                         onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -260,14 +260,14 @@ Atenciosamente,
                 <div className="flex items-center gap-2">
                     <button
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all active:scale-95 shadow-sm"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-alt border border-border rounded-lg text-xs font-bold text-text-secondary hover:bg-surface hover:text-text transition-all active:scale-95 shadow-sm"
                     >
                         <MdContentCopy size={16} />
                         Copiar
                     </button>
                     <button
                         onClick={() => editor.commands.clearContent()}
-                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        className="p-1.5 text-text-muted hover:text-error hover:bg-error/10 rounded-lg transition-all"
                         title="Limpar tudo"
                     >
                         <MdDelete size={18} />
@@ -276,19 +276,19 @@ Atenciosamente,
             </div>
 
             <div className="flex flex-grow overflow-hidden relative">
-                <div className="flex-grow flex flex-col overflow-y-auto custom-scrollbar bg-slate-100 p-8 items-center">
-                    <div className="w-full max-w-[816px] min-h-[1056px] bg-white shadow-2xl relative">
+                <div className="flex-grow flex flex-col overflow-y-auto custom-scrollbar bg-surface-alt p-8 items-center">
+                    <div className="w-full max-w-[816px] min-h-[1056px] bg-surface shadow-2xl relative">
                         <EditorContent editor={editor} />
                     </div>
                 </div>
 
-                <div className="w-72 border-l border-slate-200 bg-white flex flex-col p-5 gap-5 overflow-y-auto custom-scrollbar shadow-inner">
+                <div className="w-72 border-l border-border bg-surface flex flex-col p-5 gap-5 overflow-y-auto custom-scrollbar shadow-inner">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-100">
-                            <MdAutoAwesome className="text-white" size={18} />
+                        <div className="p-2 bg-accent rounded-xl shadow-lg shadow-accent/10">
+                            <MdAutoAwesome className="text-accent-contrast" size={18} />
                         </div>
                         <div>
-                            <h4 className="font-bold text-slate-800 leading-none">StefanIA</h4>
+                            <h4 className="font-bold text-text leading-none">StefanIA</h4>
                         </div>
                     </div>
 
@@ -303,12 +303,12 @@ Atenciosamente,
                                 onClick={() => handleQuickAction(prompt.action)}
                                 disabled={isGenerating}
                                 className={`text-left w-full p-4 rounded-xl border transition-all relative overflow-hidden group ${isGenerating
-                                    ? 'bg-slate-50 border-slate-100 opacity-50 cursor-not-allowed'
-                                    : 'bg-white border-slate-200 hover:border-indigo-400 hover:shadow-md'
+                                    ? 'bg-surface-alt border-border opacity-50 cursor-not-allowed'
+                                    : 'bg-surface border-border hover:border-accent/40 hover:shadow-md'
                                     }`}
                             >
-                                <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-700">{prompt.label}</p>
-                                <p className="text-[10px] text-slate-400 font-medium mt-1">{prompt.desc}</p>
+                                <p className="text-xs font-bold text-text-secondary group-hover:text-accent">{prompt.label}</p>
+                                <p className="text-[10px] text-text-muted font-medium mt-1">{prompt.desc}</p>
                             </button>
                         ))}
                     </div>
@@ -318,9 +318,9 @@ Atenciosamente,
                             {messages.map(msg => (
                                 <div
                                     key={msg.id}
-                                    className={`p-3 rounded-xl border text-[10px] font-bold flex items-start gap-3 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300 ${msg.type === 'success' ? 'bg-green-50 border-green-100 text-green-700' :
-                                        msg.type === 'error' ? 'bg-red-50 border-red-100 text-red-700' :
-                                            'bg-blue-50 border-blue-100 text-blue-700'
+                                    className={`p-3 rounded-xl border text-[10px] font-bold flex items-start gap-3 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300 ${msg.type === 'success' ? 'bg-success/10 border-success/20 text-success' :
+                                        msg.type === 'error' ? 'bg-error/10 border-error/20 text-error' :
+                                            'bg-accent-soft border-accent/20 text-accent'
                                         }`}
                                 >
                                     <div className="mt-0.5">
@@ -340,8 +340,8 @@ Atenciosamente,
                             onClick={() => addMessage("Enviando...", "info")}
                             disabled={editor.isEmpty || isGenerating}
                             className={`flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black text-sm transition-all shadow-xl active:scale-95 ${!editor.isEmpty && !isGenerating
-                                ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-200'
-                                : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                                ? 'bg-accent text-accent-contrast hover:opacity-90 shadow-accent/20'
+                                : 'bg-surface-alt text-text-muted cursor-not-allowed shadow-none'
                                 }`}
                         >
                             <span>Enviar para o SEI</span>
@@ -351,19 +351,19 @@ Atenciosamente,
                 </div>
             </div>
 
-            <div className="flex items-center justify-between px-6 py-2 bg-slate-50 border-t border-slate-200">
+            <div className="flex items-center justify-between px-6 py-2 bg-surface-alt border-t border-border">
                 <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" />
-                        <span className="text-xs text-slate-500">{stats.words()} Palavras</span>
+                        <div className="w-1.5 h-1.5 bg-border rounded-full" />
+                        <span className="text-xs text-text-muted">{stats.words()} Palavras</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" />
-                        <span className="text-xs text-slate-500">{stats.characters()} Caracteres</span>
+                        <div className="w-1.5 h-1.5 bg-border rounded-full" />
+                        <span className="text-xs text-text-muted">{stats.characters()} Caracteres</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" />
-                        <span className="text-xs text-slate-500">{lineCount} Linhas</span>
+                        <div className="w-1.5 h-1.5 bg-border rounded-full" />
+                        <span className="text-xs text-text-muted">{lineCount} Linhas</span>
                     </div>
                 </div>
             </div>
@@ -379,7 +379,8 @@ Atenciosamente,
                 .tiptap p.is-editor-empty:first-child::before {
                     content: attr(data-placeholder);
                     float: left;
-                    color: #cbd5e1;
+                    color: var(--color-text-muted);
+                    opacity: 0.5;
                     pointer-events: none;
                     height: 0;
                     font-style: italic;
@@ -390,7 +391,7 @@ Atenciosamente,
                 .tiptap em { font-style: italic; }
                 .tiptap ul { list-style-type: disc; padding-left: 2em; margin-bottom: 1em; }
                 .tiptap ol { list-style-type: decimal; padding-left: 2em; margin-bottom: 1em; }
-                .tiptap blockquote { border-left: 3px solid #ddd; padding-left: 1em; color: #666; font-style: italic; }
+                .tiptap blockquote { border-left: 3px solid var(--color-border); padding-left: 1em; color: var(--color-text-muted); font-style: italic; }
             `}</style>
         </div>
     );

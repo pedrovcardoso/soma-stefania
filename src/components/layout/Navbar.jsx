@@ -96,24 +96,21 @@ export default function Navbar() {
   const isHomeActive = activeTabId === 'home'
 
   return (
-    <nav className="bg-white border-b border-gray-200 flex items-center h-12 px-2 gap-0 overflow-hidden">
+    <nav className="bg-surface-alt border-b border-border flex items-center h-12 px-2 gap-0 overflow-hidden">
       <button
         onClick={handleHomeClick}
-        className={`p-2 rounded transition-colors flex-shrink-0 mr-1 text-gray-600 hover:bg-gray-100'`}
+        className={`p-2 rounded transition-colors flex-shrink-0 mr-1 text-text-muted hover:bg-surface-alt/80`}
         aria-label="Home"
       >
-        <MdHome className={`w-5 h-5 mt-0.5 ${isHomeActive ? 'text-blue-700' : 'text-gray-600'}`} />
+        <MdHome className={`w-5 h-5 mt-0.5 ${isHomeActive ? 'text-accent' : 'text-text-muted'}`} />
       </button>
-      <div className="w-px h-6 bg-gray-300 mx-1 flex-shrink-0 mt-2" />
+      <div className="w-px h-6 bg-border mx-1 flex-shrink-0 mt-2" />
       <div className="flex items-center flex-1 min-w-0 h-full overflow-hidden">
         {tabs.map((tab, index) => {
           const isActive = activeTabId === tab.id
           const Icon = getTabIcon(tab.type, tab.title)
-          const isLast = index === tabs.length - 1
           const isDragging = draggedTabId === tab.id
           const isDragOver = dragOverTabId === tab.id
-          const prevTab = index > 0 ? tabs[index - 1] : null
-          const prevTabIsActive = prevTab ? activeTabId === prevTab.id : false
 
           return (
             <div
@@ -122,9 +119,6 @@ export default function Navbar() {
                 ${isActive ? 'min-w-[120px] flex-[0_1_200px]' : 'min-w-[32px] flex-[0_1_200px]'}
               `}
             >
-              {!isActive && !prevTabIsActive && index > 0 && (
-                <div className="w-px h-6 bg-gray-300 absolute left-0 top-1/2 -translate-y-1/2 z-0" />
-              )}
               <div
                 draggable
                 onDragStart={(e) => handleDragStart(e, tab.id)}
@@ -137,11 +131,11 @@ export default function Navbar() {
                   flex items-center gap-0 px-3 py-2 cursor-pointer h-full w-full
                   transition-all duration-200 ease-out relative overflow-hidden
                   ${isActive
-                    ? 'bg-white border-t border-l border-r border-gray-200 shadow-sm tab-active z-10'
-                    : 'bg-transparent hover:bg-gray-100 rounded-t-lg z-0'
+                    ? 'bg-surface border-t border-l border-r border-border shadow-sm tab-active z-10'
+                    : 'bg-transparent hover:bg-surface-alt/50 rounded-t-lg z-0'
                   }
                   ${isDragging ? 'opacity-50 cursor-move' : ''}
-                  ${isDragOver ? 'border-l-2 border-blue-500' : ''}
+                  ${isDragOver ? 'border-l-2 border-accent' : ''}
                 `}
                 style={{
                   minHeight: '32px',
@@ -151,15 +145,15 @@ export default function Navbar() {
                 <div className="relative w-5 h-5 flex-shrink-0 flex items-center justify-center mr-2">
                   <Icon
                     className={`w-4 h-4 transition-opacity duration-200
-                      ${isActive ? 'text-blue-800' : 'text-gray-500'}
+                      ${isActive ? 'text-accent' : 'text-text-muted'}
                       group-hover/tab:opacity-0
                     `}
                   />
                   <button
                     onClick={(e) => handleCloseTab(e, tab.id)}
                     className={`absolute inset-0 flex items-center justify-center rounded transition-all duration-200
-                      opacity-0 group-hover/tab:opacity-100 hover:bg-gray-200/80
-                      ${isActive ? 'text-gray-600' : 'text-gray-400'}
+                      opacity-0 group-hover/tab:opacity-100 hover:bg-surface-alt
+                      ${isActive ? 'text-text' : 'text-text-muted'}
                     `}
                     aria-label="Close tab"
                     onMouseDown={(e) => e.stopPropagation()}
@@ -168,9 +162,12 @@ export default function Navbar() {
                   </button>
                 </div>
 
-                <span className={`text-sm truncate leading-tight flex-1 ${isActive ? 'font-medium text-gray-900' : 'text-gray-600'}`}>
+                <span className={`text-sm truncate leading-tight flex-1 ${isActive ? 'font-medium text-text' : 'text-text-muted'}`}>
                   {tab.title}
                 </span>
+                {isActive && (
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-accent" />
+                )}
               </div>
             </div>
           )
@@ -181,20 +178,20 @@ export default function Navbar() {
           <input
             type="text"
             placeholder="Pesquisar"
-            className="pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg 
-                     bg-white focus:outline-none focus:ring-2 focus:ring-blue-800 
-                     focus:border-transparent w-56"
+            className="pl-9 pr-3 py-1.5 text-sm border border-border rounded-lg 
+                     bg-surface focus:outline-none focus:ring-2 focus:ring-accent 
+                     focus:border-transparent w-56 text-text placeholder:text-text-muted shadow-sm"
           />
-          <MdSearch className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <MdSearch className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
         </div>
         <button
           onClick={() => openTab({ id: 'settings', type: 'settings', title: 'Configurações' })}
-          className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+          className="p-2 hover:bg-surface-alt rounded-lg transition-colors"
         >
-          <MdSettings className="w-5 h-5 text-gray-600" />
+          <MdSettings className="w-5 h-5 text-text-secondary" />
         </button>
-        <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
-          <MdNotifications className="w-5 h-5 text-gray-600" />
+        <button className="p-2 hover:bg-surface-alt rounded-lg transition-colors">
+          <MdNotifications className="w-5 h-5 text-text-secondary" />
         </button>
       </div>
     </nav>

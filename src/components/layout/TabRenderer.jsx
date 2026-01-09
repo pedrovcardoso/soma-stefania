@@ -26,7 +26,7 @@ export default function TabRenderer({ tab }) {
   if (!ViewComponent) {
     return (
       <div className="p-10 text-center">
-        <p className="text-slate-400">View do tipo "{tab.type}" não encontrada.</p>
+        <p className="text-text-muted">View do tipo "{tab.type}" não encontrada.</p>
       </div>
     )
   }

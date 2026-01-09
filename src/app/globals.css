@@ -3,86 +3,135 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #003399;
-  --color-secondary: #0066CC;
-  --color-accent: #0099FF;
-  --color-background: #FFFFFF;
-  --color-surface: #F5F5F5;
-  --color-text: #1A1A1A;
-  --color-text-secondary: #666666;
-  --color-border: #E0E0E0;
-  --color-error: #DC3545;
-  --color-success: #28A745;
-  --color-warning: #FFC107;
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-500: #6b7280;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+
+  --color-accent-50: #eff6ff;
+  --color-accent-500: #2563eb;
+  --color-accent-700: #1d4ed8;
+
+  --color-surface: white;
+  --color-surface-alt: #edf2f7;
+  --color-elevated: white;
+
+  --color-text: var(--color-neutral-900);
+  --color-text-muted: var(--color-neutral-500);
+  --color-border: #e2e8f0;
+
+  --color-accent: var(--color-accent-500);
+  --color-accent-rgb: 37, 99, 235;
+  --color-accent-soft: var(--color-accent-50);
+  --color-accent-100: #dbeafe;
+  --color-accent-contrast: white;
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
   --font-primary: 'Inter', system-ui, sans-serif;
-  --font-mono: 'Courier New', monospace;
+
+  --color-primary: var(--color-accent);
+  --color-background: var(--color-surface);
+  --color-text-secondary: var(--color-text-muted);
+
+  color-scheme: light dark;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+:root[data-theme="dark"] {
+  --color-surface: #282a36;
+  --color-surface-alt: #21222c;
+  --color-elevated: #3b3d4f;
+
+  --color-text: #f8f8f2;
+  --color-text-muted: #6272a4;
+  --color-border: #44475a;
+
+  --color-accent: #bd93f9;
+  --color-accent-rgb: 189, 147, 249;
+  --color-accent-soft: rgba(189, 147, 249, 0.15);
+  --color-accent-100: rgba(189, 147, 249, 0.25);
+  --color-accent-contrast: white;
+}
+
+:root[data-theme="hc"] {
+  --color-surface: black;
+  --color-surface-alt: black;
+  --color-elevated: black;
+
+  --color-text: white;
+  --color-text-muted: white;
+  --color-border: white;
+
+  --color-accent: #ffd400;
+  --color-accent-rgb: 255, 212, 0;
+  --color-accent-soft: #1a1a1a;
+  --color-accent-100: #ffd400;
+  --color-accent-contrast: black;
+}
+
+:root[data-theme="pink"] {
+  --color-accent-50: #fdf2f8;
+  --color-accent-500: #db2777;
+  --color-accent: var(--color-accent-500);
+  --color-accent-rgb: 219, 39, 119;
+  --color-accent-soft: var(--color-accent-50);
+  --color-accent-100: #fce7f3;
+  --color-accent-contrast: white;
+
+  --color-surface: white;
+  --color-surface-alt: #fff1f2;
+  --color-border: #fecdd3;
+}
+
+:root[data-theme="green"] {
+  --color-accent-50: #f0fdf4;
+  --color-accent-500: #16a34a;
+  --color-accent: var(--color-accent-500);
+  --color-accent-rgb: 22, 163, 74;
+  --color-accent-soft: var(--color-accent-50);
+  --color-accent-100: #dcfce7;
+  --color-accent-contrast: white;
+
+  --color-surface: white;
+  --color-surface-alt: #f0fdf4;
+  --color-border: #bbf7d0;
 }
 
 body {
   font-family: var(--font-primary);
-  background-color: #F0F4F8;
+  background-color: var(--color-surface-alt);
   color: var(--color-text);
+  margin: 0;
   overflow: hidden;
 }
 
-.tab-content-hidden {
-  display: none !important;
-}
-
-.tab-content-visible {
-  display: block !important;
-  height: 100%;
-  overflow-y: auto;
-}
-
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
 .tab-active {
-  border-radius: 8px 8px 0 0 !important;
-  position: relative;
-  margin-bottom: -1px;
-  background-color: #ffffff;
-  border: 1px solid var(--color-border);
-  border-bottom-color: #ffffff;
+  background-color: var(--color-surface) !important;
+  border-bottom-color: var(--color-surface) !important;
+  border-top-left-radius: 0.5rem !important;
+  border-top-right-radius: 0.5rem !important;
   z-index: 10;
 }
 
-.tab-active::before,
-.tab-active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  width: 10px;
-  height: 10px;
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
-.tab-active::before {
-  left: -10px;
-  border-bottom-right-radius: 10px;
-  border-width: 0 1px 1px 0;
-  border-style: solid;
-  border-color: var(--color-border);
-  box-shadow: 4px 2px 0 0 #ffffff;
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
-.tab-active::after {
-  right: -10px;
-  border-bottom-left-radius: 10px;
-  border-width: 0 0 1px 1px;
-  border-style: solid;
-  border-color: var(--color-border);
-  box-shadow: -4px 2px 0 0 #ffffff;
+@media (prefers-contrast: more) {
+  :where(:focus-visible) {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+  }
 }
