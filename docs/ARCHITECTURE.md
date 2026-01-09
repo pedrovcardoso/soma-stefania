@@ -27,7 +27,7 @@ graph TD
         ContentArea --> TabRenderer[TabRenderer (Gerenciador de Views)]
     end
     
-    subgraph "Tab Management (Zustand)"
+    subgraph "Tab Management"
         Sidebar -- 1. openTab --> useTabStore
         Navbar -- 2. switchTab/closeTab --> useTabStore
         useTabStore -- 3. Render Views --> TabRenderer
@@ -71,7 +71,7 @@ Gerencia o histórico de atividades e itens fixados.
     - **HistoryView**: Mostra o log completo cronológico.
 
 ### 3. `useThemeStore`
-Gerencia temas e dark mode, injetando variáveis CSS na raiz.
+Gerencia temas e dark mod0e, injetando variáveis CSS na raiz.
 
 ## Estrutura de Diretórios Chave
 
@@ -93,5 +93,5 @@ Gerencia temas e dark mode, injetando variáveis CSS na raiz.
 
 O sistema de histórico foi projetado para alta performance e baixo consumo de storage:
 1.  **Identidade**: Itens identificados por `contentId` (ex: número SEI) + `timestamp`.
-2.  **Deduplicação Visual**: O usuário vê uma lista limpa na Sidebar, mas mantemos o rastro completo para auditoria/histórico detalhado.
-3.  **Enrichment**: Ao carregar detalhes de um processo (ex: `SeiDetailView`), o sistema atualiza assincronamente a entrada do histórico com a descrição completa, garantindo rica informação sem bloquear a navegação inicial.
+2.  **Deduplicação Visual**: O usuário vê uma lista limpa na Sidebar, mas mantemos o rastro completo para histórico detalhado.
+3.  **Enrichment**: Ao carregar detalhes de um processo (ex: `SeiDetailView`), o sistema atualiza assincronamente a entrada do histórico com a descrição completa.

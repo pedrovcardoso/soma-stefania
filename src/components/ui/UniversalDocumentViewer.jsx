@@ -5,15 +5,15 @@ import { ImSpinner8 } from 'react-icons/im';
 import { MdWarning, MdFileDownload } from 'react-icons/md';
 
 // Lazy loading dos visualizadores
-const PdfViewer = React.lazy(() => import('./viewers/PdfViewer'));
-const DocxViewer = React.lazy(() => import('./viewers/DocxViewer'));
-const ImageViewer = React.lazy(() => import('./viewers/ImageViewer'));
-const XlsxViewer = React.lazy(() => import('./viewers/XlsxViewer'));
-const TextViewer = React.lazy(() => import('./viewers/TextViewer'));
-const PptxViewer = React.lazy(() => import('./viewers/PptxViewer'));
-const MultimediaViewer = React.lazy(() => import('./viewers/MultimediaViewer'));
-const ZipViewer = React.lazy(() => import('./viewers/ZipViewer'));
-const UnsupportedViewer = React.lazy(() => import('./viewers/UnsupportedViewer'));
+const PdfViewer = React.lazy(() => import('./FileReaders/PdfViewer'));
+const DocxViewer = React.lazy(() => import('./FileReaders/DocxViewer'));
+const ImageViewer = React.lazy(() => import('./FileReaders/ImageViewer'));
+const XlsxViewer = React.lazy(() => import('./FileReaders/XlsxViewer'));
+const TextViewer = React.lazy(() => import('./FileReaders/TextViewer'));
+const PptxViewer = React.lazy(() => import('./FileReaders/PptxViewer'));
+const MultimediaViewer = React.lazy(() => import('./FileReaders/MultimediaViewer'));
+const ZipViewer = React.lazy(() => import('./FileReaders/ZipViewer'));
+const UnsupportedViewer = React.lazy(() => import('./FileReaders/UnsupportedViewer'));
 
 const LoadingFallback = () => (
   <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50">

@@ -1,6 +1,6 @@
 # Documentação do Sistema de Autenticação
 
-Este documento descreve a arquitetura de segurança e autenticação implementada na aplicação. O sistema utiliza uma abordagem Stateless com JWT (JSON Web Token) armazenado em Cookies HttpOnly, garantindo proteção contra vulnerabilidades comuns de aplicações web e ocultando a infraestrutura do backend.
+O sistema utiliza uma abordagem Stateless com JWT (JSON Web Token) armazenado em Cookies HttpOnly, garantindo proteção contra vulnerabilidades e ocultando a infraestrutura do backend.
 
 ## Visão Geral da Arquitetura
 
@@ -20,11 +20,8 @@ Diferente do armazenamento em `localStorage`, os cookies HttpOnly não podem ser
 
 ### 2. Validação via Middleware
 O `middleware.js` atua como um guardião global que é executado antes de qualquer renderização de página.
-- **Interceptação:** Todas as requisições de página passam por ele.
+- **Interceptação:** Todas as requisições de página passam por ele antes de serem redirecionadas para a página correta.
 - **Verificação:** A assinatura do JWT é verificada utilizando a biblioteca `jose` (compatível com Edge Runtime).
-- **Redirecionamento Inteligente:**
-    - Usuário não autenticado tentando acessar área restrita -> Redirecionado para `/login`.
-    - Usuário já autenticado tentando acessar `/login` -> Redirecionado para a raiz `/` (Main).
 
 ### 3. Ocultação de Topologia (Proxy)
 A URL da API Externa e a chave secreta de assinatura nunca são expostas ao navegador. Para o cliente, toda a aplicação reside no mesmo domínio.
@@ -61,10 +58,6 @@ API_URL=http://ip-do-servidor:porta
 
 # Chave para assinatura e verificação do JWT (HS256)
 JWT_SECRET=chave-secreta-complexa-e-longa
-
-# --- Variáveis Públicas (Visíveis) ---
-# Controla o uso do Mock para desenvolvimento
-NEXT_PUBLIC_USE_MOCK_API=false
 ```
 
 ## Fluxos de Dados
@@ -101,10 +94,3 @@ O middleware aplica a seguinte lógica de decisão para cada requisição:
     - Se possui token, tenta validar a assinatura:
         - Assinatura Válida -> Permite acesso (`next()`).
         - Assinatura Inválida/Expirada -> Remove o cookie e redireciona para `/login`.
-
-## Sistema de Mock
-
-O sistema possui uma estrutura espelhada para desenvolvimento local sem dependência da API Externa.
-
-- Ao definir `NEXT_PUBLIC_USE_MOCK_API=true`, o `src/services/api.js` altera o prefixo das requisições para `/api/mock`.
-- As rotas em `src/app/api/mock/...` simulam o comportamento do backend, incluindo a geração de tokens válidos e validação de usuários fictícios.

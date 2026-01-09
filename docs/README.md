@@ -1,17 +1,15 @@
 # SOMA - Sistema de Orquestração de Manifestações ao TCE
 
-**SPA "Browser-in-Browser" para Eficiência Governamental**
-
-Desenvolvido para a **Secretaria de Estado de Fazenda de Minas Gerais (SEF/MG)**, esta aplicação é uma **Single Page Application (SPA)** de alta performance projetada para imitar a experiência de usuário de um navegador web moderno. Possui um sistema de abas persistente, permitindo que servidores públicos realizem multitarefas eficientemente entre processos SEI, dashboards analíticos e documentos sem perder o contexto.
+Desenvolvido para a **Secretaria de Estado de Fazenda de Minas Gerais (SEF/MG)**, esta aplicação é uma **Single Page Application (SPA)** projetada para imitar a experiência de usuário de um navegador web moderno. Possui um sistema de abas persistente, permitindo que servidores realizem multitarefas eficientemente entre processos SEI e documentos sem perder o contexto da janela.
 
 ## Funcionalidades Principais
 
 ### Navegação Estilo Navegador
-- **Abas Persistentes**: Diferente de web apps tradicionais, trocar de aba **não recarrega/desmonta** a página. Utilizamos preservação de estado avançada (olhar oculto), então sua posição de rolagem, formulários preenchidos e dados permanecem exatamente onde você os deixou.
-- **Sidebar como Favoritos**: A barra lateral não apenas navega; ela age como uma barra de "Favoritos". Clicar em um item abre-o em uma nova aba (ou foca se já estiver aberta).
+- **Abas Persistentes**: Diferente de web apps tradicionais, trocar de aba **não recarrega/desmonta** a página. Utilizamos preservação de estado avançada (hidden view), então sua posição de rolagem, formulários preenchidos e dados permanecem exatamente onde você os deixou.
+- **Sidebar como Favoritos**: A barra lateral não apenas navega; ela age como uma barra de favoritos. Clicar em um item abre-o em uma nova aba (ou foca se já estiver aberta).
 
 ### StefanIA (Interface LLM)
-- Assistente de IA integrado para analisar documentos e processos diretamente dentro do espaço de trabalho.
+- Assistente de IA integrado para analisar documentos e processos diretamente dentro do espaço de trabalho, cada aba interage com o assistente e possui uma interface própria.
 
 ### UX Governamental com Tecnologia Moderna
 - **Next.js 15 (App Router)**: A estrutura principal da aplicação.
@@ -24,46 +22,42 @@ Desenvolvido para a **Secretaria de Estado de Fazenda de Minas Gerais (SEF/MG)**
 ```
 frontend/
 ├── src/
+│   ├── (auth)/            # Rotas públicas (Login, Register).
+│   ├── (main)/            # Rotas protegidas (AppShell).
+│   │   └── [...slug]/     # Proxy genérico para a API Externa
 │   ├── app/               # Rotas Lógicas (Next.js App Router)
 │   │   ├── api/           # Camada de Proxy e Auth (BFF)
 │   │   │   ├── auth/      # Login/Logout reais
-│   │   │   ├── mock/      # Sistema de Mocks espelhado
+│   │   │   ├── mock/      # Sistema de mocksdata para testes
 │   │   │   └── [...args]/ # Proxy genérico para a API Externa
-│   ├── components/        #
-│   │   ├── layout/        # AppShell, Navbar, Sidebar, TabViewer
+│   ├── components/        # Componentes Reutilizáveis
+│   │   ├── layout/        # AppShell, Navbar, Breadcrumb, Sidebar, TabViewer
 │   │   └── ui/            # Componentes de UI Reutilizáveis
+│   ├── services/          # Integrações de API
 │   ├── store/             # Stores Zustand (Tabs, Theme, History)
-│   ├── services/          # Integrações de API & Mocks
+│   ├── views/             # Páginas do sistema
 │   └── middleware.js      # Proteção global de rotas
-├── docs/                  # Documentação Detalhada
+├── docs/                  # Documentação
 └── public/                # Assets Estáticos
 ```
-
-### Segurança e Autenticação
-- **JWT Stateless**: Autenticação moderna sem armazenamento de sessão no servidor.
-- **Cookies HttpOnly**: O token de acesso é armazenado em cookies protegidos, invisíveis ao JavaScript do navegador, mitigando ataques XSS.
-- **Middleware Guard**: Verificação de sessão em tempo real antes de carregar qualquer página ou rota de dados.
-- **Backend-for-Frontend (BFF)**: O frontend nunca expõe o IP real do backend; todas as requisições são tuneladas e autenticadas pela camada de API do Next.js.
 
 ## Documentação
 
 Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de contribuir:
 
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)**: Aprofundamento na arquitetura de abas "Hidden View", Gerenciamento de Estado e hierarquia de Componentes.
-- **[DEVELOPMENT.md](docs/DEVELOPMENT.md)**: Padrões de código, convenções de nomenclatura e guia de customização de Temas.
-- **[ICONS.md](docs/ICONS.md)**: Guia para gerenciar e adicionar ícones ao sistema.
-- **[AI_CONTEXT.md](docs/AI_CONTEXT.md)**: A "Alma" do projeto - Contexto de alto nível para assistentes de IA.
+- **[AUTH.md](docs/AUTH.md)**: Guia para autenticação e autorização do sistema.
+- **[ICONS.md](docs/ICONS.md)**: Guia para ícones padrão reutilizáveis do sistema.
 - **Documentação da API**: O Swagger UI com os endpoints atuais está disponível dentro da aplicação em **Configurações > Sobre o Sistema**.
 
 ## Pré-requisitos
 
-1. **Node.js** (Requer Login de Administrador)
+- **Node.js** (Requer Login de Administrador)
    - Baixe o instalador **MSI** na opção **Or get a prebuilt Node.js®** em [https://nodejs.org/en/download](https://nodejs.org/en/download).
-   - **Importante:** Durante a instalação, marque a opção para instalar automaticamente as ferramentas nativas ("Automatically install...").
-
-2. **GitHub Desktop** (Recomendado - Não requer Admin)
-   - Facilita o versionamento e atualização do projeto.
-   - Baixe em [https://desktop.github.com/download/](https://desktop.github.com/download/).
+   - **Importante:** Durante a instalação, marque a opção para instalar automaticamente as ferramentas nativas ("Automatically install..."). Caso não tenha marcado a opção, execute o seguinte comando no terminal: 
+   ```bash
+   npm install -g windows-build-tools
+   ```
 
 ## Inicialização Rápida
 
@@ -71,15 +65,15 @@ Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de
    Abra o Terminal/PowerShell. Recomendamos navegar para a pasta **Documentos** antes de clonar:
    ```bash
    cd Documents
-   git clone https://github.com/pedrovcardoso/soma-stefania
-   cd soma-stefania
+   git clone https://gitlab.fazenda.mg.gov.br/pedro.campos/soma-mg.git
+   cd soma-mg/frontend
    ```
 
 2. **Instalar Dependências**
    ```bash
    npm install
    ```
-   > **Problemas de Rede (SSL)?** Se o comando falhar (comum na rede de governo), tente:
+   > **Problemas de Rede (SSL)** Se o comando falhar ou demorar muito (comum na rede de governo), tente:
    > ```bash
    > npm config set strict-ssl false
    > npm install
@@ -87,7 +81,7 @@ Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de
    > ```
 
 3. **Configurar Ambiente**
-   Crie um arquivo `.env` na raiz do projeto com a URL da API:
+   Crie um arquivo `.env` na pasta `/frontend` com as seguintes variáveis:
    ```env
    # URL da API real
    API_URL=http://10.180.168.23:5000
@@ -101,7 +95,7 @@ Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de
    # Define se o sistema usará a pasta /api/mock ou a API_URL real
    NEXT_PUBLIC_USE_MOCK_API=false
    ```
-   > **Atenção:** A API atualmente só está acessível através da rede de governo (Computadores da CAMG ou VPN).
+   > **Atenção:** A API real atualmente só está acessível através da rede de governo (Computadores da CAMG ou VPN).
 
 4. **Rodar Servidor de Desenvolvimento**
    ```bash
@@ -109,17 +103,21 @@ Mantemos documentação detalhada para desenvolvedores. Por favor, leia antes de
    ```
    Acesse em `http://localhost:3000`.
 
-## Contribuindo
+## Desenvolvimento
 
-Este projeto segue **regras estritas de cleancode**:
-1.  **Inglês Apenas**: Código, Comentários, Commits.
+Este projeto segue (ou tenta) **regras de cleancode**:
+1.  **Inglês por padrão**: Código, Comentários, Commits.
 2.  **Sem TypeScript**: Usamos JavaScript ES6+ padrão.
+2.  **Sem comentários**: Usar comentários apenas quando estritamente necessários, no momento em que o código não for auto-explicativo.
 3.  **Snake/Camel Case**: `camelCase` para JS, `PascalCase` para Componentes.
-
-Veja [DEVELOPMENT.md](docs/DEVELOPMENT.md) para o guia completo.
 
 ---
 
 **Propriedade da SEF/MG - Secretaria de Estado de Fazenda de Minas Gerais**
-Frontend: Pedro Henrique Vieira Cardoso - SCCG
-Backend: Pedro Vinicius Campos - STE
+- **Pedro Henrique Vieira Cardoso**
+  SEF / STE / SCCG
+  pedro.cardoso@fazenda.mg.gov.br
+
+- **Pedro Vinicius Campos**
+  SEF / STE
+  pedro.campos@fazenda.mg.gov.br
