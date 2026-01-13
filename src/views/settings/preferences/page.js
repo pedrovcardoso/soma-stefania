@@ -79,7 +79,8 @@ export default function PreferencesSettingsPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[
                             { id: 'light', name: 'Claro', bg: 'bg-white', text: 'bg-slate-800', border: 'border-slate-200' },
-                            { id: 'dark', name: 'Escuro', bg: 'bg-slate-900', text: 'bg-slate-200', border: 'border-slate-700' },
+                            { id: 'dark', name: 'Escuro', bg: 'bg-[#1e1e1e]', text: 'bg-[#d4d4d4]', border: 'border-[#3e3e42]' },
+                            { id: 'dracula', name: 'Dracula', bg: 'bg-[#282a36]', text: 'bg-[#f8f8f2]', border: 'border-[#44475a]' },
                             { id: 'hc', name: 'Alto Contraste', bg: 'bg-black', text: 'bg-yellow-400', border: 'border-white' },
                             { id: 'pink', name: 'Rosa', bg: 'bg-pink-50', text: 'bg-pink-600', border: 'border-pink-200' },
                             { id: 'green', name: 'Verde', bg: 'bg-green-50', text: 'bg-green-600', border: 'border-green-200' }

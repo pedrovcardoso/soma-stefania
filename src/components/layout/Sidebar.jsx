@@ -362,8 +362,8 @@ export default function Sidebar() {
       {!isCollapsed && (
         <div
           onMouseDown={handleResizerMouseDown}
-          className={`absolute right-0 top-0 w-1 h-full cursor-col-resize z-50 hover:bg-blue-400 transition-colors
-                        ${isResizing ? 'bg-blue-500' : 'bg-transparent'}`}
+          className={`absolute right-0 top-0 w-1 h-full cursor-col-resize z-50 hover:bg-border transition-colors
+                        ${isResizing ? 'bg-border' : 'bg-transparent'}`}
         />
       )}
     </div>

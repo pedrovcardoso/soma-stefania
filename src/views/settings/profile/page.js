@@ -109,7 +109,7 @@ export default function ProfileSettingsPage() {
                     <button className="px-4 py-2 text-sm font-medium text-text-secondary hover:bg-surface-alt rounded-lg transition-colors">
                         Cancelar
                     </button>
-                    <button className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent/90 rounded-lg shadow-sm transition-colors">
+                    <button className="px-4 py-2 text-sm font-medium text-accent-contrast bg-accent hover:bg-accent/90 rounded-lg shadow-sm transition-colors">
                         Salvar Alterações
                     </button>
                 </div>

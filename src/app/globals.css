@@ -44,6 +44,22 @@
 }
 
 :root[data-theme="dark"] {
+  --color-surface: #1e1e1e;
+  --color-surface-alt: #252526;
+  --color-elevated: #333333;
+
+  --color-text: #d4d4d4;
+  --color-text-muted: #9ca3af;
+  --color-border: #3e3e42;
+
+  --color-accent: #007acc;
+  --color-accent-rgb: 0, 122, 204;
+  --color-accent-soft: rgba(0, 122, 204, 0.15);
+  --color-accent-100: rgba(0, 122, 204, 0.25);
+  --color-accent-contrast: white;
+}
+
+:root[data-theme="dracula"] {
   --color-surface: #282a36;
   --color-surface-alt: #21222c;
   --color-elevated: #3b3d4f;
@@ -56,7 +72,7 @@
   --color-accent-rgb: 189, 147, 249;
   --color-accent-soft: rgba(189, 147, 249, 0.15);
   --color-accent-100: rgba(189, 147, 249, 0.25);
-  --color-accent-contrast: white;
+  --color-accent-contrast: #282a36;
 }
 
 :root[data-theme="hc"] {

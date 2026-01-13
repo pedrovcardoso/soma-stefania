@@ -135,7 +135,7 @@ export default function SeiDetailView({ id, lastReload }) {
   );
 
   return (
-    <div className="h-full bg-surface-alt/50 px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 overflow-auto font-sans relative flex flex-col">
+    <div className="h-full bg-surface-alt px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 overflow-auto font-sans relative flex flex-col">
       <div className="max-w-7xl mx-auto w-full space-y-6 pb-20 flex-grow flex flex-col">
 
         <div>

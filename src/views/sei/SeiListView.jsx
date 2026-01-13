@@ -181,7 +181,7 @@ export default function SeiListView({ lastReload }) {
   const filterInputClass = "w-full h-[42px] px-3 text-sm border border-border rounded-lg bg-surface-alt hover:border-text-muted/50 focus:ring-2 focus:ring-accent/20 focus:border-accent appearance-none outline-none transition-all text-text";
 
   return (
-    <div className="h-full bg-surface-alt/50 px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 overflow-auto font-sans">
+    <div className="h-full bg-surface-alt px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 overflow-auto font-sans">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-extrabold text-text tracking-tight">Processos SEI</h1>

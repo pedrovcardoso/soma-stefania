@@ -173,7 +173,12 @@ export default function HistoryView() {
         </FilterPanel>
 
         <div className="flex flex-col sm:flex-row gap-4 items-center mb-6">
-          <div className="relative w-full"><MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Número do processo ou documento e descrição..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" /></div>
+          <input
+            type="text"
+            placeholder="Número do processo ou documento e descrição..."
+            value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full h-12 pl-12 pr-4 text-sm border border-border rounded-xl focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none shadow-sm bg-surface text-text placeholder:text-text-muted transition-all"
+          />
           <Menu as="div" className="relative w-full sm:w-auto"><Menu.Button className="w-full flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"><MdDeleteSweep size={18} /><span>Limpar Histórico</span><MdExpandMore /></Menu.Button>
             <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
               <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-white divide-y divide-slate-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-20"><div className="px-1 py-1"><Menu.Item><button onClick={() => handleClearHistory('day')} className='group flex rounded-md items-center w-full px-2 py-2 text-sm text-slate-700 hover:bg-slate-100'>Limpar hoje</button></Menu.Item><Menu.Item><button onClick={() => handleClearHistory('week')} className='group flex rounded-md items-center w-full px-2 py-2 text-sm text-slate-700 hover:bg-slate-100'>Limpar última semana</button></Menu.Item><Menu.Item><button onClick={() => handleClearHistory('month')} className='group flex rounded-md items-center w-full px-2 py-2 text-sm text-slate-700 hover:bg-slate-100'>Limpar último mês</button></Menu.Item></div><div className="px-1 py-1"><Menu.Item><button onClick={() => handleClearHistory('all')} className='group flex rounded-md items-center w-full px-2 py-2 text-sm text-red-600 hover:bg-red-50'>Limpar todo o histórico</button></Menu.Item></div></Menu.Items>

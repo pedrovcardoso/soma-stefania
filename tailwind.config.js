@@ -11,6 +11,7 @@ module.exports = {
         primary: 'var(--color-primary)',
         secondary: 'var(--color-secondary)',
         accent: 'var(--color-accent)',
+        'accent-contrast': 'var(--color-accent-contrast)',
         'accent-100': 'var(--color-accent-100)',
         'accent-soft': 'var(--color-accent-soft)',
         background: 'var(--color-background)',
