@@ -30,7 +30,12 @@ export default function StefaniaChatbot() {
     const inputRef = useRef(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest"
+            });
+        }
     };
 
     useEffect(() => {
@@ -232,10 +237,10 @@ export default function StefaniaChatbot() {
                     {isTyping && (
                         <div className="flex justify-start mt-4">
                             <div className="bg-surface border border-border rounded-2xl rounded-bl-none px-3 py-2 shadow-sm">
-                                <div className="flex space-x-1.5">
-                                    <div className="w-2 h-2 bg-text-muted/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                                    <div className="w-2 h-2 bg-text-muted/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                                    <div className="w-2 h-2 bg-text-muted/40 rounded-full animate-bounce"></div>
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 bg-text-muted rounded-full animate-pulse [animation-delay:-0.3s]"></div>
+                                    <div className="w-1.5 h-1.5 bg-text-muted rounded-full animate-pulse [animation-delay:-0.15s]"></div>
+                                    <div className="w-1.5 h-1.5 bg-text-muted rounded-full animate-pulse"></div>
                                 </div>
                             </div>
                         </div>

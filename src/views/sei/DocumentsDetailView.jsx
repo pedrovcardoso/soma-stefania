@@ -4,42 +4,112 @@ import { useState, useMemo, useEffect } from 'react';
 import { MdCloudDone, MdCloudOff, MdUpload, MdDescription, MdPictureAsPdf, MdImage, MdEmail, MdTableChart, MdSlideshow, MdCode, MdVideocam, MdAudiotrack, MdStar, MdArchive, MdModeEdit, MdFilterList, MdSearch } from 'react-icons/md';
 import UniversalDocumentViewer from '@/components/ui/UniversalDocumentViewer';
 import StefanIAEditor from '@/components/sei/StefanIAEditor';
+import AiDocumentChat from '@/components/sei/AiDocumentChat';
+import { fetchDocumentosProcesso } from '@/services/seiService';
 
 const getFileIcon = (type) => {
     const props = { size: 22, className: 'flex-shrink-0' };
     switch (type?.toLowerCase()) {
         case 'pdf': return <MdPictureAsPdf {...props} className="text-red-500" />;
         case 'docx': case 'odt': return <MdDescription {...props} className="text-blue-500" />;
-        case 'png': case 'jpeg': case 'jpg': case 'gif': case 'bmp': return <MdImage {...props} className="text-green-500" />;
+        case 'png': case 'jpeg': case 'jpg': case 'gif': case 'bmp': case 'svg': case 'webmp': return <MdImage {...props} className="text-green-500" />;
         case 'xlsx': case 'csv': return <MdTableChart {...props} className="text-emerald-500" />;
         case 'pptx': return <MdSlideshow {...props} className="text-orange-500" />;
-        case 'json': case 'xml': return <MdCode {...props} className="text-gray-500" />;
-        case 'mp4': case 'webm': case 'avi': case 'mov': return <MdVideocam {...props} className="text-purple-500" />;
-        case 'mp3': case 'wav': return <MdAudiotrack {...props} className="text-pink-500" />;
-        case 'svg': return <MdStar {...props} className="text-yellow-500" />;
-        case 'zip': return <MdArchive {...props} className="text-amber-600" />;
+        case 'json': case 'xml': case 'js': case 'ts': case 'html': case 'css': case 'md': case 'log': case 'yaml': return <MdCode {...props} className="text-gray-500" />;
+        case 'mp4': case 'webm': case 'avi': case 'mov': case 'ogg': return <MdVideocam {...props} className="text-purple-500" />;
+        case 'mp3': case 'wav': case 'flac': case 'aac': case 'm4a': return <MdAudiotrack {...props} className="text-pink-500" />;
+        case 'zip': case 'rar': case '7z': case 'tar': case 'gz': return <MdArchive {...props} className="text-amber-600" />;
         case 'eml': case 'msg': return <MdEmail {...props} className="text-blue-400" />;
         default: return <MdDescription {...props} className="text-slate-400" />;
     }
 };
 
-const mockDocuments = [
-    { id: 1, name: 'Edital de Licitação.pdf', type: 'pdf', size: '2.4 MB', modifiedDate: '10/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.pdf' },
-    { id: 2, name: 'Minuta do Contrato.docx', type: 'docx', size: '1.2 MB', modifiedDate: '12/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.docx' },
-    { id: 3, name: 'Planilha Orçamentária.xlsx', type: 'xlsx', size: '850 KB', modifiedDate: '15/01/2025', inAzure: false, url: '/api/mock/documentosProcesso/sample.xlsx' },
-    { id: 4, name: 'Evidência Fotográfica.png', type: 'png', size: '3.5 MB', modifiedDate: '16/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.png' },
-    { id: 5, name: 'Ofício Circular.odt', type: 'odt', size: '450 KB', modifiedDate: '18/01/2025', inAzure: false, url: '/api/mock/documentosProcesso/sample.odt' },
-    { id: 6, name: 'Anexos Diversos.zip', type: 'zip', size: '15 MB', modifiedDate: '20/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.zip' },
-    { id: 7, name: 'Vídeo da Vistoria.mp4', type: 'mp4', size: '45 MB', modifiedDate: '22/01/2025', inAzure: false, url: '/api/mock/documentosProcesso/sample.mp4' },
-    { id: 8, name: 'Áudio da Reunião.mp3', type: 'mp3', size: '12 MB', modifiedDate: '25/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.mp3' },
-    { id: 9, name: 'Email de Aprovação.msg', type: 'msg', size: '150 KB', modifiedDate: '28/01/2025', inAzure: true, url: '/api/mock/documentosProcesso/sample.msg' }
-];
 
 export default function DocumentsDetailView({ processId, lastReload }) {
-    const [documents, setDocuments] = useState(mockDocuments);
-    const [selectedDocument, setSelectedDocument] = useState(documents[0] || null);
+    const [documents, setDocuments] = useState([]);
+    const [selectedDocument, setSelectedDocument] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [isReloading, setIsReloading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        const loadDocuments = async () => {
+            if (!processId) return;
+            setIsLoading(true);
+            try {
+                const docs = await fetchDocumentosProcesso(processId);
+                const mappedDocs = docs.map((doc, index) => ({
+                    id: index + 1,
+                    name: doc.nome,
+                    type: doc.nome.split('.').pop().toLowerCase(),
+                    size: 'N/A', // O SEI não retorna tamanho diretamente nesta chamada
+                    modifiedDate: doc.data,
+                    inAzure: doc.existe_azure === 'sim',
+                    url: doc.url,
+                    unidade: doc.unidade,
+                    processo_origem: doc.processo_origem
+                }));
+                setDocuments(mappedDocs);
+                if (mappedDocs.length > 0) {
+                    setSelectedDocument(mappedDocs[0]);
+                } else {
+                    setSelectedDocument(null);
+                }
+            } catch (error) {
+                console.error('Failed to load documents:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadDocuments();
+    }, [processId, lastReload]);
+
+    const [listWidth, setListWidth] = useState(320);
+    const [aiWidth, setAiWidth] = useState(350);
+    const [resizing, setResizing] = useState(null);
+
+    const handleResizeStart = (e, type) => {
+        e.preventDefault();
+        setResizing({
+            type,
+            startX: e.clientX,
+            startWidth: type === 'list' ? listWidth : aiWidth
+        });
+    };
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            if (resizing.type === 'list') {
+                const diff = e.clientX - resizing.startX;
+                const newWidth = Math.max(200, Math.min(500, resizing.startWidth + diff));
+                setListWidth(newWidth);
+            } else if (resizing.type === 'ai') {
+                const diff = resizing.startX - e.clientX; // Invert direction for right side resize
+                const newWidth = Math.max(250, Math.min(600, resizing.startWidth + diff));
+                setAiWidth(newWidth);
+            }
+        };
+
+        const handleMouseUp = () => {
+            setResizing(null);
+        };
+
+        if (resizing) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none'; // Prevent text selection
+        }
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        };
+    }, [resizing]);
 
     useEffect(() => {
         if (lastReload) {
@@ -65,53 +135,72 @@ export default function DocumentsDetailView({ processId, lastReload }) {
         };
     }, [documents]);
 
-    if (isReloading) {
+    if (isLoading || isReloading) {
         return (
-            <div className="h-full flex items-center justify-center bg-surface/50 backdrop-blur-sm">
+            <div className="flex items-center justify-center bg-surface/50 backdrop-blur-sm h-[400px]">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-surface-alt border-t-accent rounded-full animate-spin shadow-inner"></div>
-                    <p className="text-text-muted text-sm font-semibold tracking-wide uppercase">Atualizando repositório...</p>
+                    <p className="text-text-muted text-sm font-semibold tracking-wide uppercase">
+                        {isReloading ? 'Atualizando repositório...' : 'Carregando documentos...'}
+                    </p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="h-full flex flex-col font-sans overflow-hidden bg-surface-alt/30">
-            <div className="max-w-7xl w-full mx-auto space-y-8 flex-grow flex flex-col h-full py-6 px-4 md:px-6">
+        <div className="flex flex-col font-sans">
+            <div className="max-w-full w-full mx-auto space-y-6 flex flex-col py-4 px-4">
 
-                <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
-                    <div className="flex flex-wrap items-center gap-8">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-success/10 rounded-xl flex items-center justify-center border border-success/20 shadow-sm">
-                                <MdCloudDone size={20} className="text-success" />
+                <div className="flex flex-col">
+                    <h3 className="text-md font-bold text-text-muted px-2">
+                        Status dos documentos na Azure
+                    </h3>
+
+                    <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 px-2">
+                        <div className="flex flex-wrap items-center gap-8">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center border border-success/20 shadow-sm">
+                                    <MdCloudDone size={20} className="text-success" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-text-muted tracking-wider uppercase">Sincronizados</p>
+                                    <p className="text-lg font-bold text-text leading-none">{azureStats.inAzure}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-xs font-bold text-text-muted tracking-wider uppercase">Sincronizados</p>
-                                <p className="text-lg font-bold text-text leading-none">{azureStats.inAzure}</p>
+
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center border border-warning/20 shadow-sm">
+                                    <MdCloudOff size={20} className="text-warning" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-text-muted tracking-wider uppercase">Pendentes</p>
+                                    <p className="text-lg font-bold text-text leading-none">{azureStats.notInAzure}</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-warning/10 rounded-xl flex items-center justify-center border border-warning/20 shadow-sm">
-                                <MdCloudOff size={20} className="text-warning" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold text-text-muted tracking-wider uppercase">Pendentes</p>
-                                <p className="text-lg font-bold text-text leading-none">{azureStats.notInAzure}</p>
-                            </div>
+
+                        <div className="flex flex-col items-end">
+                            {azureStats.notInAzure > 0 && (
+                                <>
+                                    <button className="flex items-center justify-center gap-2 px-4 py-2 bg-transparent border border-accent text-accent text-xs font-bold rounded-lg hover:bg-accent hover:text-accent-contrast transition-all active:scale-95 group">
+                                        <MdUpload size={18} className="group-hover:-translate-y-0.5 transition-transform" />
+                                        Efetuar Upload ({azureStats.notInAzure})
+                                    </button>
+                                    <p className="text-xs text-text-muted mt-2">
+                                        * Documentos pendentes não serão interpretados pela StefanIA.
+                                    </p>
+                                </>
+                            )}
                         </div>
                     </div>
-
-                    {azureStats.notInAzure > 0 && (
-                        <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-accent text-accent-contrast text-sm font-bold rounded-xl shadow-lg shadow-accent/20 hover:bg-accent hover:opacity-90 transition-all active:scale-95 group">
-                            <MdUpload size={20} className="group-hover:-translate-y-0.5 transition-transform" />
-                            Efetuar Upload ({azureStats.notInAzure})
-                        </button>
-                    )}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[650px] min-h-0">
-                    <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-4 min-h-0">
+                <div className="flex gap-2 min-h-0 px-2 pb-4 overflow-hidden" style={{ height: 'calc(100vh - 100px)' }}>
+                    <div
+                        className="flex flex-col gap-4 min-h-0 shrink-0"
+                        style={{ width: `${listWidth}px` }}
+                    >
                         <div className="bg-surface rounded-2xl border border-border shadow-sm flex flex-col overflow-hidden min-h-0 flex-grow">
                             <div className="p-4 border-b border-border flex flex-col gap-3">
                                 <div className="flex items-center justify-between">
@@ -149,7 +238,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                                                         <p className={`text-sm font-bold truncate ${selectedDocument?.id === doc.id ? 'text-accent' : 'text-text'}`}>
                                                             {doc.name}
                                                         </p>
-                                                        <div className="flex items-center gap-3 text-[10px] text-text-muted mt-1 font-medium tracking-wide">
+                                                        <div className="flex items-center gap-3 text-[10px] text-text-muted mt-1 font-medium tracking-wide truncate">
                                                             <span>{doc.size}</span>
                                                             <span className="opacity-30">•</span>
                                                             <span className="uppercase">{doc.type}</span>
@@ -172,12 +261,56 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                         </div>
                     </div>
 
-                    <div className="lg:col-span-8 xl:col-span-9 bg-surface rounded-2xl border border-border shadow-xl overflow-hidden flex flex-col">
-                        <UniversalDocumentViewer document={selectedDocument} />
+                    <div
+                        onMouseDown={(e) => handleResizeStart(e, 'list')}
+                        className={`w-4 -ml-2 -mr-2 z-10 cursor-col-resize flex items-center justify-center group outline-none shrink-0`}
+                    >
+                        <div className={`w-1.5 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${resizing?.type === 'list' ? 'bg-accent/20 scale-y-110' : 'bg-transparent group-hover:bg-accent/10'} overflow-visible`}>
+                            <div className="flex items-center justify-center">
+                                <span className={`text-[12px] font-medium select-none tracking-[-1px] transition-all duration-300 text-text-muted ${resizing?.type === 'list' ? 'opacity-100' : 'opacity-50 group-hover:opacity-100'}`}>
+                                    ||
+                                </span>
+                            </div>
+                        </div>
                     </div>
+
+                    <div className={`flex-grow bg-surface rounded-2xl border border-border overflow-hidden flex flex-col min-w-0 ${resizing ? 'pointer-events-none' : ''}`}>
+                        <UniversalDocumentViewer
+                            document={selectedDocument}
+                            onOpenAiTools={() => setIsAiSidebarOpen(true)}
+                        />
+                    </div>
+
+                    {isAiSidebarOpen && (
+                        <div
+                            onMouseDown={(e) => handleResizeStart(e, 'ai')}
+                            className={`w-4 -ml-2 -mr-2 z-10 cursor-col-resize flex items-center justify-center group outline-none shrink-0`}
+                        >
+                            <div className={`w-1.5 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${resizing?.type === 'ai' ? 'bg-accent/20 scale-y-110' : 'bg-transparent group-hover:bg-accent/10'} overflow-visible`}>
+                                <div className="flex items-center justify-center">
+                                    <span className={`text-[12px] font-medium select-none tracking-[-1px] transition-all duration-300 text-text-muted ${resizing?.type === 'ai' ? 'opacity-100' : 'opacity-50 group-hover:opacity-100'}`}>
+                                        ||
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {isAiSidebarOpen && (
+                        <div
+                            className="flex flex-col min-h-0 h-full shrink-0"
+                            style={{ width: `${aiWidth}px` }}
+                        >
+                            <AiDocumentChat
+                                document={selectedDocument}
+                                onSelectDocument={setSelectedDocument}
+                                onClose={() => setIsAiSidebarOpen(false)}
+                            />
+                        </div>
+                    )}
                 </div>
 
-                <div className="flex flex-col gap-6 pb-20 pt-8 border-t border-border">
+                <div className="flex flex-col gap-6 pb-20 pt-8 border-t border-border px-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-surface rounded-2xl shadow-lg border border-border flex items-center justify-center text-accent">

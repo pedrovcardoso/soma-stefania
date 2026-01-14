@@ -355,7 +355,7 @@ export default function SeiDetailView({ id, lastReload }) {
 
       </div>
 
-      <StefaniaChatbot />
+      {viewMode !== 'documents' && <StefaniaChatbot />}
 
     </div>
   );

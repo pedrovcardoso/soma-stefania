@@ -14,6 +14,10 @@ import {
   MdVideocam,
   MdDescription,
   MdCode,
+  MdArchive,
+  MdTableChart,
+  MdSlideshow,
+  MdPictureAsPdf,
   MdInsertDriveFile,
   MdSearch,
 } from 'react-icons/md';
@@ -21,24 +25,40 @@ import {
 function getFileIcon(name) {
   const ext = name.split('.').pop()?.toLowerCase();
 
-  if (['png', 'jpg', 'jpeg', 'gif', 'svg'].includes(ext)) {
-    return <MdImage className="text-pink-500" />;
+  if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webmp'].includes(ext)) {
+    return <MdImage className="text-green-500" />;
   }
 
-  if (['mp3', 'wav', 'ogg'].includes(ext)) {
-    return <MdAudiotrack className="text-purple-500" />;
+  if (['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg'].includes(ext)) {
+    return <MdAudiotrack className="text-pink-500" />;
   }
 
-  if (['mp4', 'webm', 'mov'].includes(ext)) {
-    return <MdVideocam className="text-indigo-500" />;
+  if (['mp4', 'webm', 'mov', 'avi', 'ogg'].includes(ext)) {
+    return <MdVideocam className="text-purple-500" />;
   }
 
-  if (['js', 'ts', 'json', 'xml', 'html', 'css'].includes(ext)) {
-    return <MdCode className="text-emerald-500" />;
+  if (['js', 'ts', 'json', 'xml', 'html', 'css', 'md', 'log', 'yaml'].includes(ext)) {
+    return <MdCode className="text-gray-500" />;
   }
 
-  if (['pdf', 'doc', 'docx', 'txt'].includes(ext)) {
+  if (['pdf'].includes(ext)) {
+    return <MdPictureAsPdf className="text-red-500" />;
+  }
+
+  if (['docx', 'odt', 'txt'].includes(ext)) {
     return <MdDescription className="text-blue-500" />;
+  }
+
+  if (['xlsx', 'csv'].includes(ext)) {
+    return <MdTableChart className="text-emerald-500" />;
+  }
+
+  if (['pptx'].includes(ext)) {
+    return <MdSlideshow className="text-orange-500" />;
+  }
+
+  if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) {
+    return <MdArchive className="text-amber-600" />;
   }
 
   return <MdInsertDriveFile className="text-slate-400" />;
@@ -98,7 +118,7 @@ function TreeNode({ node, defaultOpen = false }) {
           onClick={() => setOpen(!open)}
           className="flex items-center gap-2 cursor-pointer hover:bg-slate-100 p-1 rounded"
         >
-          {open ? <MdExpandMore /> : <MdChevronRight />}
+          {open ? <MdExpandMore className="text-slate-400" /> : <MdChevronRight className="text-slate-400" />}
           {open ? (
             <MdFolderOpen className="text-amber-500" />
           ) : (

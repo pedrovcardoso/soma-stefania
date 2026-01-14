@@ -24,6 +24,9 @@ async function request(endpoint, { method = 'GET', data, headers: customHeaders 
     if (data instanceof FormData) {
       delete headers['Content-Type'];
       body = data;
+    } else if (data instanceof URLSearchParams) {
+      delete headers['Content-Type'];
+      body = data;
     } else {
       body = JSON.stringify(data);
     }
