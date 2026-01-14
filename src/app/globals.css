@@ -17,7 +17,7 @@
   --color-accent-700: #1d4ed8;
 
   --color-surface: white;
-  --color-surface-alt: #edf2f7;
+  --color-surface-alt: #f1f5f9;
   --color-elevated: white;
 
   --color-text: var(--color-neutral-900);
@@ -125,14 +125,6 @@ body {
   color: var(--color-text);
   margin: 0;
   overflow: hidden;
-}
-
-.tab-active {
-  background-color: var(--color-surface) !important;
-  border-bottom-color: var(--color-surface) !important;
-  border-top-left-radius: 0.5rem !important;
-  border-top-right-radius: 0.5rem !important;
-  z-index: 10;
 }
 
 input[type="number"]::-webkit-inner-spin-button,

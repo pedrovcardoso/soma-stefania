@@ -96,7 +96,7 @@ export default function Navbar() {
   const isHomeActive = activeTabId === 'home'
 
   return (
-    <nav className="bg-surface-alt border-b border-border flex items-center h-12 px-2 gap-0 overflow-hidden">
+    <nav className="bg-surface border-b border-border flex items-center h-12 px-2 gap-0 overflow-hidden">
       <button
         onClick={handleHomeClick}
         className={`p-2 rounded transition-colors flex-shrink-0 mr-1 text-text-muted hover:bg-surface-alt/80`}
@@ -131,8 +131,8 @@ export default function Navbar() {
                   flex items-center gap-0 px-3 py-2 cursor-pointer h-full w-full
                   transition-all duration-200 ease-out relative overflow-hidden
                   ${isActive
-                    ? 'bg-surface border-t border-l border-r border-border shadow-sm tab-active z-10'
-                    : 'bg-transparent hover:bg-surface-alt/50 rounded-t-lg z-0'
+                    ? 'bg-surface-alt border-t border-l border-r border-border rounded-t-lg shadow-sm z-10'
+                    : 'bg-transparent hover:bg-surface rounded-t-lg z-0'
                   }
                   ${isDragging ? 'opacity-50 cursor-move' : ''}
                   ${isDragOver ? 'border-l-2 border-accent' : ''}

@@ -149,7 +149,7 @@ export default function Breadcrumb() {
 
     return (
         <nav
-            className="flex items-center justify-between px-4 py-2 bg-surface border-b border-border cursor-text"
+            className="flex items-center justify-between px-4 py-2 bg-surface-alt border-b border-border cursor-text"
             onClick={(e) => {
                 if (e.target.closest('button') || e.target.closest('.crumb-link')) return;
                 enterEditMode();
