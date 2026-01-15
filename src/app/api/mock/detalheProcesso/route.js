@@ -1,5 +1,168 @@
 import { NextResponse } from 'next/server';
 
+// Mock data based on real API response format
+const mockProcessDetails = {
+    "processo": {
+        "ano_referencia": 2023,
+        "atribuido": "evelyne.sousa",
+        "descricao": "TCE - SEDESE - Termo de Acordo do Piso Mineiro de Assistência Social Fixo",
+        "dt_dilacao": "Sun, 01 Jan 2023 00:00:00 GMT",
+        "dt_fim_prevista": "Sun, 01 Jan 2023 00:00:00 GMT",
+        "dt_recebimento": "Sun, 01 Jan 2023 00:00:00 GMT",
+        "dt_resposta": "Sun, 01 Jan 2023 00:00:00 GMT",
+        "obs": "Carga inicial com base no bloco interno TCE",
+        "sei": "1500.01.0250326/2023-04",
+        "sei_dilacao": "",
+        "status": "Finalizado e Concluído",
+        "tipo": "Solicitação TCE/CFAMGE"
+    },
+    "sei": {
+        "__values__": {
+            "AndamentoConclusao": {
+                "__values__": {
+                    "Atributos": null,
+                    "DataHora": null,
+                    "Descricao": null,
+                    "IdAndamento": null,
+                    "IdTarefa": null,
+                    "IdTarefaModulo": null,
+                    "Unidade": null,
+                    "Usuario": null
+                }
+            },
+            "AndamentoGeracao": {
+                "__values__": {
+                    "Atributos": null,
+                    "DataHora": "02/08/2023 12:50:26",
+                    "Descricao": "Processo público gerado",
+                    "IdAndamento": null,
+                    "IdTarefa": null,
+                    "IdTarefaModulo": null,
+                    "Unidade": {
+                        "__values__": {
+                            "Descricao": "Protocolo Central da Cidade Administrativa",
+                            "IdUnidade": "110011999",
+                            "Sigla": "SEPLAG/PROGERAIS",
+                            "SinArquivamento": null,
+                            "SinOuvidoria": null,
+                            "SinProtocolo": null
+                        }
+                    },
+                    "Usuario": {
+                        "__values__": {
+                            "IdUsuario": "100003847",
+                            "Nome": "Marisa Rodrigues Santana",
+                            "Sigla": "03177103623"
+                        }
+                    }
+                }
+            },
+            "Assuntos": [
+                {
+                    "__values__": {
+                        "CodigoEstruturado": "911.123",
+                        "Descricao": "PROTOCOLO: RECEPÇAO. TRAMITAÇAO E EXPEDIÇAO DE DOCUMENTOS"
+                    }
+                },
+                {
+                    "__values__": {
+                        "CodigoEstruturado": "999",
+                        "Descricao": "EM ELABORAÇÃO"
+                    }
+                }
+            ],
+            "DataAutuacao": "02/08/2023",
+            "Especificacao": "Solicitação TCE",
+            "IdProcedimento": "80538323",
+            "Interessados": [
+                {
+                    "__values__": {
+                        "Nome": "TRIBUNAL DE CONTAS",
+                        "Sigla": null
+                    }
+                }
+            ],
+            "LinkAcesso": "https://www.sei.mg.gov.br/sei/processo_acesso_externo_consulta.php?id_acesso_externo=18675381&infra_hash=5cd42e665786b16cd45ab2dfaec110f3",
+            "NivelAcessoGlobal": "1",
+            "NivelAcessoLocal": "1",
+            "Observacoes": [
+                {
+                    "__values__": {
+                        "Descricao": "bn012446387br",
+                        "Unidade": {
+                            "__values__": {
+                                "Descricao": "Protocolo Central da Cidade Administrativa",
+                                "IdUnidade": "110011999",
+                                "Sigla": "SEPLAG/PROGERAIS",
+                                "SinArquivamento": null,
+                                "SinOuvidoria": null,
+                                "SinProtocolo": null
+                            }
+                        }
+                    }
+                }
+            ],
+            "ProcedimentoFormatado": "1500.01.0250326/2023-04",
+            "ProcedimentosAnexados": [],
+            "ProcedimentosRelacionados": [
+                {
+                    "__values__": {
+                        "IdProcedimento": "59770592",
+                        "ProcedimentoFormatado": "1480.01.0007469/2022-70",
+                        "TipoProcedimento": {
+                            "__values__": {
+                                "IdTipoProcedimento": "100048705",
+                                "Nome": "SEDESE - Adesão ao Termo de Acordo - Piso Fixo"
+                            }
+                        }
+                    }
+                }
+            ],
+            "TipoProcedimento": {
+                "__values__": {
+                    "IdTipoProcedimento": "100000609",
+                    "Nome": "Documentos Digitalizados na Ilha Central de Digitalização Cidade Administrativa"
+                }
+            },
+            "UltimoAndamento": {
+                "__values__": {
+                    "Atributos": null,
+                    "DataHora": "18/09/2023 14:51:10",
+                    "Descricao": "Conclusão do processo na unidade",
+                    "IdAndamento": null,
+                    "IdTarefa": null,
+                    "IdTarefaModulo": null,
+                    "Unidade": {
+                        "__values__": {
+                            "Descricao": "Gabinete do Secretário Adjunto",
+                            "IdUnidade": "110012912",
+                            "Sigla": "SEF/SADJ",
+                            "SinArquivamento": null,
+                            "SinOuvidoria": null,
+                            "SinProtocolo": null
+                        }
+                    },
+                    "Usuario": {
+                        "__values__": {
+                            "IdUsuario": "100295218",
+                            "Nome": "Ellen Silveira Reis",
+                            "Sigla": "54981123604"
+                        }
+                    }
+                }
+            },
+            "UnidadesProcedimentoAberto": []
+        }
+    },
+    "status": "success",
+    "tags": [
+        {
+            "id_tag": 4,
+            "tag": "Outros"
+        }
+    ]
+};
+
 export async function POST(request) {
     try {
         await new Promise(resolve => setTimeout(resolve, 800));
@@ -16,33 +179,17 @@ export async function POST(request) {
             reqSei = body.sei;
         }
 
-        const finalSei = reqSei ? reqSei.toString() : "N/A";
+        // Return the mock data with the requested SEI number if provided
+        const responseData = { ...mockProcessDetails };
+        if (reqSei) {
+            responseData.processo = {
+                ...responseData.processo,
+                sei: reqSei.toString()
+            };
+            responseData.sei.__values__.ProcedimentoFormatado = reqSei.toString();
+        }
 
-        return NextResponse.json({
-            processo: {
-                sei: finalSei,
-                ano_referencia: "2025",
-                tipo: "Licitação",
-                descricao: "Processo administrativo referente à aquisição de equipamentos de TI para a nova sede da SEF/MG.",
-                status: "Em Análise",
-                atribuido: "Pedro Cardoso",
-                dt_recebimento: "10/01/2025",
-                dt_fim_prevista: "15/02/2025",
-                dt_dilacao: "01/02/2025",
-                sei_dilacao: "9876.54321/2025-01",
-                dt_resposta: "20/01/2025",
-                obs: "Aguardando parecer jurídico sobre minuta do edital. Prioridade alta definida pelo gabinete."
-            },
-            tags: [
-                { id_tag: 1, tag: "TI" },
-                { id_tag: 2, tag: "Compras" },
-                { id_tag: 3, tag: "Urgente" }
-            ],
-            sei: {
-                id_procedimento: 12345,
-                link: "https://sei.mg.gov.br/sei/controlador.php?acao=procedimento_trabalhar&id_procedimento=12345"
-            }
-        });
+        return NextResponse.json(responseData);
     } catch (error) {
         console.error("Mock Error:", error);
         return NextResponse.json({ error: 'Failed to fetch mock data' }, { status: 500 });
