@@ -3,8 +3,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { MdCloudDone, MdCloudOff, MdUpload, MdDescription, MdPictureAsPdf, MdImage, MdEmail, MdTableChart, MdSlideshow, MdCode, MdVideocam, MdAudiotrack, MdStar, MdArchive, MdModeEdit, MdFilterList, MdSearch } from 'react-icons/md';
 import UniversalDocumentViewer from '@/components/ui/UniversalDocumentViewer';
-import StefanIAEditor from '@/components/sei/StefanIAEditor';
-import AiDocumentChat from '@/components/sei/AiDocumentChat';
+import StefanIAEditor from './StefanIAEditor';
+import AiDocumentChat from './AiDocumentChat';
 import { fetchDocumentosProcesso } from '@/services/seiService';
 
 const getFileIcon = (type) => {

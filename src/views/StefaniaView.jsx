@@ -16,7 +16,8 @@ import {
   MdEdit,
   MdRefresh,
   MdCheckCircle,
-  MdCancel
+  MdCancel,
+  MdArrowDownward
 } from 'react-icons/md';
 import { stefaniaService } from '@/services/stefaniaService';
 import { fetchDocumentosProcesso } from '@/services/seiService';
@@ -219,7 +220,26 @@ export default function StefaniaPage() {
   const inputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const moreFiltersRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const isChatStarted = messages.length > 0;
+
+  // Scroll to bottom button state
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  };
+
+  // Handle scroll to detect when user scrolls up
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShowScrollButton(!isNearBottom);
+    }
+  };
 
   useEffect(() => {
     stefaniaService.getDistinctProcesses()
@@ -361,8 +381,8 @@ export default function StefaniaPage() {
 
     try {
       const filters = {
-        processo: selectedProcess,
-        numero_documento: selectedDocument,
+        processo: selectedProcess ? [selectedProcess] : [],
+        numero_documento: selectedDocument ? [selectedDocument] : [],
         tipo_processo: selectedProcessType,
         tipo_documento: selectedDocType,
         ano: selectedYear
@@ -438,8 +458,8 @@ export default function StefaniaPage() {
       setIsTyping(true);
       const startTime = Date.now();
       const filters = {
-        processo: selectedProcess,
-        numero_documento: selectedDocument,
+        processo: selectedProcess ? [selectedProcess] : [],
+        numero_documento: selectedDocument ? [selectedDocument] : [],
         tipo_processo: selectedProcessType,
         tipo_documento: selectedDocType,
         ano: selectedYear
@@ -570,7 +590,11 @@ export default function StefaniaPage() {
           </div>
         </div>
 
-        <div className={`flex-1 overflow-y-auto custom-scrollbar transition-all duration-700 ease-in-out ${isChatStarted ? 'opacity-100' : 'h-0 opacity-0 overflow-hidden max-h-0'}`}>
+        <div
+          ref={messagesContainerRef}
+          onScroll={handleScroll}
+          className={`flex-1 overflow-y-auto custom-scrollbar scroll-smooth transition-all duration-700 ease-in-out relative ${isChatStarted ? 'opacity-100' : 'h-0 opacity-0 overflow-hidden max-h-0'}`}
+        >
           <div className="max-w-3xl mx-auto px-4 py-6 flex flex-col gap-6">
             {messages.map((msg, idx) => (
               <div key={msg.id} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`}>
@@ -659,6 +683,17 @@ export default function StefaniaPage() {
             )}
             <div ref={messagesEndRef} className="h-4" />
           </div>
+
+          {/* Scroll to bottom button */}
+          {showScrollButton && (
+            <button
+              onClick={scrollToBottom}
+              className="absolute bottom-4 right-4 p-2.5 bg-surface text-text-muted hover:text-text border border-border rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all z-10"
+              title="Ir para o final"
+            >
+              <MdArrowDownward size={16} />
+            </button>
+          )}
         </div>
 
         <div className={`w-full transition-all duration-700 ease-in-out ${isChatStarted ? 'bg-surface-alt/95 backdrop-blur-xl border-t border-border p-4 pb-6' : 'p-4'}`}>
@@ -767,7 +802,7 @@ export default function StefaniaPage() {
               </div>
             </div>
 
-            <div className={`relative flex items-end gap-2 p-2 rounded-3xl border transition-all duration-300 bg-surface shadow-lg group ${mentionQuery ? 'ring-1 ring-accent border-accent' : 'border-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/10 hover:border-accent/40'} ${isTyping ? 'opacity-60 cursor-not-allowed' : ''}`}>
+            <div className={`relative flex items-end gap-2 p-2 rounded-3xl border transition-all duration-300 bg-surface shadow-lg group ${mentionQuery ? 'ring-1 ring-accent border-accent' : 'border-border focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/10 hover:border-accent/40'}`}>
               <textarea
                 ref={inputRef}
                 value={inputValue}
@@ -775,8 +810,7 @@ export default function StefaniaPage() {
                 onKeyDown={handleKeyDown}
                 placeholder={isTyping ? "Aguarde a resposta..." : "Pergunte qualquer coisa..."}
                 rows={1}
-                disabled={isTyping}
-                className="flex-1 bg-transparent border-none text-text placeholder-text-muted/60 px-4 py-3 min-h-[48px] max-h-[200px] text-[15px] leading-relaxed resize-none focus:ring-0 outline-none custom-scrollbar disabled:cursor-not-allowed"
+                className="flex-1 bg-transparent border-none text-text placeholder-text-muted/60 px-4 py-3 min-h-[48px] max-h-[200px] text-[15px] leading-relaxed resize-none focus:ring-0 outline-none custom-scrollbar"
                 style={{ height: 'auto' }}
                 onInput={(e) => { const el = e.target; el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 200) + 'px'; }}
               />

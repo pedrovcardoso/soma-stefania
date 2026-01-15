@@ -58,7 +58,7 @@ export default function SeiDetailView({ id, lastReload }) {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-surface-alt/50">
+      <div className="h-full flex items-center justify-center bg-surface-alt">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
           <p className="text-text-muted text-sm font-medium">Carregando processo...</p>
@@ -355,7 +355,7 @@ export default function SeiDetailView({ id, lastReload }) {
 
       </div>
 
-      {viewMode !== 'documents' && <StefaniaChatbot />}
+      {viewMode !== 'documents' && <StefaniaChatbot processCode={processo.sei} />}
 
     </div>
   );

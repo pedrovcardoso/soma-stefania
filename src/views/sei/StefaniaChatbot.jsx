@@ -1,22 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
+import { stefaniaService } from '@/services/stefaniaService';
 import Image from 'next/image';
-import { MdClose, MdSend, MdAutoAwesome, MdRefresh, MdOpenInFull, MdCloseFullscreen } from 'react-icons/md';
+import { MdClose, MdSend, MdAutoAwesome, MdRefresh, MdOpenInFull, MdCloseFullscreen, MdEdit, MdCheckCircle, MdCancel, MdArrowDownward } from 'react-icons/md';
 import { Transition } from '@headlessui/react';
 
-const MOCK_RESPONSES = [
-    "Entendi sua dúvida. Analisando o processo, parece que a última movimentação foi realizada ontem.",
-    "Com base nas informações disponíveis, o prazo para resposta é até o dia 15.",
-    "Esse processo possui dependências com o processo 1190.01.000450/2024-12. É importante verificar o status dele também.",
-    "A certificação RPP já foi encaminhada para a unidade responsável.",
-    "Posso ajudar a redigir um despacho para este caso, se desejar.",
-    "Notei que há uma pendência de assinatura no documento principal.",
-    "A dilação de prazo solicitada ainda está em análise pela chefia.",
-    "Estou verificando os documentos anexos... Tudo parece estar em conformidade.",
-    "Você gostaria de agendar um lembrete para este processo?",
-    "Desculpe, preciso de mais detalhes para responder com precisão."
-];
-
-export default function StefaniaChatbot() {
+export default function StefaniaChatbot({ processCode }) {
     const [isOpen, setIsOpen] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
@@ -26,14 +14,22 @@ export default function StefaniaChatbot() {
     const [inputValue, setInputValue] = useState("");
     const [useTreeContext, setUseTreeContext] = useState(false);
 
+    // Edit message state
+    const [editingMessageId, setEditingMessageId] = useState(null);
+    const [editingContent, setEditingContent] = useState('');
+
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
+    const messagesContainerRef = useRef(null);
+
+    // Scroll to bottom button state
+    const [showScrollButton, setShowScrollButton] = useState(false);
 
     const scrollToBottom = () => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest"
+                behavior: 'smooth',
+                block: 'end'
             });
         }
     };
@@ -53,62 +49,177 @@ export default function StefaniaChatbot() {
         }
     }, [isOpen]);
 
-    const handleSendMessage = (e) => {
-        e.preventDefault();
-        if (!inputValue.trim()) return;
+    // Scroll to bottom when isExpanded changes
+    useEffect(() => {
+        if (isOpen) {
+            setTimeout(() => scrollToBottom(), 100);
+        }
+    }, [isExpanded]);
 
-        const userMsg = {
-            id: Date.now(),
-            text: inputValue,
-            sender: 'user',
-            timestamp: new Date()
-        };
+    // Handle scroll to detect when user scrolls up
+    const handleScroll = () => {
+        if (messagesContainerRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+            const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+            setShowScrollButton(!isNearBottom);
+        }
+    };
 
-        setMessages(prev => [...prev, userMsg]);
-        setInputValue("");
+    const handleSendMessage = async (e, customContent = null) => {
+        if (e) e.preventDefault();
+
+        const contentToSend = customContent || inputValue.trim();
+        if (!contentToSend) return;
+
+        if (!customContent) {
+            const userMsg = {
+                id: Date.now(),
+                text: contentToSend,
+                sender: 'user',
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, userMsg]);
+            setInputValue("");
+        }
+
         setIsTyping(true);
+        setEditingMessageId(null);
 
-        const delay = useTreeContext ? Math.random() * 2000 + 2000 : Math.random() * 1000 + 1000;
+        try {
+            const startTime = Date.now();
 
-        setTimeout(() => {
-            const randomResponse = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)];
+            const filters = {
+                processo: processCode ? [processCode] : [],
+                numero_documento: [],
+                categoria: "",
+                tipo: "",
+                ano: ""
+            };
+
+            const response = await stefaniaService.askStefania(contentToSend, filters);
+            const data = response;
+
+            const endTime = Date.now();
+            const timeDiffSeconds = ((endTime - startTime) / 1000).toFixed(1);
+
             const botMsg = {
                 id: Date.now() + 1,
-                text: randomResponse,
+                text: data.resposta || "Desculpe, não consegui obter uma resposta.",
+                sender: 'bot',
+                timestamp: new Date(),
+                regenFrom: startTime,
+                timeDiffSeconds: timeDiffSeconds,
+                docs: data.documentos_utilizados || []
+            };
+
+            setMessages(prev => [...prev, botMsg]);
+        } catch (error) {
+            console.error("Erro ao consultar a StefanIA:", error);
+            const botMsg = {
+                id: Date.now() + 1,
+                text: "Desculpe, ocorreu um erro ao processar sua solicitação.",
                 sender: 'bot',
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, botMsg]);
+        } finally {
             setIsTyping(false);
-        }, delay);
+        }
     };
 
-    const handleRegenerate = () => {
+    const handleRegenerate = async () => {
         if (messages.length === 0 || messages[messages.length - 1].sender !== 'bot' || isTyping) {
             return;
         }
 
+        // Pega a última mensagem do usuário
+        let lastUserMsgIdx = -1;
+        for (let i = messages.length - 2; i >= 0; i--) {
+            if (messages[i].sender === 'user') {
+                lastUserMsgIdx = i;
+                break;
+            }
+        }
+
+        if (lastUserMsgIdx === -1) return;
+
+        const lastUserMsg = messages[lastUserMsgIdx];
+
         setIsTyping(true);
-        const messagesWithoutLast = messages.slice(0, -1);
-        setMessages(messagesWithoutLast);
+        const newMessages = messages.slice(0, lastUserMsgIdx + 1);
+        setMessages(newMessages);
 
-        const regenAt = new Date();
-        const delay = useTreeContext ? Math.random() * 2000 + 2000 : Math.random() * 1000 + 1000;
+        try {
+            const startTime = Date.now();
 
-        setTimeout(() => {
-            const randomResponse = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)];
+            const filters = {
+                processo: processCode ? [processCode] : [],
+                numero_documento: [],
+                categoria: "",
+                tipo: "",
+                ano: ""
+            };
+
+            const response = await stefaniaService.askStefania(lastUserMsg.text, filters);
+            const data = response;
+
+            const endTime = Date.now();
+            const timeDiffSeconds = ((endTime - startTime) / 1000).toFixed(1);
+
             const botMsg = {
                 id: Date.now() + 1,
-                text: randomResponse,
+                text: data.resposta || "Desculpe, não consegui obter uma resposta.",
                 sender: 'bot',
                 timestamp: new Date(),
-                regenFrom: regenAt,
+                regenFrom: startTime,
+                timeDiffSeconds: timeDiffSeconds,
+                docs: data.documentos_utilizados || []
             };
             setMessages(prev => [...prev, botMsg]);
+        } catch (error) {
+            console.error("Erro ao regenerar:", error);
+            const botMsg = {
+                id: Date.now() + 1,
+                text: "Desculpe, ocorreu um erro ao tentar regenerar a resposta.",
+                sender: 'bot',
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, botMsg]);
+        } finally {
             setIsTyping(false);
-        }, delay);
+        }
     };
 
+    // Edit message handlers
+    const handleEditMessage = (msgId, msgContent) => {
+        if (isTyping) return;
+        setEditingMessageId(msgId);
+        setEditingContent(msgContent);
+    };
+
+    const handleSaveEdit = (originalMsgId) => {
+        const msgIndex = messages.findIndex(m => m.id === originalMsgId);
+        if (msgIndex === -1) return;
+
+        const previousMessages = messages.slice(0, msgIndex);
+        const newUserMsg = {
+            id: Date.now(),
+            text: editingContent,
+            sender: 'user',
+            timestamp: new Date()
+        };
+
+        setMessages([...previousMessages, newUserMsg]);
+        handleSendMessage(null, editingContent);
+
+        setEditingMessageId(null);
+        setEditingContent('');
+    };
+
+    const handleCancelEdit = () => {
+        setEditingMessageId(null);
+        setEditingContent('');
+    };
 
     return (
         <>
@@ -177,25 +288,23 @@ export default function StefaniaChatbot() {
                     </label>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 bg-surface-alt/30 scroll-smooth">
+                <div
+                    ref={messagesContainerRef}
+                    onScroll={handleScroll}
+                    className="flex-1 overflow-y-auto p-4 bg-surface-alt/30 scroll-smooth custom-scrollbar relative"
+                >
                     <div className="space-y-1">
                         {messages.map((msg, index) => {
                             const isLastMessage = index === messages.length - 1;
-                            const prevMsg = index > 0 ? messages[index - 1] : null;
+                            const isLastUserMessage = msg.sender === 'user' && index === messages.map(m => m.sender).lastIndexOf('user');
                             let timeDiffLabel = null;
 
-                            if (msg.sender === 'bot') {
-                                const startTime = msg.regenFrom || (prevMsg && prevMsg.timestamp);
-                                if (startTime) {
-                                    const timeDiffSeconds = Math.round((msg.timestamp - startTime) / 1000);
-                                    if (timeDiffSeconds > 0) {
-                                        timeDiffLabel = (
-                                            <div className="text-left italic text-xs text-text-muted mt-1 pl-3">
-                                                {`resposta em ${timeDiffSeconds}s`}
-                                            </div>
-                                        );
-                                    }
-                                }
+                            if (msg.sender === 'bot' && msg.timeDiffSeconds) {
+                                timeDiffLabel = (
+                                    <span className="text-[10px] font-medium italic opacity-70">
+                                        resposta em {msg.timeDiffSeconds}s
+                                    </span>
+                                );
                             }
 
                             return (
@@ -207,28 +316,83 @@ export default function StefaniaChatbot() {
                                     enterTo="opacity-100 scale-100"
                                     key={msg.id}
                                 >
-                                    <div className="pb-3">
-                                        <div
-                                            className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                                        >
-                                            <div
-                                                className={`max-w-[80%] rounded-2xl px-3 py-2 shadow-sm text-sm ${msg.sender === 'user'
-                                                    ? 'bg-accent text-accent-contrast rounded-br-none'
-                                                    : 'bg-surface border border-border text-text rounded-bl-none'
-                                                    }`}
-                                            >
-                                                <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-                                                <span className={`text-[10px] block mt-0.5 text-right ${msg.sender === 'user' ? 'text-accent-contrast/60' : 'text-text-muted/60'}`}>
-                                                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </span>
-                                            </div>
-                                            {msg.sender === 'bot' && isLastMessage && !isTyping && (
-                                                <button onClick={handleRegenerate} className="p-1.5 text-text-muted/40 hover:text-accent hover:bg-surface-alt rounded-full transition-colors">
-                                                    <MdRefresh size={18} />
+                                    <div className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} pb-3`}>
+                                        <div className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm leading-relaxed shadow-sm relative group ${msg.sender === 'user'
+                                            ? 'bg-accent text-accent-contrast rounded-br-sm'
+                                            : 'bg-surface border border-border text-text rounded-bl-sm'
+                                            } ${editingMessageId === msg.id ? 'w-full ring-2 ring-accent/30' : ''}`}>
+
+                                            {editingMessageId === msg.id ? (
+                                                <div className="flex flex-col gap-2 w-full min-w-[200px]">
+                                                    <textarea
+                                                        onFocus={(e) => {
+                                                            const val = e.target.value;
+                                                            e.target.setSelectionRange(val.length, val.length);
+                                                        }}
+                                                        autoFocus
+                                                        value={editingContent}
+                                                        onChange={(e) => setEditingContent(e.target.value)}
+                                                        className="w-full bg-transparent text-inherit placeholder-current placeholder-opacity-50 p-1 text-sm outline-none resize-none custom-scrollbar border-none focus:ring-0"
+                                                        rows={Math.min(editingContent.split('\n').length + 1, 6)}
+                                                    />
+                                                    <div className="flex items-center justify-end gap-0.5">
+                                                        <button
+                                                            onClick={handleCancelEdit}
+                                                            className="p-1 px-1.5 opacity-60 hover:opacity-100 transition-opacity"
+                                                            title="Cancelar"
+                                                        >
+                                                            <MdCancel size={16} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleSaveEdit(msg.id)}
+                                                            className="p-1 px-1.5 opacity-60 hover:opacity-100 transition-opacity"
+                                                            title="Salvar e reenviar"
+                                                        >
+                                                            <MdCheckCircle size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+
+                                                    {msg.sender === 'bot' && msg.docs && msg.docs.length > 0 && (
+                                                        <div className="mt-2 pt-2 border-t border-border border-opacity-30 text-[10px] opacity-70">
+                                                            <strong>Docs:</strong> {msg.docs.join(', ')}
+                                                        </div>
+                                                    )}
+
+                                                    <div className={`flex items-center gap-2 mt-1.5 ${msg.sender === 'user' ? 'justify-end text-accent-contrast/60' : 'justify-between text-text-muted'}`}>
+                                                        {msg.sender === 'bot' && timeDiffLabel}
+                                                        <span className="text-[10px] opacity-70">
+                                                            {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {/* Edit button for last user message */}
+                                            {!isTyping && msg.sender === 'user' && isLastUserMessage && editingMessageId !== msg.id && (
+                                                <button
+                                                    onClick={() => handleEditMessage(msg.id, msg.text)}
+                                                    className="absolute -left-8 top-1/2 -translate-y-1/2 p-1.5 text-text-muted hover:text-accent bg-surface-alt rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-sm border border-border hover:border-accent"
+                                                    title="Editar mensagem"
+                                                >
+                                                    <MdEdit size={14} />
+                                                </button>
+                                            )}
+
+                                            {/* Regenerate button for last bot message */}
+                                            {!isTyping && msg.sender === 'bot' && isLastMessage && (
+                                                <button
+                                                    onClick={handleRegenerate}
+                                                    className="absolute -right-8 top-1/2 -translate-y-1/2 p-1.5 text-text-muted hover:text-accent bg-surface-alt rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-sm border border-border hover:border-accent"
+                                                    title="Gerar novamente"
+                                                >
+                                                    <MdRefresh size={14} />
                                                 </button>
                                             )}
                                         </div>
-                                        {msg.sender === 'bot' && timeDiffLabel}
                                     </div>
                                 </Transition>
                             );
@@ -246,6 +410,19 @@ export default function StefaniaChatbot() {
                         </div>
                     )}
                     <div ref={messagesEndRef} />
+
+                    {/* Scroll to bottom button */}
+                    {showScrollButton && (
+                        <div className="sticky bottom-1 w-full flex justify-end pr-2">
+                            <button
+                                onClick={scrollToBottom}
+                                className="p-2 bg-surface text-text-muted hover:text-text border border-border rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all z-10"
+                                title="Ir para o final"
+                            >
+                                <MdArrowDownward size={16} />
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-4 bg-surface border-t border-border shrink-0">
@@ -267,7 +444,7 @@ export default function StefaniaChatbot() {
                         </button>
                     </form>
                     <div className="text-center mt-2">
-                        <span className="text-[10px] text-text-muted/60">Stefania pode cometer erros. Verifique informações importantes.</span>
+                        <span className="text-[10px] text-text-muted">Stefania pode cometer erros. Verifique informações importantes.</span>
                     </div>
                 </div>
             </Transition>
