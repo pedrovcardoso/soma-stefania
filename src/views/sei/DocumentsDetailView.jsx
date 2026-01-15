@@ -43,7 +43,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                     id: index + 1,
                     name: doc.nome,
                     type: doc.nome.split('.').pop().toLowerCase(),
-                    size: 'N/A', // O SEI não retorna tamanho diretamente nesta chamada
+                    size: 'N/A',
                     modifiedDate: doc.data,
                     inAzure: doc.existe_azure === 'sim',
                     url: doc.url,
@@ -86,7 +86,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                 const newWidth = Math.max(200, Math.min(500, resizing.startWidth + diff));
                 setListWidth(newWidth);
             } else if (resizing.type === 'ai') {
-                const diff = resizing.startX - e.clientX; // Invert direction for right side resize
+                const diff = resizing.startX - e.clientX;
                 const newWidth = Math.max(250, Math.min(600, resizing.startWidth + diff));
                 setAiWidth(newWidth);
             }
@@ -100,7 +100,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp);
             document.body.style.cursor = 'col-resize';
-            document.body.style.userSelect = 'none'; // Prevent text selection
+            document.body.style.userSelect = 'none';
         }
 
         return () => {
@@ -160,7 +160,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                     <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 px-2">
                         <div className="flex flex-wrap items-center gap-8">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center border border-success/20 shadow-sm">
+                                <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center border border-border shadow-sm">
                                     <MdCloudDone size={20} className="text-success" />
                                 </div>
                                 <div>
@@ -170,7 +170,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center border border-warning/20 shadow-sm">
+                                <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center border border-border shadow-sm">
                                     <MdCloudOff size={20} className="text-warning" />
                                 </div>
                                 <div>
@@ -323,7 +323,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                     </div>
 
                     <div className="h-[750px] relative">
-                        <StefanIAEditor />
+                        <StefanIAEditor documents={documents} />
                     </div>
                 </div>
             </div>

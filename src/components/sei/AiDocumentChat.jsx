@@ -110,12 +110,10 @@ export default function AiDocumentChat({ document, onSelectDocument, onClose }) 
     };
 
     const handleReload = (msg) => {
-        // Remove subsequent messages (including the old bot response)
         const msgIndex = messages.findIndex(m => m.id === msg.id);
         const newMessages = messages.slice(0, msgIndex + 1);
         setMessages(newMessages);
 
-        // Trigger bot response without adding user message again
         handleSendMessage(null, msg.text, msg.docObject, true);
     };
 
@@ -126,7 +124,6 @@ export default function AiDocumentChat({ document, onSelectDocument, onClose }) 
 
     return (
         <div className="flex flex-col h-full bg-surface border border-border rounded-2xl overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300">
-            {/* Header */}
             <div className="bg-surface px-4 py-3 flex items-center justify-between text-text border-b border-border">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 flex items-center justify-center bg-accent-soft rounded-lg text-accent">
@@ -142,8 +139,6 @@ export default function AiDocumentChat({ document, onSelectDocument, onClose }) 
                 </button>
             </div>
 
-
-            {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar bg-surface-alt/20 shadow-inner">
                 {messages.map((msg, index) => {
                     const isLastUserMsg = msg.sender === 'user' && !messages.slice(index + 1).some(m => m.sender === 'user');
@@ -154,7 +149,6 @@ export default function AiDocumentChat({ document, onSelectDocument, onClose }) 
                                 ? 'bg-accent text-accent-contrast rounded-br-none'
                                 : 'bg-surface border border-border text-text rounded-bl-none shadow-sm'
                                 }`}>
-                                {/* Integrated Badge */}
                                 {msg.docName && msg.docName !== 'Sistema' && (
                                     <button
                                         onClick={() => {
@@ -213,14 +207,12 @@ export default function AiDocumentChat({ document, onSelectDocument, onClose }) 
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Footer */}
             <div className="p-4 bg-surface border-t border-border space-y-3">
-                {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2">
                     <button
                         onClick={handleSummarize}
                         disabled={isTyping}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-accent-soft text-accent text-[10px] font-bold rounded-lg border border-accent/20 hover:bg-accent hover:text-accent-contrast transition-all active:scale-95"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-accent-soft text-accent text-[10px] font-bold rounded-lg border border-border hover:bg-accent hover:text-accent-contrast transition-all active:scale-95"
                     >
                         <MdAutoAwesome size={14} />
                         Resumir este documento
