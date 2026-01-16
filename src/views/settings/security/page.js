@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { MdLock, MdVisibility, MdVisibilityOff, MdShield } from 'react-icons/md';
+import zxcvbn from 'zxcvbn';
 
 export default function SecuritySettingsPage() {
     const [showPassword, setShowPassword] = useState({
@@ -24,6 +25,28 @@ export default function SecuritySettingsPage() {
         const { name, value } = e.target;
         setPasswords(prev => ({ ...prev, [name]: value }));
     };
+
+    const passwordStrength = useMemo(() => {
+        if (!passwords.new) return { score: -1, label: '', color: 'bg-border' };
+
+        const result = zxcvbn(passwords.new);
+        let score = result.score; // 0-4
+
+        // Penalty for simple character repetition (e.g., '1111111', 'aaaaaaa')
+        const isRepeated = /^(.)\1+$/.test(passwords.new);
+        if (isRepeated) {
+            score = 0;
+        }
+
+        const labels = ['Muito Fraca', 'Fraca', 'Média', 'Forte', 'Muito Forte'];
+        const colors = ['bg-error', 'bg-error', 'bg-warning', 'bg-success', 'bg-success'];
+
+        return {
+            score,
+            label: labels[score],
+            color: colors[score]
+        };
+    }, [passwords.new]);
 
     return (
         <div className="max-w-2xl">
@@ -119,12 +142,14 @@ export default function SecuritySettingsPage() {
                 {passwords.new && (
                     <div className="space-y-2">
                         <div className="flex gap-1 h-1">
-                            <div className="flex-1 bg-success rounded-full"></div>
-                            <div className="flex-1 bg-success rounded-full"></div>
-                            <div className="flex-1 bg-border rounded-full"></div>
-                            <div className="flex-1 bg-border rounded-full"></div>
+                            {[0, 1, 2, 3, 4].map((i) => (
+                                <div
+                                    key={i}
+                                    className={`flex-1 rounded-full ${i <= passwordStrength.score ? passwordStrength.color : 'bg-border'}`}
+                                ></div>
+                            ))}
                         </div>
-                        <p className="text-xs text-text-muted">Força da senha: <span className="text-success font-medium">Média</span></p>
+                        <p className="text-xs text-text-muted">Força da senha: <span className={`${passwordStrength.color.replace('bg-', 'text-')} font-medium`}>{passwordStrength.label}</span></p>
                     </div>
                 )}
 

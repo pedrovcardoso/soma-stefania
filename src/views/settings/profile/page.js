@@ -6,8 +6,6 @@ import { MdCameraAlt, MdEdit } from 'react-icons/md';
 export default function ProfileSettingsPage() {
     const [formData, setFormData] = useState({
         name: 'Stefania User',
-        socialName: 'Stefania',
-        unit: 'Coordenação de Sistemas',
         email: 'stefania.user@sef.mg.gov.br'
     });
 
@@ -55,33 +53,6 @@ export default function ProfileSettingsPage() {
                             onChange={handleChange}
                             className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
                         />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-text-secondary mb-1">
-                                Nome Social
-                            </label>
-                            <input
-                                type="text"
-                                name="socialName"
-                                value={formData.socialName}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-secondary mb-1">
-                                Unidade / Setor
-                            </label>
-                            <input
-                                type="text"
-                                name="unit"
-                                value={formData.unit}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
-                            />
-                        </div>
                     </div>
 
                     <div>

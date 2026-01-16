@@ -4,9 +4,28 @@ import { SiPython, SiMysql, SiFlask } from 'react-icons/si';
 import { TbBrandNextjs, TbBrandReact, TbBrandTailwind } from 'react-icons/tb';
 import { MdCode, MdOpenInNew } from 'react-icons/md';
 import dynamic from 'next/dynamic';
+import { useEffect } from 'react';
 import 'swagger-ui-react/swagger-ui.css';
 
 const SwaggerUI = dynamic(() => import('swagger-ui-react'), { ssr: false });
+
+const SwaggerWrapper = ({ url }) => {
+    useEffect(() => {
+        const originalError = console.error;
+        console.error = (...args) => {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('UNSAFE_componentWillReceiveProps')) {
+                return;
+            }
+            originalError.apply(console, args);
+        };
+
+        return () => {
+            console.error = originalError;
+        };
+    }, []);
+
+    return <SwaggerUI url={url} />;
+};
 
 export default function AboutSettingsPage() {
     return (
@@ -134,7 +153,7 @@ export default function AboutSettingsPage() {
                         <p className="text-sm text-text-muted mt-1">Endpoints e especificações técnicas.</p>
                     </div>
                     <div className="p-4">
-                        <SwaggerUI url="/openapi.yaml" />
+                        <SwaggerWrapper url="/openapi.yaml" />
                     </div>
                 </section>
 

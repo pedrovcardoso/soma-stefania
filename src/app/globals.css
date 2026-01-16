@@ -43,6 +43,10 @@
   color-scheme: light dark;
 }
 
+html {
+  font-size: calc(100% * var(--font-size-scale, 1));
+}
+
 :root[data-theme="dark"] {
   --color-surface: #1e1e1e;
   --color-surface-alt: #252526;
