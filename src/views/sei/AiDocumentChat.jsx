@@ -5,8 +5,9 @@ import Image from 'next/image';
 import {
     MdClose, MdSend, MdAutoAwesome, MdRefresh, MdDescription,
     MdPictureAsPdf, MdTableChart, MdSlideshow, MdImage,
-    MdVideocam, MdAudiotrack, MdCode, MdArchive, MdEmail, MdOpenInNew
+    MdVideocam, MdAudiotrack, MdCode, MdArchive, MdEmail, MdOpenInNew, MdWarning
 } from 'react-icons/md';
+import { stefaniaService } from '@/services/stefaniaService';
 
 const getFileInfo = (filename) => {
     if (!filename || filename === 'Sistema' || filename === 'Geral') {
@@ -30,13 +31,7 @@ const getFileInfo = (filename) => {
     }
 };
 
-const MOCK_BOT_RESPONSES = [
-    "Com base neste documento, identifiquei que o principal ponto é a conformidade técnica conforme a resolução citada.",
-    "Este documento parece ser um rascunho importante para o processo. Deseja que eu analise as cláusulas de penalidade?",
-    "Não encontrei irregularidades óbvias nesta análise preliminar do documento.",
-    "A data de validade mencionada no final do texto deve ser observada com cautela.",
-    "Posso ajudar a extrair os valores principais desta planilha se você desejar."
-];
+
 
 export default function AiDocumentChat({ document, onSelectDocument, onClose }) {
     const [messages, setMessages] = useState([
@@ -67,14 +62,14 @@ export default function AiDocumentChat({ document, onSelectDocument, onClose }) 
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleSendMessage = (e, customText = null, docContext = document, skipUserMessage = false) => {
+    const handleSendMessage = async (e, customText = null, docContext = document, skipUserMessage = false) => {
         if (e) e.preventDefault();
         const text = customText || inputValue;
         if (!text.trim()) return;
 
         if (!skipUserMessage) {
             const userMsg = {
-                id: Date.now(),
+                id: Date.now().toString(),
                 text: text,
                 sender: 'user',
                 timestamp: new Date(),
@@ -88,25 +83,43 @@ export default function AiDocumentChat({ document, onSelectDocument, onClose }) 
         setIsTyping(true);
 
         const startTime = Date.now();
-        setTimeout(() => {
+
+        try {
+            const filters = {
+                processo: docContext?.processo_origem ? [docContext.processo_origem] : [],
+                numero_documento: docContext?.num_documento ? [docContext.num_documento] : []
+            };
+
+            const response = await stefaniaService.askStefania(text, filters);
             const endTime = Date.now();
             const genTime = ((endTime - startTime) / 1000).toFixed(1);
 
-            const randomResponse = MOCK_BOT_RESPONSES[Math.floor(Math.random() * MOCK_BOT_RESPONSES.length)];
             const botMsg = {
-                id: Date.now() + 1,
-                text: customText === "Resumir este documento"
-                    ? `Aqui está um resumo do documento "${docContext?.name}": O texto trata principalmente da formalização dos procedimentos técnicos e prazos estabelecidos para a execução do contrato. Pontos chave incluem conformidade legal, cronograma de entregas e critérios de aceitação.`
-                    : randomResponse,
+                id: (Date.now() + 1).toString(),
+                text: response.resposta || "Desculpe, não consegui processar sua solicitação no momento.",
                 sender: 'bot',
                 timestamp: new Date(),
                 docName: docContext?.name || 'Geral',
                 docObject: docContext,
-                generationTime: genTime
+                generationTime: genTime,
+                refs: response.documentos_utilizados
             };
             setMessages(prev => [...prev, botMsg]);
+        } catch (error) {
+            console.error("Error asking StefanIA:", error);
+            const botMsg = {
+                id: (Date.now() + 1).toString(),
+                text: "Ocorreu um erro ao tentar processar sua solicitação no momento.",
+                sender: 'bot',
+                timestamp: new Date(),
+                docName: 'Sistema',
+                docObject: null,
+                isError: true
+            };
+            setMessages(prev => [...prev, botMsg]);
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     const handleReload = (msg) => {
@@ -166,7 +179,16 @@ export default function AiDocumentChat({ document, onSelectDocument, onClose }) 
                                     </button>
                                 )}
 
-                                <p className="leading-relaxed relative z-10">{msg.text}</p>
+                                <p className={`leading-relaxed relative z-10 ${msg.isError ? 'text-red-500 font-medium' : ''}`}>
+                                    {msg.isError && <MdWarning className="inline-block mr-1 mb-0.5" />}
+                                    {msg.text}
+                                </p>
+
+                                {msg.sender === 'bot' && msg.refs && msg.refs.length > 0 && (
+                                    <div className="mt-2 pt-1.5 border-t border-border border-opacity-30 text-[9px] opacity-70">
+                                        <strong>Docs:</strong> {msg.refs.join(', ')}
+                                    </div>
+                                )}
 
                                 <div className={`flex items-center gap-2 mt-1 ${msg.sender === 'user' ? 'justify-end' : 'justify-between'}`}>
                                     {msg.sender === 'bot' && msg.generationTime && (
