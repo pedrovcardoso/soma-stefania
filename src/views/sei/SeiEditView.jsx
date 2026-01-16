@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { MdSave, MdCancel, MdContentCopy, MdEdit, MdCalendarToday } from 'react-icons/md';
+import { useState, useEffect, useMemo } from 'react';
+import { MdSave, MdCancel, MdContentCopy, MdEdit, MdCalendarToday, MdWarning } from 'react-icons/md';
+import { toast } from '@/components/ui/toast';
+import Modal from '@/components/ui/Modal';
+import useTabStore from '@/store/useTabStore';
 
 const STATUS_OPTIONS = [
     "Acompanhamento especial",
@@ -15,19 +18,17 @@ const STATUS_OPTIONS = [
     "Vencendo hoje"
 ];
 
-// Helper to convert DD/MM/YYYY to YYYY-MM-DD for input type="date"
 const toInputDate = (dateStr) => {
     if (!dateStr) return '';
     const [day, month, year] = dateStr.split('/');
-    if (!day || !month || !year) return dateStr; // fallback
+    if (!day || !month || !year) return dateStr;
     return `${year}-${month}-${day}`;
 };
 
-// Helper to convert YYYY-MM-DD back to DD/MM/YYYY
 const fromInputDate = (dateStr) => {
     if (!dateStr) return '';
     const [year, month, day] = dateStr.split('-');
-    if (!year || !month || !day) return dateStr; // fallback
+    if (!year || !month || !day) return dateStr;
     return `${day}/${month}/${year}`;
 };
 
@@ -38,7 +39,6 @@ const getStatusColor = (status) => {
 };
 
 const InputField = ({ label, name, value, onChange, fullWidth = false, type = 'text', rows = 3, ...props }) => {
-    // Handle date conversion internally for display
     const displayValue = type === 'date' ? toInputDate(value) : (value || '');
 
     const handleChange = (e) => {
@@ -138,18 +138,65 @@ const FooterItemInput = ({ label, name, value, onChange, colorClass }) => {
     );
 };
 
-export default function SeiEditView({ data, onSave, onCancel }) {
+export default function SeiEditView({ tabId, data, onSave, onCancel, isSaving }) {
     const [formData, setFormData] = useState({
         ...data,
-        status: data.status || '',
+        status: data.status || 'Planejado',
     });
+    const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false);
+    const updateTab = useTabStore(state => state.updateTab);
+
+    const isDirty = useMemo(() => {
+        if (data.isNew) return true;
+
+        const editableFields = [
+            'status', 'ano_referencia', 'tipo', 'descricao', 'atribuido',
+            'observacoes_tramitacao', 'data_dilacao', 'sei_dilacao',
+            'data_resposta', 'recebimento', 'prazo_final'
+        ];
+
+        return editableFields.some(field => {
+            const initialVal = data[field] || '';
+            const currentVal = formData[field] || '';
+            return String(initialVal) !== String(currentVal);
+        });
+    }, [formData, data]);
+
+    useEffect(() => {
+        updateTab(tabId, { hasUnsavedChanges: isDirty });
+
+        return () => {
+            updateTab(tabId, { hasUnsavedChanges: false });
+        };
+    }, [isDirty, tabId, updateTab]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleCancelClick = () => {
+        if (isDirty) {
+            setIsDiscardModalOpen(true);
+        } else {
+            onCancel();
+        }
+    };
+
     const handleSubmit = () => {
+        if (!formData.status) {
+            toast('O campo Status é obrigatório.', 'error');
+            return;
+        }
+        if (!formData.ano_referencia) {
+            toast('O campo Ano de Referência é obrigatório.', 'error');
+            return;
+        }
+        if (!formData.descricao || formData.descricao.trim().length < 5) {
+            toast('A descrição deve ter pelo menos 5 caracteres.', 'error');
+            return;
+        }
+
         onSave(formData);
     };
 
@@ -159,7 +206,6 @@ export default function SeiEditView({ data, onSave, onCancel }) {
         <div className="bg-surface rounded-xl border-2 border-accent shadow-sm overflow-hidden relative">
             <div className="absolute top-0 right-0 left-0 h-1 bg-accent/20"></div>
 
-            {/* Header with Title and Buttons */}
             <div className="px-6 py-4 border-b border-border bg-surface flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <h2 className="text-lg font-bold text-accent flex items-center gap-2">
                     <MdEdit /> Modo de Edição
@@ -167,23 +213,33 @@ export default function SeiEditView({ data, onSave, onCancel }) {
 
                 <div className="flex items-center gap-3">
                     <button
-                        onClick={onCancel}
-                        className="flex items-center gap-1 px-4 py-2 bg-surface text-text-secondary border border-border rounded-lg hover:bg-surface-alt text-sm font-medium transition-colors"
+                        onClick={handleCancelClick}
+                        disabled={isSaving}
+                        className="flex items-center gap-1 px-4 py-2 bg-surface text-text-secondary border border-border rounded-lg hover:bg-surface-alt text-sm font-medium transition-colors disabled:opacity-50"
                     >
                         <MdCancel size={16} /> Cancelar
                     </button>
                     <button
                         onClick={handleSubmit}
-                        className="flex items-center gap-1 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover shadow-sm text-sm font-medium transition-colors"
+                        disabled={isSaving}
+                        className="flex items-center gap-1 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover shadow-sm text-sm font-medium transition-colors disabled:opacity-50"
                     >
-                        <MdSave size={16} /> Salvar Alterações
+                        {isSaving ? (
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <span>Salvando...</span>
+                            </div>
+                        ) : (
+                            <>
+                                <MdSave size={16} /> Salvar Alterações
+                            </>
+                        )}
                     </button>
                 </div>
             </div>
 
             <div className="p-6 md:p-8 space-y-8">
 
-                {/* Top Section: SEI and Status */}
                 <div className="flex flex-col md:flex-row md:items-start gap-6 pb-6 border-b border-border/50">
                     <div className="space-y-2">
                         <div className="flex items-center gap-3">
@@ -217,7 +273,6 @@ export default function SeiEditView({ data, onSave, onCancel }) {
                         </div>
                         <InputField label="Descrição" name="descricao" value={descricao} onChange={handleChange} fullWidth type="textarea" />
 
-                        {/* Tags (Read-only as per plan) */}
                         <div className="flex flex-col opacity-60">
                             <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Tags Associadas <span className="text-[9px] font-normal lowercase">(leitura)</span></label>
                             <div className="flex flex-wrap gap-2">
@@ -248,7 +303,6 @@ export default function SeiEditView({ data, onSave, onCancel }) {
                     </div>
                 </div>
 
-                {/* Processos Relacionados (Read-only) */}
                 {(procedimentos_relacionados?.length > 0 || procedimentos_anexados?.length > 0) && (
                     <div className="opacity-60">
                         <hr className="border-border my-8" />
@@ -272,7 +326,6 @@ export default function SeiEditView({ data, onSave, onCancel }) {
                     </div>
                 )}
 
-                {/* Prazos */}
                 <div>
                     <hr className="border-border my-8" />
                     <h3 className="flex items-center gap-2 text-sm font-bold text-accent uppercase tracking-wide mb-6 border-l-4 border-accent pl-3">
@@ -294,6 +347,42 @@ export default function SeiEditView({ data, onSave, onCancel }) {
                     <span className="text-sm font-bold text-text-muted">{ultima_movimentacao || '-'}</span>
                 </div>
             </div>
+
+            <Modal
+                isOpen={isDiscardModalOpen}
+                onClose={() => setIsDiscardModalOpen(false)}
+                title="Descartar Alterações"
+                footer={
+                    <>
+                        <button
+                            onClick={onCancel}
+                            className="px-4 py-2 text-sm font-bold text-white bg-error hover:bg-error/90 rounded-lg shadow-sm transition-all active:scale-95"
+                        >
+                            Sim, descartar
+                        </button>
+                        <button
+                            onClick={() => setIsDiscardModalOpen(false)}
+                            className="px-4 py-2 text-sm font-medium text-text hover:bg-surface-alt rounded-lg transition-colors"
+                        >
+                            Continuar editando
+                        </button>
+                    </>
+                }
+            >
+                <div className="flex items-start gap-4">
+                    <div className="p-2 bg-error/10 rounded-full text-error shrink-0">
+                        <MdWarning size={24} />
+                    </div>
+                    <div>
+                        <p className="text-sm text-text">
+                            Você tem alterações não salvas. Tem certeza que deseja descartá-las?
+                        </p>
+                        <p className="text-xs text-text-secondary mt-2">
+                            Isso apagará todas as modificações feitas nessa página
+                        </p>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }

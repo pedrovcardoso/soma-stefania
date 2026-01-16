@@ -3,6 +3,11 @@
 import { useState, useEffect } from 'react';
 import { MdClose } from 'react-icons/md';
 
+export const toast = (message, variant = 'info') => {
+    const event = new CustomEvent('app-toast', { detail: { message, variant } });
+    window.dispatchEvent(event);
+};
+
 function ToastNotification({ id, message, variant, timestamp, onClose }) {
     const [isExiting, setIsExiting] = useState(false);
 
@@ -18,7 +23,7 @@ function ToastNotification({ id, message, variant, timestamp, onClose }) {
         const timer = setTimeout(() => {
             setIsExiting(true);
             setTimeout(() => onClose(id), 300);
-        }, 5000);
+        }, 20000);
 
         return () => clearTimeout(timer);
     }, [id, onClose]);
@@ -29,7 +34,7 @@ function ToastNotification({ id, message, variant, timestamp, onClose }) {
     };
 
     return (
-        <div 
+        <div
             className={`w-full max-w-sm rounded-md shadow-lg bg-white/80 backdrop-blur-sm border-l-4 ${config.borderClass}
                         flex items-start p-3 transition-all duration-300 ease-in-out
                         ${isExiting ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'}`}

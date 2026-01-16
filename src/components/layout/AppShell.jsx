@@ -8,6 +8,7 @@ import TabRenderer from './TabRenderer'
 import HomeView from '@/views/HomeView'
 import useTabStore from '@/store/useTabStore'
 import useThemeStore from '@/store/useThemeStore'
+import ToastContainer from '@/components/ui/toast'
 
 const SimpleLoader = () => {
   return (
@@ -22,7 +23,26 @@ const SimpleLoader = () => {
 export default function AppShell() {
   const { tabs, activeTabId } = useTabStore()
   const { theme } = useThemeStore()
+  const [toasts, setToasts] = useState([]);
   const [isClient, setIsClient] = useState(false)
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  useEffect(() => {
+    const handleToastEvent = (e) => {
+      const { message, variant } = e.detail;
+      const id = Math.random().toString(36).substring(2, 9);
+      const timestamp = new Date().toLocaleTimeString('pt-BR', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+      setToasts((prev) => [...prev, { id, message, variant, timestamp }]);
+    };
+
+    window.addEventListener('app-toast', handleToastEvent);
+    return () => window.removeEventListener('app-toast', handleToastEvent);
+  }, []);
 
   useEffect(() => {
     setIsClient(true)
@@ -70,6 +90,7 @@ export default function AppShell() {
           </div>
         </div>
       </div>
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   )
 }

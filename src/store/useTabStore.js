@@ -11,7 +11,9 @@ const useTabStore = create(
       openTab: (newTab) => {
         const { tabs } = get();
 
-        useHistoryStore.getState().addToHistory(newTab);
+        if (!newTab.data?.isNew) {
+          useHistoryStore.getState().addToHistory(newTab);
+        }
 
         if (newTab.id === 'home') {
           set({ activeTabId: 'home' });
@@ -67,9 +69,15 @@ const useTabStore = create(
         set({ tabs: newTabs });
       },
       updateTab: (id, updates) => {
-        const { tabs } = get();
+        const { tabs, activeTabId } = get();
         const newTabs = tabs.map((t) => (t.id === id ? { ...t, ...updates } : t));
-        set({ tabs: newTabs });
+
+        const newState = { tabs: newTabs };
+        if (updates.id && activeTabId === id) {
+          newState.activeTabId = updates.id;
+        }
+
+        set(newState);
       },
       reloadTab: (id) => {
         const { tabs } = get();

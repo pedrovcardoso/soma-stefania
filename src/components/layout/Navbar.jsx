@@ -15,8 +15,10 @@ import {
   MdLanguage,
   MdChat,
   MdFavorite,
-  MdAddToPhotos
+  MdAddToPhotos,
+  MdWarning
 } from 'react-icons/md'
+import Modal from '@/components/ui/Modal'
 
 const getTabIcon = (type, title) => {
   if (type === 'home') return MdHome
@@ -40,9 +42,26 @@ export default function Navbar() {
     switchTab(tabId)
   }
 
+  const [tabIdToClose, setTabIdToClose] = useState(null)
+  const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false)
+
   const handleCloseTab = (e, tabId) => {
     e.stopPropagation()
-    closeTab(tabId)
+    const tab = tabs.find(t => t.id === tabId)
+    if (tab?.hasUnsavedChanges) {
+      setTabIdToClose(tabId)
+      setIsDiscardModalOpen(true)
+    } else {
+      closeTab(tabId)
+    }
+  }
+
+  const confirmCloseTab = () => {
+    if (tabIdToClose) {
+      closeTab(tabIdToClose)
+      setIsDiscardModalOpen(false)
+      setTabIdToClose(null)
+    }
   }
 
   const handleHomeClick = () => {
@@ -194,6 +213,41 @@ export default function Navbar() {
           <MdNotifications className="w-5 h-5 text-text-secondary" />
         </button>
       </div>
+      <Modal
+        isOpen={isDiscardModalOpen}
+        onClose={() => setIsDiscardModalOpen(false)}
+        title="Descartar Alterações"
+        footer={
+          <>
+            <button
+              onClick={confirmCloseTab}
+              className="px-4 py-2 text-sm font-bold text-white bg-error hover:bg-error/90 rounded-lg shadow-sm transition-all active:scale-95"
+            >
+              Sim, descartar
+            </button>
+            <button
+              onClick={() => setIsDiscardModalOpen(false)}
+              className="px-4 py-2 text-sm font-medium text-text hover:bg-surface-alt rounded-lg transition-colors"
+            >
+              Continuar editando
+            </button>
+          </>
+        }
+      >
+        <div className="flex items-start gap-4">
+          <div className="p-2 bg-error/10 rounded-full text-error shrink-0">
+            <MdWarning size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-text">
+              Você tem alterações não salvas. Tem certeza que deseja descartá-las?
+            </p>
+            <p className="text-xs text-text-secondary mt-2">
+              Isso apagará todas as modificações feitas nessa página.
+            </p>
+          </div>
+        </div>
+      </Modal>
     </nav>
   )
 }

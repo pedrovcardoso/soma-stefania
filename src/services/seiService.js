@@ -148,6 +148,75 @@ export const fetchSeiProcessDetails = async (seiNumber) => {
     }
 };
 
+const mapFrontendToApi = (data) => {
+    const toApiDate = (dateStr) => {
+        if (!dateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return dateStr;
+        const [day, month, year] = dateStr.split('/');
+        return `${year}-${month}-${day}`;
+    };
+
+    return {
+        sei: data.sei,
+        status: data.status,
+        ano_referencia: String(data.ano_referencia || ''),
+        tipo: data.tipo,
+        descricao: data.descricao,
+        atribuicao: data.atribuido,
+        responsavel: data.atribuido,
+        obs: data.observacoes_tramitacao,
+        dt_dilacao: toApiDate(data.data_dilacao),
+        sei_dilacao: data.sei_dilacao,
+        dt_resposta: toApiDate(data.data_resposta),
+        dt_recebimento: toApiDate(data.recebimento),
+        dt_fim_prevista: toApiDate(data.prazo_final)
+    };
+};
+
+export const manterProcesso = async (operacao, data) => {
+    try {
+        const payload = {
+            operacao,
+            dados: operacao === 'excluir' ? { sei: data.sei } : mapFrontendToApi(data)
+        };
+
+        const response = await apiClient.post('/manterProcesso', payload);
+        return response;
+    } catch (error) {
+        console.error(`Error in manterProcesso (${operacao}):`, error);
+        throw error;
+    }
+};
+
+export const prepararImportacao = async (seiNumber) => {
+    try {
+        const formData = new FormData();
+        formData.append('sei', seiNumber);
+
+        const response = await apiClient.post('/prepararImportacao', formData);
+
+        return mapSeiDetailResponse({
+            ...response,
+            processo: {
+                sei: seiNumber,
+                status: 'Planejado',
+                ano_referencia: new Date().getFullYear().toString(),
+                tipo: '',
+                descricao: '',
+                atribuido: '',
+                obs: '',
+                dt_dilacao: '',
+                sei_dilacao: '',
+                dt_resposta: '',
+                dt_recebimento: new Date().toLocaleDateString('pt-BR'),
+                dt_fim_prevista: ''
+            }
+        });
+    } catch (error) {
+        console.error('Error preparing import:', error);
+        throw error;
+    }
+};
+
 export const fetchDocumentosProcesso = async (seiNumber) => {
     try {
         const params = new URLSearchParams();

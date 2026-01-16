@@ -4,40 +4,105 @@ import { useState, useEffect, useRef, Fragment } from 'react';
 import { MdContentCopy, MdShare, MdEdit, MdOpenInNew, MdError, MdDeleteOutline, MdKeyboardArrowDown, MdDescription, MdInfoOutline } from 'react-icons/md';
 import { Menu, Transition } from '@headlessui/react';
 import useTabStore from '@/store/useTabStore';
-import { fetchSeiProcessDetails } from '@/services/seiService';
 import ActionPlanSection from './ActionPlanSection';
 import useHistoryStore from '@/store/useHistoryStore';
 import StefaniaChatbot from './StefaniaChatbot';
 import DocumentsDetailView from './DocumentsDetailView';
 import SeiEditView from './SeiEditView';
+import { toast } from '@/components/ui/toast';
+import { fetchSeiProcessDetails, manterProcesso, prepararImportacao } from '@/services/seiService';
+import Modal from '@/components/ui/Modal';
+import { MdWarning } from 'react-icons/md';
 
-export default function SeiDetailView({ id, lastReload }) {
+export default function SeiDetailView({ id, lastReload, data: tabData }) {
   const [processData, setProcessData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('details');
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(tabData?.isNew || false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletingLoading, setIsDeletingLoading] = useState(false);
   const updateTab = useTabStore(state => state.updateTab);
+  const closeTab = useTabStore(state => state.closeTab);
+
+  const isNew = tabData?.isNew;
+  const updateHistoryEntry = useHistoryStore(state => state.updateHistoryEntry);
+  const addToHistory = useHistoryStore(state => state.addToHistory);
 
   useEffect(() => {
-    updateTab(id, {
-      data: {
-        subLabel: isEditing ? 'Edição' : (viewMode === 'details' ? 'Detalhes' : 'Documentos')
-      }
-    });
-  }, [id, viewMode, isEditing, updateTab]);
+    const newSubLabel = isEditing ? (isNew ? 'Novo Processo' : 'Edição') : (viewMode === 'details' ? 'Detalhes' : 'Documentos');
 
-  const handleSave = (newData) => {
-    alert("Salvo com sucesso!");
-    setProcessData(prev => ({ ...prev, ...newData }));
-    setIsEditing(false);
+    if (tabData?.subLabel !== newSubLabel) {
+      updateTab(id, {
+        data: {
+          ...tabData,
+          subLabel: newSubLabel
+        }
+      });
+    }
+  }, [id, viewMode, isEditing, updateTab, isNew, tabData?.subLabel]);
+
+  const handleSave = async (newData) => {
+    setIsSaving(true);
+    try {
+      const operacao = isNew ? 'inserir' : 'alterar';
+      await manterProcesso(operacao, newData);
+
+      toast(`Processo ${operacao === 'inserir' ? 'criado' : 'atualizado'} com sucesso!`, 'success');
+
+      setProcessData(prev => ({ ...prev, ...newData }));
+      setIsEditing(false);
+      updateTab(id, { hasUnsavedChanges: false });
+
+      if (isNew) {
+        updateTab(id, {
+          id: newData.sei,
+          title: newData.sei,
+          data: { ...tabData, isNew: false, seiNumber: newData.sei }
+        });
+
+        addToHistory({
+          id: newData.sei,
+          type: 'sei_detail',
+          title: newData.sei,
+          description: newData.descricao
+        });
+      } else {
+        updateHistoryEntry(newData.sei, {
+          description: newData.descricao
+        });
+      }
+    } catch (err) {
+      toast(`Erro ao salvar: ${err.message || 'Erro desconhecido'}`, 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsDeletingLoading(true);
+    try {
+      await manterProcesso('excluir', { sei: processData.sei });
+      toast('Processo removido com sucesso!', 'success');
+      setIsDeleting(false);
+      closeTab(id);
+    } catch (err) {
+      toast(`Erro ao remover: ${err.message || 'Erro desconhecido'}`, 'error');
+    } finally {
+      setIsDeletingLoading(false);
+    }
   };
 
   const handleCancel = () => {
-    setIsEditing(false);
+    updateTab(id, { hasUnsavedChanges: false });
+    if (isNew) {
+      closeTab(id);
+    } else {
+      setIsEditing(false);
+    }
   };
 
-  const updateHistoryEntry = useHistoryStore(state => state.updateHistoryEntry);
 
   useEffect(() => {
     if (id && id !== 'unknown') {
@@ -48,10 +113,21 @@ export default function SeiDetailView({ id, lastReload }) {
   const loadData = async () => {
     setLoading(true);
     try {
-      const data = await fetchSeiProcessDetails(id);
+      let data;
+      if (isNew && tabData?.seiNumber) {
+        const importedData = await prepararImportacao(tabData.seiNumber);
+        data = {
+          ...importedData,
+          isNew: true,
+          seiNumber: tabData.seiNumber
+        };
+      } else {
+        data = await fetchSeiProcessDetails(id);
+      }
+
       setProcessData(data);
 
-      if (data && data.sei) {
+      if (data && data.sei && !isNew) {
         updateHistoryEntry(data.sei, {
           description: data.descricao
         });
@@ -101,7 +177,7 @@ export default function SeiDetailView({ id, lastReload }) {
   const Field = ({ label, value, fullWidth = false, className = "" }) => (
     <div className={`flex flex-col ${fullWidth ? 'col-span-full' : ''} ${className}`}>
       <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">{label}</label>
-      <div className="w-full bg-surface-alt border border-border rounded px-3 py-2 text-sm text-text-secondary font-medium min-h-[38px] flex items-center">
+      <div className="w-full bg-surface-alt border border-border rounded px-3 py-2 text-sm text-text-secondary font-medium min-h-[38px] whitespace-pre-wrap">
         {value || <span className="text-text-muted italic font-normal">Não informado</span>}
       </div>
     </div>
@@ -156,9 +232,11 @@ export default function SeiDetailView({ id, lastReload }) {
 
         {isEditing ? (
           <SeiEditView
+            tabId={id}
             data={processData}
             onSave={handleSave}
             onCancel={handleCancel}
+            isSaving={isSaving}
           />
         ) : (
           <>
@@ -221,7 +299,10 @@ export default function SeiDetailView({ id, lastReload }) {
                           )}
                           <Menu.Item>
                             {({ active }) => (
-                              <button className={`${active ? 'bg-red-50 text-red-600' : 'text-red-600'} group flex w-full items-center rounded-lg px-2 py-2 text-sm transition-colors`}>
+                              <button
+                                onClick={() => setIsDeleting(true)}
+                                className={`${active ? 'bg-red-50 text-red-600' : 'text-red-600'} group flex w-full items-center rounded-lg px-2 py-2 text-sm transition-colors`}
+                              >
                                 <MdDeleteOutline className={`mr-2 h-4 w-4 ${active ? 'text-red-600' : 'text-red-500'}`} />
                                 Remover do SOMA
                               </button>
@@ -411,6 +492,43 @@ export default function SeiDetailView({ id, lastReload }) {
         )}
 
       </div>
+      <Modal
+        isOpen={isDeleting}
+        onClose={() => !isDeletingLoading && setIsDeleting(false)}
+        title="Remover do SOMA"
+        footer={
+          <>
+            <button
+              onClick={handleDelete}
+              disabled={isDeletingLoading}
+              className="px-4 py-2 text-sm font-bold text-white bg-error hover:bg-error/90 rounded-lg shadow-sm transition-all active:scale-95 disabled:opacity-50"
+            >
+              {isDeletingLoading ? 'Removendo...' : 'Sim, remover'}
+            </button>
+            <button
+              onClick={() => setIsDeleting(false)}
+              disabled={isDeletingLoading}
+              className="px-4 py-2 text-sm font-medium text-text hover:bg-surface-alt rounded-lg transition-colors disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+          </>
+        }
+      >
+        <div className="flex items-start gap-4">
+          <div className="p-2 bg-error/10 rounded-full text-error shrink-0">
+            <MdWarning size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-text">
+              Tem certeza que deseja remover o processo <span className="font-bold">{processData.sei}</span> do sistema SOMA?
+            </p>
+            <p className="text-xs text-text-secondary mt-2">
+              Esta ação removerá o vínculo do processo com o sistema, mas não afetará o processo original no SEI.
+            </p>
+          </div>
+        </div>
+      </Modal>
     </div >
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Fragment } from 'react';
-import { MdSearch, MdMoreVert, MdLaunch, MdCalendarToday, MdExpandMore, MdSort, MdCheck, MdArrowUpward, MdArrowDownward } from 'react-icons/md';
+import { MdSearch, MdMoreVert, MdLaunch, MdCalendarToday, MdExpandMore, MdSort, MdCheck, MdArrowUpward, MdArrowDownward, MdAdd } from 'react-icons/md';
 import SmartTable from '@/components/ui/SmartTable';
 import FilterPanel from '@/components/ui/FilterPanel';
 import MultiSelect from '@/components/ui/MultiSelect';
@@ -12,6 +12,7 @@ import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, subWeeks, startOf
 import { ptBR } from 'date-fns/locale';
 import { Popover, Transition } from '@headlessui/react';
 import { fetchSeiProcesses } from '@/services/seiService';
+import Modal from '@/components/ui/Modal';
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -23,6 +24,70 @@ const getStatusColor = (status) => {
   }
 };
 
+const NewProcessModal = ({ isOpen, onClose, onConfirm }) => {
+  const [newSeiNumber, setNewSeiNumber] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleConfirm = async () => {
+    if (!newSeiNumber.trim()) return;
+    setIsSubmitting(true);
+    setTimeout(() => {
+      onConfirm(newSeiNumber.trim());
+      setNewSeiNumber('');
+      setIsSubmitting(false);
+    }, 600);
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Importar Novo Processo SEI"
+      footer={
+        <>
+          <button
+            type="button"
+            disabled={!newSeiNumber.trim() || isSubmitting}
+            className="px-4 py-2 text-sm font-bold text-white bg-accent hover:bg-accent-hover rounded-lg transition-colors shadow-md disabled:opacity-50 min-w-[140px]"
+            onClick={handleConfirm}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Processando...</span>
+              </div>
+            ) : (
+              'Confirmar e Editar'
+            )}
+          </button>
+          <button
+            type="button"
+            className="px-4 py-2 text-sm font-medium text-text-secondary hover:bg-surface-alt rounded-lg transition-colors"
+            onClick={onClose}
+          >
+            Cancelar
+          </button>
+        </>
+      }
+    >
+      <div className="mt-2">
+        <p className="text-sm text-text-secondary mb-4">
+          Informe o número do processo SEI para iniciar a importação. O sistema tentará buscar as informações básicas e tags do SEI.
+        </p>
+        <input
+          type="text"
+          placeholder="Ex: 1190.01.000450/2024-12"
+          value={newSeiNumber}
+          onChange={(e) => setNewSeiNumber(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}
+          className="w-full h-12 px-4 text-sm border border-border rounded-xl focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none bg-surface text-text"
+          autoFocus
+        />
+      </div>
+    </Modal>
+  );
+};
+
 export default function SeiListView({ lastReload }) {
   const [activeView, setActiveView] = useState('block');
   const [data, setData] = useState([]);
@@ -31,6 +96,8 @@ export default function SeiListView({ lastReload }) {
   const openTab = useTabStore((state) => state.openTab);
   const updateTab = useTabStore((state) => state.updateTab);
 
+  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+
   useEffect(() => {
     updateTab('sei', {
       data: {
@@ -38,6 +105,20 @@ export default function SeiListView({ lastReload }) {
       }
     });
   }, [activeView, updateTab]);
+
+  const handleOpenNewProcess = (seiNumber) => {
+    openTab({
+      id: `new-${seiNumber}`,
+      type: 'sei_detail',
+      title: 'Novo Processo',
+      data: {
+        isNew: true,
+        seiNumber: seiNumber
+      }
+    });
+
+    setIsNewModalOpen(false);
+  };
 
   const [filters, setFilters] = useState({
     year: '',
@@ -183,9 +264,18 @@ export default function SeiListView({ lastReload }) {
   return (
     <div className="h-full bg-surface-alt px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 overflow-auto font-sans">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-text tracking-tight">Processos SEI</h1>
-          <p className="text-text-secondary mt-2">Gerencie e acompanhe as tramitações, prazos e documentos oficiais.</p>
+        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-extrabold text-text tracking-tight">Processos SEI</h1>
+            <p className="text-text-secondary mt-2">Gerencie e acompanhe as tramitações, prazos e documentos oficiais.</p>
+          </div>
+          <button
+            onClick={() => setIsNewModalOpen(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-xl hover:bg-accent-hover shadow-lg shadow-accent/20 transition-all active:scale-95 font-bold"
+          >
+            <MdAdd size={24} />
+            Novo Processo
+          </button>
         </div>
 
         <FilterPanel onClear={handleClearFilters}>
@@ -458,6 +548,12 @@ export default function SeiListView({ lastReload }) {
           )
         }
       </div >
+
+      <NewProcessModal
+        isOpen={isNewModalOpen}
+        onClose={() => setIsNewModalOpen(false)}
+        onConfirm={handleOpenNewProcess}
+      />
     </div >
   );
 }

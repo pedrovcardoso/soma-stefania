@@ -1,19 +1,20 @@
 openapi: 3.0.3
+
 info:
   title: API SOMA - Gestão de Processos
   description: |
     API backend do sistema SOMA para consulta de processos,
     documentos, integração com SEI e Azure Cognitive Search.
   version: "1.0.0"
- 
+
 servers:
-  - url: http://localhost:5000
-    description: Ambiente local
   - url: http://10.180.168.23:5000
     description: Ambiente interno
- 
+  - url: http://localhost:5000
+    description: Ambiente local
+
 paths:
- 
+
   /login:
     post:
       summary: Autenticação de usuário
@@ -35,7 +36,7 @@ paths:
           description: Login realizado com sucesso
         "400":
           description: Login ou senha inválidos
- 
+
   /processo:
     post:
       summary: Lista processos com filtros
@@ -48,16 +49,13 @@ paths:
               properties:
                 ano_referencia:
                   type: array
-                  items:
-                    type: string
+                  items: { type: string }
                 tipo:
                   type: array
-                  items:
-                    type: string
+                  items: { type: string }
                 status:
                   type: array
-                  items:
-                    type: string
+                  items: { type: string }
                 data_inicio:
                   type: string
                   format: date
@@ -72,13 +70,54 @@ paths:
               schema:
                 type: object
                 properties:
-                  status:
-                    type: string
+                  status: { type: string }
                   data:
                     type: array
                     items:
                       $ref: "#/components/schemas/ProcessoResumo"
- 
+
+  /processodistintos:
+    get:
+      tags:
+        - Processos
+      summary: Listar processos distintos (SEI)
+      description: >
+        Retorna a lista de números de processos SEI distintos existentes
+        na base de dados do TCE.
+      operationId: listarProcessosDistintos
+      responses:
+        "200":
+          description: Lista de processos retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        sei:
+                          type: string
+                          example: "12345.01.000000/2023-11"
+        "500":
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Erro ao consultar processos
+
   /filtros:
     get:
       summary: Retorna valores para filtros
@@ -100,7 +139,7 @@ paths:
                   status:
                     type: array
                     items: { type: string }
- 
+
   /detalheProcesso:
     post:
       summary: Detalhes completos do processo
@@ -131,8 +170,8 @@ paths:
                       $ref: "#/components/schemas/Tag"
                   sei:
                     type: object
- 
-  /documentosProcesso:
+
+  /listaDocumentos:
     post:
       summary: Lista documentos de um processo e auxiliares
       tags: [Documentos]
@@ -144,10 +183,8 @@ paths:
               type: object
               required: [url_processo, sei_principal]
               properties:
-                url_processo:
-                  type: string
-                sei_principal:
-                  type: string
+                url_processo: { type: string }
+                sei_principal: { type: string }
       responses:
         "200":
           description: Lista de documentos
@@ -160,7 +197,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Documento"
- 
+
   /consultaDocumento:
     post:
       summary: Consulta documento específico
@@ -173,8 +210,7 @@ paths:
               type: object
               required: [protocolo]
               properties:
-                protocolo:
-                  type: string
+                protocolo: { type: string }
       responses:
         "200":
           description: Documento consultado
@@ -183,18 +219,35 @@ paths:
               schema:
                 type: object
                 properties:
-                  sei:
-                    type: object
+                  sei: { type: object }
                   metadata:
                     $ref: "#/components/schemas/DocumentoMetadata"
- 
+
+  /manterProcesso:
+    post:
+      summary: Inserir, alterar ou excluir processo
+      tags: [Processos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ManterProcessoRequest"
+      responses:
+        "200":
+          description: Operação realizada com sucesso
+        "400":
+          description: Erro de validação
+        "404":
+          description: Processo não encontrado
+        "409":
+          description: Conflito
+        "500":
+          description: Erro interno
+
   /uploadDocumentos:
     post:
       summary: Upload de documentos para Azure
-      description: |
-        Recebe uma lista de documentos com links públicos,
-        realiza o download temporário no backend, envia ao Azure Blob Storage
-        com metadados e executa indexação.
       tags: [Documentos]
       requestBody:
         required: true
@@ -206,30 +259,156 @@ paths:
               properties:
                 documentos:
                   type: array
-                  minItems: 1
                   items:
                     $ref: "#/components/schemas/UploadDocumento"
       responses:
         "200":
-          description: Processamento finalizado
+          description: Upload finalizado
+  /manterCesta_bp:
+    post:
+      summary: Inserir, alterar, excluir ou consultar cestas
+      tags: [ Cestas ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ManterCestaRequest"
+      responses:
+        "200":
+          description: Operação realizada com sucesso
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: finalizado
-                  resultado:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/UploadResultado"
+                $ref: "#/components/schemas/ManterCestaResponse"
+        "201":
+          description: Cesta criada com sucesso
         "400":
-          description: Payload inválido
- 
+          description: Erro de validação
+        "404":
+          description: Cesta não encontrada
+        "409":
+          description: Conflito (registro existente ou vínculo)
+        "500":
+          description: Erro interno
+
+  /mantervinculacaoCesta:
+    post:
+      summary: Inserir, excluir ou consultar vinculações entre cestas e processos
+      tags: [ Cestas ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ManterVinculacaoCestaRequest"
+      responses:
+        "200":
+          description: Operação realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManterVinculacaoCestaResponse"
+        "201":
+          description: Vinculação criada com sucesso
+        "400":
+          description: Erro de validação
+        "409":
+          description: Conflito ou erro de vínculo
+        "500":
+          description: Erro interno
+  /ragconsulta:
+    post:
+      summary: Consulta inteligente via RAG (Azure OpenAI + Azure Cognitive Search)
+      description: |
+        Executa uma consulta utilizando abordagem RAG (Retrieval-Augmented Generation),
+        com recuperação de documentos no Azure Cognitive Search e geração de resposta
+        via Azure OpenAI.
+
+        A API detecta automaticamente o tipo da pergunta:
+        - **Resumo**: perguntas descritivas ou informativas
+        - **Análise**: perguntas com foco em questionamentos, apontamentos,
+          entendimentos ou críticas (ex: TCE)
+
+        A resposta é gerada exclusivamente com base nos documentos recuperados.
+      tags:
+        - RAG
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RagConsultaRequest"
+      responses:
+        "200":
+          description: Resposta gerada com base nos documentos recuperados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RagConsultaResponse"
+        "400":
+          description: Requisição inválida
+        "500":
+          description: Erro interno ao processar a consulta
+
+
 components:
- 
   schemas:
+
+    ManterProcessoRequest:
+      type: object
+      required: [operacao, dados]
+      properties:
+        operacao:
+          type: string
+          enum: [inserir, alterar, excluir]
+        dados:
+          oneOf:
+            - $ref: "#/components/schemas/ProcessoInserir"
+            - $ref: "#/components/schemas/ProcessoAlterar"
+            - $ref: "#/components/schemas/ProcessoExcluir"
+
+    ProcessoInserir:
+      type: object
+      required:
+        - sei
+        - descricao
+        - tipo
+        - dt_recebimento
+        - dt_fim_prevista
+        - ano_referencia
+        - status
+        - atribuicao
+        - responsavel
+      properties:
+        sei: { type: string }
+        descricao: { type: string }
+        obs: { type: string }
+        tipo: { type: string }
+        dt_recebimento: { type: string, format: date }
+        dt_fim_prevista: { type: string, format: date }
+        dt_dilacao: { type: string, nullable: true }
+        dt_resposta: { type: string, nullable: true }
+        sei_dilacao: { type: string, nullable: true }
+        ano_referencia: { type: string }
+        status: { type: string }
+        atribuicao: { type: string }
+        responsavel: { type: string }
+
+    ProcessoAlterar:
+      allOf:
+        - $ref: "#/components/schemas/ProcessoInserir"
+        - type: object
+          required: [sei_original]
+          properties:
+            sei_original: { type: string }
+
+    ProcessoExcluir:
+      type: object
+      required: [sei]
+      properties:
+        sei: { type: string }
+
     UploadDocumento:
       type: object
       required:
@@ -240,47 +419,18 @@ components:
         - data_documento
         - metadata
       properties:
-        nome:
-          type: string
-          example: "123456789"
-        url:
-          type: string
-          example: "https://sei.mg.gov.br/sei/controlador.php?...pdf"
-        container:
-          type: string
-          example: "tce"
-        processo:
-          type: string
-          example: "12345.678901/2024-11"
-        data_documento:
-          type: string
-          example: "15/03/2024"
+        nome: { type: string }
+        url: { type: string }
+        container: { type: string }
+        processo: { type: string }
+        data_documento: { type: string }
         metadata:
           type: object
           properties:
-            ano:
-              type: string
-              example: "2024"
-            tipo:
-              type: string
-              example: "contrato"
-            categoria:
-              type: string
-              example: "licitacao"
- 
-    UploadResultado:
-      type: object
-      properties:
-        documento:
-          type: string
-          example: "123456789"
-        status:
-          type: string
-          example: success
-        detalhe:
-          type: object
-          description: Resultado detalhado do upload
- 
+            ano: { type: string }
+            tipo: { type: string }
+            categoria: { type: string }
+
     ProcessoResumo:
       type: object
       properties:
@@ -291,7 +441,7 @@ components:
         dt_fim_prevista: { type: string }
         tipo: { type: string }
         atribuido: { type: string }
- 
+
     ProcessoDetalhado:
       type: object
       properties:
@@ -307,7 +457,7 @@ components:
         sei_dilacao: { type: string }
         dt_resposta: { type: string }
         obs: { type: string }
- 
+
     Documento:
       type: object
       properties:
@@ -318,7 +468,7 @@ components:
         unidade: { type: string }
         existe_azure: { type: string }
         processo_origem: { type: string }
- 
+
     DocumentoMetadata:
       type: object
       properties:
@@ -328,9 +478,52 @@ components:
         categoria: { type: string }
         ordem: { type: string }
         ano: { type: string }
- 
+
     Tag:
       type: object
       properties:
         id_tag: { type: integer }
         tag: { type: string }
+    RagConsultaRequest:
+      type: object
+      required:
+        - prompt
+      properties:
+        prompt:
+          type: string
+          description: Pergunta a ser respondida pelo mecanismo RAG
+          example: Quais os questionamentos do TCE sobre os valores repassados em ASPS?
+        filtros:
+          type: object
+          description: Filtros opcionais aplicados na recuperação dos documentos
+          properties:
+            processo:
+              type: string
+              example: 1234567
+            numero_documento:
+              type: string
+              example: 76324260
+            categoria:
+              type: string
+              example: ASPS
+            tipo:
+              type: string
+              example: Fiscalização
+            ano:
+              type: string
+              example: "2023"
+
+    RagConsultaResponse:
+      type: object
+      properties:
+        resposta:
+          type: string
+          description: Resposta gerada pelo modelo com base nos documentos recuperados
+        documentos_utilizados:
+          type: array
+          description: Lista de documentos explicitamente utilizados como base da resposta
+          items:
+            type: string
+          example:
+            - "76324260"
+            - "87986762"
