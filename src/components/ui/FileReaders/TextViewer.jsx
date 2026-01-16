@@ -12,7 +12,7 @@ import {
   MdChevronRight
 } from 'react-icons/md';
 
-export default function TextViewer({ url, type }) {
+export default function TextViewer({ url, type, onLoad }) {
   const [textContent, setTextContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,6 +40,7 @@ export default function TextViewer({ url, type }) {
         if (!response.ok) throw new Error("Falha ao carregar arquivo");
         const text = await response.text();
         setTextContent(text);
+        if (onLoad) onLoad();
         setTimeout(() => fitToWidth(), 100);
       } catch (err) {
         console.error('Error fetching text file:', err);
@@ -118,15 +119,9 @@ export default function TextViewer({ url, type }) {
     </div>
   );
 
-  if (error) return (
-    <div className="flex h-full w-full items-center justify-center bg-red-50 p-6">
-      <div className="text-center text-red-600">
-        <MdWarning size={40} className="mx-auto mb-2" />
-        <h3 className="font-bold">Erro</h3>
-        <p className="text-sm">{error}</p>
-      </div>
-    </div>
-  );
+  if (error) {
+    throw new Error(error);
+  }
 
   const customStyles = `
     .search-highlight {

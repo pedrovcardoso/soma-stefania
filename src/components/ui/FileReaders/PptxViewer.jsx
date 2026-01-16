@@ -112,7 +112,7 @@ const SlideRenderer = ({ slide, width, height, scale, isThumbnail = false }) => 
   );
 };
 
-export default function PptxViewer({ url }) {
+export default function PptxViewer({ url, onLoad }) {
   const [slides, setSlides] = useState([]);
   const [slideSize, setSlideSize] = useState({ width: 960, height: 540 });
   const [loading, setLoading] = useState(true);
@@ -306,6 +306,7 @@ export default function PptxViewer({ url }) {
         }
 
         setSlides(parsedSlides);
+        if (onLoad) onLoad();
         setTimeout(() => fitToScreen(finalW, finalH), 100);
 
       } catch (err) {
@@ -315,7 +316,7 @@ export default function PptxViewer({ url }) {
       }
     };
     processPptx();
-  }, [url]);
+  }, [url, onLoad]);
 
   const fitToScreen = useCallback((w = slideSize.width, h = slideSize.height) => {
     if (viewContainerRef.current) {
@@ -394,15 +395,9 @@ export default function PptxViewer({ url }) {
     </div>
   );
 
-  if (error) return (
-    <div className="flex h-full w-full items-center justify-center bg-red-50 p-6">
-      <div className="text-center text-red-600">
-        <MdWarning size={40} className="mx-auto mb-2" />
-        <h3 className="font-bold">Erro ao abrir</h3>
-        <p className="text-sm">{error}</p>
-      </div>
-    </div>
-  );
+  if (error) {
+    throw new Error(error);
+  }
 
   const thumbScale = THUMBNAIL_WIDTH / slideSize.width;
   const thumbHeight = slideSize.height * thumbScale;

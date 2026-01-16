@@ -217,16 +217,29 @@ export const prepararImportacao = async (seiNumber) => {
     }
 };
 
-export const fetchDocumentosProcesso = async (seiNumber) => {
+export const fetchListaDocumentos = async (seiNumber) => {
     try {
         const params = new URLSearchParams();
         params.append('sei_principal', seiNumber);
         params.append('url_processo', `https://sei.mg.gov.br/sei/controlador.php?acao=procedimento_selecionar&id_procedimento=${seiNumber}`);
 
-        const response = await apiClient.post('/documentosProcesso', params);
+        const response = await apiClient.post('/listaDocumentos', params);
         return response.documentos || [];
     } catch (error) {
-        console.error('Error fetching documentos processo:', error);
+        console.error('Error fetching lista documentos:', error);
+        throw error;
+    }
+};
+
+export const fetchDetalheDocumento = async (protocolo) => {
+    try {
+        const params = new URLSearchParams();
+        params.append('protocolo', protocolo);
+
+        const response = await apiClient.post('/consultaDocumento', params);
+        return response;
+    } catch (error) {
+        console.error('Error fetching detalhe documento:', error);
         throw error;
     }
 };

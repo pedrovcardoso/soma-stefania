@@ -152,7 +152,7 @@ function TreeNode({ node, defaultOpen = false }) {
   );
 }
 
-export default function ZipViewer({ url, name }) {
+export default function ZipViewer({ url, name, onLoad }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -174,6 +174,7 @@ export default function ZipViewer({ url, name }) {
         });
 
         setEntries(loadedEntries);
+        if (onLoad) onLoad();
       } catch (error) {
         console.error("Error loading zip:", error);
       } finally {
@@ -182,7 +183,7 @@ export default function ZipViewer({ url, name }) {
     };
 
     loadZip();
-  }, [url]);
+  }, [url, onLoad]);
 
   const tree = useMemo(() => {
     const filtered = searchTerm

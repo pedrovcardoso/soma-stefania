@@ -123,7 +123,7 @@ const handleOdt = async (arrayBuffer) => {
   return { value: html };
 };
 
-export default function DocumentViewer({ url }) {
+export default function DocumentViewer({ url, onLoad }) {
   const [htmlContent, setHtmlContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -178,6 +178,7 @@ export default function DocumentViewer({ url }) {
 
         if (!result.value) throw new Error("Documento vazio ou ilegível");
         setHtmlContent(result.value);
+        if (onLoad) onLoad();
         setTimeout(() => fitToWidth(), 100);
       } catch (err) {
         console.error(err);
@@ -187,7 +188,7 @@ export default function DocumentViewer({ url }) {
       }
     };
     convertFile();
-  }, [url]);
+  }, [url, onLoad]);
 
   const fitToWidth = () => {
     if (containerRef.current) {
@@ -216,15 +217,10 @@ export default function DocumentViewer({ url }) {
     </div>
   );
 
-  if (error) return (
-    <div className="flex h-full w-full items-center justify-center bg-red-50 p-6">
-      <div className="text-center text-red-600">
-        <MdWarning size={40} className="mx-auto mb-2" />
-        <h3 className="font-bold">Erro ao abrir arquivo</h3>
-        <p className="text-sm">{error}</p>
-      </div>
-    </div>
-  );
+  if (error) {
+    // Throw to let ViewerErrorBoundary show UnsupportedViewer
+    throw new Error(error);
+  }
 
   const docStyles = `
     .document-content { font-family: 'Calibri', sans-serif; line-height: 1.6; color: #333; }

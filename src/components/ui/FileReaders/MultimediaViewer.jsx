@@ -1,52 +1,46 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { MdAudiotrack, MdVideocam, MdWarning } from 'react-icons/md';
+import { useState, useEffect } from 'react';
+import { MdAudiotrack, MdVideocam } from 'react-icons/md';
 import { ImSpinner8 } from 'react-icons/im';
 
-export default function MultimediaViewer({ url, name, type }) {
+export default function MultimediaViewer({ url, name, type, onLoad }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'avi'].includes(type);
+  const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'avi'].includes(type?.toLowerCase());
 
   useEffect(() => {
     setLoading(true);
     setError(null);
-    try {
-      setTimeout(() => {
-        setLoading(false);
-      }, 100);
-    } catch (e) {
-      setError("Erro ao carregar mídia.");
-      setLoading(false);
-    }
+    // Simple state reset for source changes
   }, [url]);
 
-  if (loading) return (
-    <div className="flex h-full w-full items-center justify-center gap-4 text-slate-500 bg-slate-200">
-      <ImSpinner8 className="animate-spin text-3xl text-blue-600" />
-    </div>
-  );
-
-  if (error) return (
-    <div className="flex h-full w-full items-center justify-center bg-red-50 p-6">
-      <div className="text-center text-red-600">
-        <MdWarning size={40} className="mx-auto mb-2" />
-        <h3 className="font-bold">Erro</h3>
-        <p className="text-sm">{error}</p>
-      </div>
-    </div>
-  );
+  if (error) {
+    throw new Error(error);
+  }
 
   return (
     <div className="flex h-full w-full bg-slate-200 overflow-hidden font-sans select-none relative items-center justify-center">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center z-50 bg-slate-200/50">
+          <ImSpinner8 className="animate-spin text-3xl text-blue-600" />
+        </div>
+      )}
 
       {isVideo ? (
         <div className="w-full h-full flex items-center justify-center p-4">
           <video
             controls
             autoPlay={false}
+            onLoadedData={() => {
+              setLoading(false);
+              if (onLoad) onLoad();
+            }}
+            onError={() => {
+              setError("Erro ao carregar vídeo.");
+              setLoading(false);
+            }}
             className="max-w-full max-h-full rounded-sm shadow-2xl focus:outline-none bg-black"
           >
             <source src={url} type={`video/${type}`} />
@@ -67,6 +61,14 @@ export default function MultimediaViewer({ url, name, type }) {
             <audio
               controls
               src={url}
+              onLoadedData={() => {
+                setLoading(false);
+                if (onLoad) onLoad();
+              }}
+              onError={() => {
+                setError("Erro ao carregar áudio.");
+                setLoading(false);
+              }}
               className="w-full h-8 outline-none"
               style={{ filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.05))' }}
             >

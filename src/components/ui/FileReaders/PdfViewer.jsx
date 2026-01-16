@@ -1,6 +1,6 @@
 'use client';
 
-export default function PdfViewer({ url }) {
+export default function PdfViewer({ url, onLoad }) {
   if (!url) {
     return (
       <div className="flex h-full w-full items-center justify-center bg-gray-100">
@@ -17,6 +17,7 @@ export default function PdfViewer({ url }) {
         width="100%"
         height="100%"
         style={{ border: 'none' }}
+        onLoad={onLoad}
       />
     </div>
   );

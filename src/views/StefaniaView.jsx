@@ -20,7 +20,7 @@ import {
   MdArrowDownward
 } from 'react-icons/md';
 import { stefaniaService } from '@/services/stefaniaService';
-import { fetchDocumentosProcesso } from '@/services/seiService';
+import { fetchListaDocumentos } from '@/services/seiService';
 
 const SUGGESTED_PROMPTS = [
   "Faça um resumo do processo 12345.000001/2024-99",
@@ -269,7 +269,7 @@ export default function StefaniaPage() {
       setSelectedDocument(null);
       setSelectedDocType(null);
 
-      fetchDocumentosProcesso(selectedProcess)
+      fetchListaDocumentos(selectedProcess)
         .then(docs => {
           if (Array.isArray(docs)) {
             setDocumentList(docs);
@@ -333,7 +333,7 @@ export default function StefaniaPage() {
     if (selectedDocType) {
       filtered = filtered.filter(d => d.tipo === selectedDocType);
     }
-    return filtered.map(d => d.nome).filter(Boolean);
+    return filtered.map(d => d.documento).filter(Boolean);
   }, [documentList, selectedDocType]);
 
   const insertMention = (processCode) => {

@@ -2,10 +2,11 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { MdCloudDone, MdCloudOff, MdUpload, MdDescription, MdPictureAsPdf, MdImage, MdEmail, MdTableChart, MdSlideshow, MdCode, MdVideocam, MdAudiotrack, MdStar, MdArchive, MdModeEdit, MdFilterList, MdSearch } from 'react-icons/md';
+import { ImSpinner8 } from 'react-icons/im';
 import UniversalDocumentViewer from '@/components/ui/UniversalDocumentViewer';
 import StefanIAEditor from './StefanIAEditor';
 import AiDocumentChat from './AiDocumentChat';
-import { fetchDocumentosProcesso } from '@/services/seiService';
+import { fetchListaDocumentos, fetchDetalheDocumento } from '@/services/seiService';
 
 const getFileIcon = (type) => {
     const props = { size: 22, className: 'flex-shrink-0' };
@@ -24,11 +25,40 @@ const getFileIcon = (type) => {
     }
 };
 
+const inferFileType = (doc) => {
+    if (!doc) return 'pdf';
+
+    const url = doc.url?.toLowerCase() || '';
+    const tipo = doc.tipo?.toLowerCase() || '';
+    const name = doc.name?.toLowerCase() || '';
+
+    // Check extension in URL or Name
+    const checkExt = (str) => {
+        const ext = str.split(/[#?]/)[0].split('.').pop();
+        if (['pdf', 'xlsx', 'xls', 'docx', 'doc', 'png', 'jpg', 'jpeg', 'txt', 'zip', 'csv'].includes(ext)) return ext;
+        return null;
+    };
+
+    const extFromUrl = checkExt(url);
+    if (extFromUrl) return extFromUrl;
+
+    const extFromName = checkExt(name);
+    if (extFromName) return extFromName;
+
+    // Check 'tipo' text or name patterns
+    if (tipo.includes('planilha') || tipo.includes('excel') || tipo.includes('tabela') || name.includes('planilha')) return 'xlsx';
+    if (tipo.includes('imagem') || tipo.includes('foto') || tipo.includes('jpg') || tipo.includes('png')) return 'jpg';
+    if (tipo.includes('texto') || tipo.includes('txt') || tipo.includes('ofício')) return 'pdf'; // SEI documents are usually PDF
+    if (tipo.includes('apresentação') || tipo.includes('slides')) return 'pptx';
+
+    return 'pdf'; // Default to pdf for SEI documents
+};
 
 export default function DocumentsDetailView({ processId, lastReload }) {
     const [documents, setDocuments] = useState([]);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDetailLoading, setIsDetailLoading] = useState(false);
     const [isReloading, setIsReloading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(false);
@@ -38,21 +68,25 @@ export default function DocumentsDetailView({ processId, lastReload }) {
             if (!processId) return;
             setIsLoading(true);
             try {
-                const docs = await fetchDocumentosProcesso(processId);
-                const mappedDocs = docs.map((doc, index) => ({
-                    id: index + 1,
-                    name: doc.nome,
-                    type: doc.nome.split('.').pop().toLowerCase(),
-                    size: 'N/A',
-                    modifiedDate: doc.data,
-                    inAzure: doc.existe_azure === 'sim',
-                    url: doc.url,
-                    unidade: doc.unidade,
-                    processo_origem: doc.processo_origem
-                }));
+                const docs = await fetchListaDocumentos(processId);
+                const mappedDocs = docs.map((doc, index) => {
+                    const inferredType = inferFileType(doc);
+                    return {
+                        id: doc.documento || index + 1,
+                        num_documento: doc.documento,
+                        tipo: doc.tipo,
+                        unidade: doc.unidade,
+                        date: doc.data,
+                        inAzure: doc.no_azure?.toLowerCase() === 'sim',
+                        url: doc.url,
+                        processo_origem: doc.processo_origem,
+                        name: `${doc.tipo} ${doc.documento}`,
+                        type: inferredType,
+                    };
+                });
                 setDocuments(mappedDocs);
                 if (mappedDocs.length > 0) {
-                    setSelectedDocument(mappedDocs[0]);
+                    handleSelectDocument(mappedDocs[0]);
                 } else {
                     setSelectedDocument(null);
                 }
@@ -121,9 +155,35 @@ export default function DocumentsDetailView({ processId, lastReload }) {
         }
     }, [lastReload]);
 
+    const handleSelectDocument = async (doc) => {
+        setIsDetailLoading(true);
+        setSelectedDocument(doc);
+        if (doc.num_documento) {
+            try {
+                const detail = await fetchDetalheDocumento(doc.num_documento);
+                setSelectedDocument(prev => ({
+                    ...prev,
+                    detail: detail,
+                    // Refine type if detail has more info
+                    type: inferFileType({ ...doc, ...detail.sei })
+                }));
+            } catch (error) {
+                console.error('Failed to load document detail:', error);
+            } finally {
+                setIsDetailLoading(false);
+            }
+        } else {
+            setIsDetailLoading(false);
+        }
+    };
+
     const filteredDocuments = useMemo(() => {
         if (!searchTerm) return documents;
-        return documents.filter(doc => doc.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        const searchLower = searchTerm.toLowerCase();
+        return documents.filter(doc =>
+            doc.tipo.toLowerCase().includes(searchLower) ||
+            doc.num_documento.toLowerCase().includes(searchLower)
+        );
     }, [documents, searchTerm]);
 
     const azureStats = useMemo(() => {
@@ -224,28 +284,26 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                                     {filteredDocuments.map(doc => (
                                         <li key={doc.id}>
                                             <button
-                                                onClick={() => setSelectedDocument(doc)}
+                                                onClick={() => handleSelectDocument(doc)}
                                                 className={`w-full text-left p-4 transition-all relative ${selectedDocument?.id === doc.id ? 'bg-accent-soft' : 'hover:bg-surface-alt'}`}
                                             >
                                                 {selectedDocument?.id === doc.id && (
                                                     <div className="absolute left-0 top-3 bottom-3 w-1 bg-accent rounded-r-full shadow-[0_0_8px_rgba(var(--color-accent-rgb),0.4)]" />
                                                 )}
                                                 <div className="flex items-start gap-4">
-                                                    <div className={`p-2 rounded-lg ${selectedDocument?.id === doc.id ? 'bg-surface shadow-sm scale-110' : 'bg-surface-alt'} transition-all`}>
-                                                        {getFileIcon(doc.type)}
-                                                    </div>
                                                     <div className="min-w-0 flex-grow">
                                                         <p className={`text-sm font-bold truncate ${selectedDocument?.id === doc.id ? 'text-accent' : 'text-text'}`}>
-                                                            {doc.name}
+                                                            {doc.tipo}
                                                         </p>
-                                                        <div className="flex items-center gap-3 text-[10px] text-text-muted mt-1 font-medium tracking-wide truncate">
-                                                            <span>{doc.size}</span>
-                                                            <span className="opacity-30">•</span>
-                                                            <span className="uppercase">{doc.type}</span>
-                                                            <span className="ml-auto">
-                                                                {doc.inAzure ? <MdCloudDone className="text-success" size={14} /> : <MdCloudOff className="text-warning" size={14} />}
-                                                            </span>
+                                                        <div className="text-[10px] text-text-muted mt-1 font-medium tracking-wide">
+                                                            <span className="truncate block">{doc.num_documento} - {doc.unidade}</span>
                                                         </div>
+                                                    </div>
+                                                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                                        <div className="">
+                                                            {doc.inAzure ? <MdCloudDone className="text-success" size={16} /> : <MdCloudOff className="text-warning" size={16} />}
+                                                        </div>
+                                                        <span className="text-[10px] text-text-muted font-medium tracking-wide">{doc.date}</span>
                                                     </div>
                                                 </div>
                                             </button>
@@ -275,10 +333,21 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                     </div>
 
                     <div className={`flex-grow bg-surface rounded-2xl border border-border overflow-hidden flex flex-col min-w-0 ${resizing ? 'pointer-events-none' : ''}`}>
-                        <UniversalDocumentViewer
-                            document={selectedDocument}
-                            onOpenAiTools={() => setIsAiSidebarOpen(true)}
-                        />
+                        {isDetailLoading ? (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-surface-alt/10">
+                                <ImSpinner8 className="animate-spin text-accent text-4xl" />
+                                <p className="mt-4 text-sm text-text-muted font-medium">Buscando detalhes do documento...</p>
+                            </div>
+                        ) : selectedDocument ? (
+                            <UniversalDocumentViewer
+                                document={selectedDocument}
+                                onOpenAiTools={() => setIsAiSidebarOpen(true)}
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-text-muted italic text-sm">
+                                Selecione um documento para visualizar
+                            </div>
+                        )}
                     </div>
 
                     {isAiSidebarOpen && (
