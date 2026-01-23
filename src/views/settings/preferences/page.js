@@ -47,7 +47,8 @@ export default function PreferencesSettingsPage() {
         { id: 'dracula', name: 'Dracula', bg: 'bg-[#282a36]', text: 'bg-[#f8f8f2]', border: 'border-[#44475a]', category: 'Cores' },
         { id: 'hc', name: 'Alto Contraste', bg: 'bg-black', text: 'bg-yellow-400', border: 'border-white', category: 'Clássico' },
         { id: 'pink', name: 'Rosa', bg: 'bg-pink-50', text: 'bg-pink-600', border: 'border-pink-200', category: 'Cores' },
-        { id: 'green', name: 'Verde', bg: 'bg-green-50', text: 'bg-green-600', border: 'border-green-200', category: 'Cores' }
+        { id: 'green', name: 'Verde', bg: 'bg-green-50', text: 'bg-green-600', border: 'border-green-200', category: 'Cores' },
+        { id: 'natureza', name: 'Natureza', bg: 'bg-[#fdfcf0]', text: 'bg-[#166534]', border: 'border-[#e2dec9]', category: 'Cores' }
     ];
 
     const groupedThemes = {

@@ -123,6 +123,25 @@ html {
   --color-border: #bbf7d0;
 }
 
+:root[data-theme="natureza"] {
+  --color-surface: #fdfcf0;
+  --color-surface-alt: #f5f2e1;
+  --color-elevated: #ffffff;
+
+  --color-text: #3d3025;
+  --color-text-muted: #796a5d;
+  --color-border: #e2dec9;
+
+  --color-accent: #166534;
+  --color-accent-rgb: 22, 101, 52;
+  --color-accent-soft: #ecf3e9;
+  --color-accent-100: #dcfce7;
+  --color-accent-contrast: white;
+
+  --color-accent-50: #f0fdf4;
+  --color-accent-500: #166534;
+}
+
 body {
   font-family: var(--font-primary);
   background-color: var(--color-surface-alt);
