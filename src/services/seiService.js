@@ -243,3 +243,13 @@ export const fetchDetalheDocumento = async (protocolo) => {
         throw error;
     }
 };
+
+export const getDistinctProcesses = async () => {
+    try {
+        const response = await apiClient.get('/processodistintos');
+        return response.data || [];
+    } catch (error) {
+        console.error('Erro ao buscar processos distintos:', error);
+        return [];
+    }
+};

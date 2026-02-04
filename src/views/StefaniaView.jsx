@@ -20,7 +20,7 @@ import {
   MdArrowDownward
 } from 'react-icons/md';
 import { stefaniaService } from '@/services/stefaniaService';
-import { fetchListaDocumentos } from '@/services/seiService';
+import { fetchListaDocumentos, getDistinctProcesses } from '@/services/seiService';
 
 const SUGGESTED_PROMPTS = [
   "Faça um resumo do processo 12345.000001/2024-99",
@@ -242,7 +242,7 @@ export default function StefaniaPage() {
   };
 
   useEffect(() => {
-    stefaniaService.getDistinctProcesses()
+    getDistinctProcesses()
       .then(data => {
         if (Array.isArray(data)) {
           setProcessList(data.map(p => p.sei).filter(Boolean));

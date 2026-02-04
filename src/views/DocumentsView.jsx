@@ -15,7 +15,7 @@ import {
 import StefanIAEditor from '@/components/ui/StefanIAEditor';
 import FilterPanel from '@/components/ui/FilterPanel'; // Import FilterPanel
 import { stefaniaService } from '@/services/stefaniaService';
-import { fetchListaDocumentos } from '@/services/seiService';
+import { fetchListaDocumentos, getDistinctProcesses } from '@/services/seiService';
 
 // --- Shared Components (Duplicated from StefaniaView for standalone functionality) ---
 
@@ -160,7 +160,7 @@ export default function DocumentsPage() {
   // --- Data Fetching ---
 
   useEffect(() => {
-    stefaniaService.getDistinctProcesses()
+    getDistinctProcesses()
       .then(data => {
         if (Array.isArray(data)) {
           setProcessList(data.map(p => p.sei).filter(Boolean));
