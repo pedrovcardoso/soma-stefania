@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { MdCloudDone, MdCloudOff, MdUpload, MdDescription, MdPictureAsPdf, MdImage, MdEmail, MdTableChart, MdSlideshow, MdCode, MdVideocam, MdAudiotrack, MdStar, MdArchive, MdModeEdit, MdFilterList, MdSearch } from 'react-icons/md';
 import { ImSpinner8 } from 'react-icons/im';
 import UniversalDocumentViewer from '@/components/ui/UniversalDocumentViewer';
-import StefanIAEditor from './StefanIAEditor';
+import StefanIAEditor from '@/components/ui/StefanIAEditor';
 import AiDocumentChat from './AiDocumentChat';
 import { fetchListaDocumentos, fetchDetalheDocumento } from '@/services/seiService';
 
@@ -391,8 +391,8 @@ export default function DocumentsDetailView({ processId, lastReload }) {
                         </div>
                     </div>
 
-                    <div className="h-[750px] relative">
-                        <StefanIAEditor documents={documents} />
+                    <div className="h-[80vh] relative">
+                        <StefanIAEditor documents={documents} processId={processId} />
                     </div>
                 </div>
             </div>
