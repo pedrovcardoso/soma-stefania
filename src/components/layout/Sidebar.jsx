@@ -25,7 +25,7 @@ const menuItems = [
   { id: 'sei', type: 'sei_list', title: 'Processos SEI', icon: MdLanguage },
   { id: 'documents', type: 'doc_list', title: 'Documentos', icon: MdDescription },
   { id: 'stefania', type: 'stefania', title: 'StefanIA', icon: MdChat },
-  { id: 'favorites', type: 'favorites', title: 'Favoritos', icon: MdFavorite },
+  // { id: 'favorites', type: 'favorites', title: 'Favoritos', icon: MdFavorite },
   { id: 'action-plans', type: 'action_plans', title: 'Planos de ação', icon: MdAddToPhotos },
 ]
 

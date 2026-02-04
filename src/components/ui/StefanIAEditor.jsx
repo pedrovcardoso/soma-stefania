@@ -329,10 +329,17 @@ function AIPreviewModal({ visible, originalText, modifiedText, actionLabel, isLo
 
 // --- Main Component ---
 
-export default function StefaniaEditor({ documents = [], processId }) {
+export default function StefaniaEditor({ documents = [], processId, disableSidebarToggle = false }) {
     // 1. All useState & useRef hooks at the top
     const [activeMenu, setActiveMenu] = useState(null);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(true); // Initial state is true, useEffect will enforce if disableSidebarToggle is true
+    // Force sidebar open if toggle is disabled
+    useEffect(() => {
+        if (disableSidebarToggle) {
+            setSidebarOpen(true);
+        }
+    }, [disableSidebarToggle]);
+
     const [sidebarWidth, setSidebarWidth] = useState(320);
     const [isResizing, setIsResizing] = useState(false);
     const sidebarRef = useRef(null);
@@ -593,7 +600,7 @@ export default function StefaniaEditor({ documents = [], processId }) {
                             </div>
                         )}
                     </div>
-                    <ToolbarButton onClick={() => setSidebarOpen(!sidebarOpen)} icon={sidebarOpen ? MdChevronRight : MdViewSidebar} title={sidebarOpen ? "Ocultar IA" : "Mostrar IA"} className="ml-auto" active={sidebarOpen} />
+                    {!disableSidebarToggle && <ToolbarButton onClick={() => setSidebarOpen(!sidebarOpen)} icon={sidebarOpen ? MdChevronRight : MdViewSidebar} title={sidebarOpen ? "Ocultar IA" : "Mostrar IA"} className="ml-auto" active={sidebarOpen} />}
                 </div>
 
                 <div className="flex-1 flex overflow-hidden relative">
@@ -608,7 +615,7 @@ export default function StefaniaEditor({ documents = [], processId }) {
                                 <div className="p-4 border-b border-border flex items-center gap-3 bg-surface">
                                     <div className="w-8 h-8 flex items-center justify-center bg-accent-soft rounded-lg text-accent border border-accent/20"><MdAutoAwesome className="text-accent" size={18} /></div>
                                     <div className="flex-1"><h4 className="font-bold text-text text-base leading-tight">StefanIA</h4><p className="text-[10px] text-text-muted">Assistente Inteligente</p></div>
-                                    <button onClick={() => setSidebarOpen(false)} className="text-text-muted hover:text-text p-1 rounded-md hover:bg-surface-alt transition-colors"><MdClose size={16} /></button>
+                                    {!disableSidebarToggle && <button onClick={() => setSidebarOpen(false)} className="text-text-muted hover:text-text p-1 rounded-md hover:bg-surface-alt transition-colors"><MdClose size={16} /></button>}
                                 </div>
                                 <div className="px-4 py-3 border-b border-border bg-surface-alt/50">
                                     <div className="flex items-center gap-2 text-xs font-semibold text-text-muted mb-2"><span>Modo de aplicação</span></div>
