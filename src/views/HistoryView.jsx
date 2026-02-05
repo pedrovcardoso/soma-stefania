@@ -4,7 +4,7 @@ import React, { useState, useMemo, Fragment } from 'react';
 import useTabStore from '@/store/useTabStore';
 import useHistoryStore from '@/store/useHistoryStore';
 import FilterPanel from '@/components/ui/FilterPanel';
-import MultiSelect from '@/components/ui/MultiSelect';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
@@ -151,18 +151,52 @@ export default function HistoryView() {
 
         <FilterPanel onClear={clearFilters}>
           <div className="flex-grow min-w-[180px]">
-            <MultiSelect
+            <CustomSelect
               label="Filtrar por Tipo"
               placeholder="Todos os tipos"
               options={['Processo SEI', 'Documento', 'Dashboard']}
               value={filters.pageType}
               onChange={(val) => handleFilterChange('pageType', val)}
+              showClear={filters.pageType.length > 0}
             />
           </div>
-          <div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Filtrar por Período</label><div className="relative mt-1">
-            <select value={filters.datePreset} onChange={(e) => handleDatePresetChange(e.target.value)} className="w-full p-2 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 appearance-none pr-8 bg-slate-50 outline-none"><option value="all">Qualquer data</option><option value="today">Hoje</option><option value="thisWeek">Esta Semana</option><option value="lastWeek">Semana Passada</option><option value="thisMonth">Este Mês</option><option value="lastMonth">Mês Passado</option><option value="specific">Período Específico...</option></select>
-            <MdExpandMore className="text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div></div>
+          <div className="flex-grow min-w-[180px]">
+            <CustomSelect
+              label="Filtrar por Período"
+              multiple={false}
+              showSearch={false}
+              options={[
+                { value: "all", label: "Qualquer data" },
+                { value: "today", label: "Hoje" },
+                { value: "thisWeek", label: "Esta Semana" },
+                { value: "lastWeek", label: "Semana Passada" },
+                { value: "thisMonth", label: "Este Mês" },
+                { value: "lastMonth", label: "Mês Passado" },
+                { value: "specific", label: "Período Específico..." }
+              ].map(opt => opt.label)}
+              value={[
+                { value: "all", label: "Qualquer data" },
+                { value: "today", label: "Hoje" },
+                { value: "thisWeek", label: "Esta Semana" },
+                { value: "lastWeek", label: "Semana Passada" },
+                { value: "thisMonth", label: "Este Mês" },
+                { value: "lastMonth", label: "Mês Passado" },
+                { value: "specific", label: "Período Específico..." }
+              ].find(opt => opt.value === filters.datePreset)?.label}
+              onChange={(val) => {
+                const preset = [
+                  { value: "all", label: "Qualquer data" },
+                  { value: "today", label: "Hoje" },
+                  { value: "thisWeek", label: "Esta Semana" },
+                  { value: "lastWeek", label: "Semana Passada" },
+                  { value: "thisMonth", label: "Este Mês" },
+                  { value: "lastMonth", label: "Mês Passado" },
+                  { value: "specific", label: "Período Específico..." }
+                ].find(opt => opt.label === val)?.value;
+                handleDatePresetChange(preset);
+              }}
+            />
+          </div>
           {filters.datePreset === 'specific' && (<div className="flex-grow min-w-[180px]"><label className="text-xs font-semibold text-slate-500">Datas</label><Popover className="relative mt-1">
             <Popover.Button className="w-full flex items-center justify-between p-2 text-sm text-left bg-slate-50 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"><span className='flex items-center gap-2 text-slate-700'><MdCalendarToday className="text-slate-400" />{filters.dateRange.from ? `${format(filters.dateRange.from, 'dd/MM/yy')} - ${filters.dateRange.to ? format(filters.dateRange.to, 'dd/MM/yy') : ''}` : 'Selecione...'}</span><MdExpandMore className="text-slate-400" /></Popover.Button>
             <Transition as={Fragment} enter="transition ease-out duration-200" enterFrom="opacity-0 translate-y-1" enterTo="opacity-100 translate-y-0" leave="transition ease-in duration-150" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-1"><Popover.Panel className="absolute z-20 mt-1 bg-white border rounded-md shadow-lg"><DayPicker mode="range" selected={filters.dateRange} onSelect={(range) => handleFilterChange('dateRange', range)} locale={ptBR} className="p-2" captionLayout="dropdown-buttons" fromYear={2020} toYear={new Date().getFullYear()} /></Popover.Panel></Transition>

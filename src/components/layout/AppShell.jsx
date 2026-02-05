@@ -70,7 +70,7 @@ export default function AppShell() {
     <div className="h-screen flex flex-col overflow-hidden animate-in fade-in duration-300">
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 relative z-0">
           <Navbar />
           <Breadcrumb />
           <div className="flex-1 overflow-hidden relative bg-surface-alt">

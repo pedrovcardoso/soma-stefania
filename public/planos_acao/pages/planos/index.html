@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planos de ação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel='stylesheet' href='styles.css'>
+</head>
+
+<body class="bg-slate-100 flex flex-col min-h-screen">
+    <div id="loading-overlay"
+        class="fixed inset-0 z-50 bg-white/10 backdrop-blur-sm flex flex-col items-center justify-center">
+        <div class="h-10 w-10 animate-spin rounded-full border-4 border-solid border-sky-600 border-t-transparent">
+        </div>
+
+        <p class="mt-4 text-lg font-semibold text-slate-700">Buscando dados no OneDrive...</p>
+    </div>
+
+    <header id="header"></header>
+    <!--===============================================================================
+// stat cards, destaques principais
+===================================================================================-->
+    <main class="mx-auto w-full max-w-7xl flex-grow">
+        <div class="grid p-6 md:py-5 md:px-8 gap-6">
+            <section class="main-container grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- ======================= PLANOS DE AÇÃO ======================= -->
+                <div class="space-y-3" aria-labelledby="title-planos">
+                    <h2 id="title-planos" class="text-lg md:text-xl font-bold text-slate-800 print:text-base">Planos de
+                        Ação</h2>
+
+                    <!-- Linha 1: Destaques -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Em curso -->
+                        <div
+                            class="rounded-xl p-4 shadow-xl ring-1 ring-amber-100 bg-gradient-to-r from-white to-amber-50 print:shadow-none print:bg-white print:border h-full flex items-center">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                    <ion-icon name="layers-outline" class="text-xl text-amber-600"></ion-icon>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-slate-800">
+                                        <span id="planos-emCurso" class="text-2xl font-bold">0</span>
+                                        <span id="label-planos-emCurso" class="text-sm font-medium ml-1">planos em
+                                            curso</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- A Ser Iniciado -->
+                        <div
+                            class="rounded-xl p-4 shadow-xl ring-1 ring-sky-100 bg-gradient-to-r from-white to-sky-50 print:shadow-none print:bg-white print:border h-full flex items-center">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="h-8 w-8 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
+                                    <ion-icon name="calendar-outline" class="text-xl text-sky-600"></ion-icon>
+                                </div>
+                                <div>
+                                    <p class="text-slate-800">
+                                        <span id="planos-aIniciar" class="text-2xl font-bold">0</span>
+                                        <span id="label-planos-aIniciar" class="text-sm font-medium ml-1">a ser
+                                            iniciado</span>
+                                    </p>
+                                    <p id="container-emDesenvolvimento" class="text-xs text-slate-600 -mt-0.5">
+                                        <span id="planos-emDesenvolvimentoSub" class="font-medium">0</span>
+                                        em desenvolvimento
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Linha 2: Estatísticas secundárias -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <!-- Criados -->
+                        <div
+                            class="rounded-lg bg-white p-3 shadow-md border border-slate-100 print:shadow-none flex items-center h-full">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-lg bg-indigo-50 grid place-items-center flex-shrink-0">
+                                    <ion-icon name="albums-outline" class="text-lg text-indigo-700"></ion-icon>
+                                </div>
+                                <div>
+                                    <p class="text-slate-800">
+                                        <span id="planos-totalCriados" class="text-xl font-bold">0</span>
+                                        <span id="label-totalCriados" class="text-sm ml-1">criados</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Pendentes -->
+                        <div
+                            class="rounded-lg bg-white p-3 shadow-md border border-slate-100 print:shadow-none flex items-center h-full">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-lg bg-rose-50 grid place-items-center flex-shrink-0">
+                                    <ion-icon name="time-outline" class="text-lg text-rose-700"></ion-icon>
+                                </div>
+                                <div>
+                                    <p class="text-slate-800">
+                                        <span id="planos-pendentes" class="text-xl font-bold">0</span>
+                                        <span id="label-pendentes" class="text-sm ml-1">pendentes</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tempo Médio -->
+                        <div
+                            class="rounded-lg bg-white p-3 shadow-md border border-slate-100 print:shadow-none flex items-center h-full">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-lg bg-cyan-50 grid place-items-center flex-shrink-0">
+                                    <ion-icon name="timer-outline" class="text-lg text-cyan-700"></ion-icon>
+                                </div>
+                                <div>
+                                    <p class="text-slate-800">
+                                        <span id="planos-tempoMedio" class="text-xl font-bold">N/A</span>
+                                    </p>
+                                    <p class="text-xs text-slate-600 -mt-0.5">tempo médio de duração</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======================= AÇÕES ======================= -->
+                <div class="space-y-3" aria-labelledby="title-acoes">
+                    <h2 id="title-acoes" class="text-lg md:text-xl font-bold text-slate-800 print:text-base">Ações</h2>
+
+                    <!-- Linha 1: Destaques -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <!-- Em curso -->
+                        <div
+                            class="rounded-xl p-3 shadow-lg ring-1 ring-amber-100 bg-gradient-to-r from-white to-amber-50 print:shadow-none print:bg-white print:border h-full flex items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-lg bg-amber-100 grid place-items-center flex-shrink-0">
+                                    <ion-icon name="layers-outline" class="text-lg text-amber-700"></ion-icon>
+                                </div>
+                                <div>
+                                    <p class="text-slate-800">
+                                        <span id="acoes-emCurso" class="text-2xl font-bold">0</span>
+                                        <span id="label-acoes-emCurso" class="text-sm font-medium ml-1">ações em
+                                            curso</span>
+                                    </p>
+                                    <p id="container-entregas" class="text-xs text-slate-600">
+                                        <span id="acoes-entregarMesSub" class="font-medium">0</span>
+                                        <span id="label-entregasMes">entregas este mês</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Em atraso -->
+                        <div
+                            class="rounded-xl p-3 shadow-lg ring-1 ring-rose-100 bg-gradient-to-r from-white to-rose-50 print:shadow-none print:bg-white print:border h-full flex items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-lg bg-rose-100 grid place-items-center flex-shrink-0">
+                                    <ion-icon name="time-outline" class="text-lg text-rose-700"></ion-ikcon>
+                                </div>
+                                <div>
+                                    <p class="text-slate-800">
+                                        <span id="acoes-emAtraso" class="text-2xl font-bold">0</span>
+                                        <span id="label-acoes-emAtraso" class="text-sm font-medium ml-1">em
+                                            atraso</span>
+                                    </p>
+                                    <!-- AQUI ESTÁ A MUDANÇA -->
+                                    <a href="../acoes/index.html?status=Pendente"
+                                        class="text-xs text-sky-600 hover:underline">Visualizar
+                                        detalhes</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- A Ser Iniciado -->
+                        <div
+                            class="rounded-xl p-3 shadow-lg ring-1 ring-sky-100 bg-gradient-to-r from-white to-sky-50 print:shadow-none print:bg-white print:border h-full flex items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-lg bg-sky-100 grid place-items-center flex-shrink-0">
+                                    <ion-icon name="calendar-outline" class="text-lg text-sky-700"></ion-icon>
+                                </div>
+                                <div>
+                                    <p class="text-slate-800">
+                                        <span id="acoes-planejadas" class="text-2xl font-bold">0</span>
+                                        <span id="label-acoes-aIniciar" class="text-sm font-medium ml-1">a ser
+                                            iniciada</span>
+                                    </p>
+                                    <p id="container-iniciam30dias" class="text-xs text-slate-600">
+                                        <span id="acoes-iniciam30dias" class="font-medium">0</span>
+                                        <span id="label-iniciam30dias">nos próximos 30 dias</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Linha 2: Estatísticas secundárias -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Criadas -->
+                        <div
+                            class="rounded-lg bg-white p-3 shadow-md border border-slate-100 print:shadow-none flex items-center h-full">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-lg bg-indigo-50 grid place-items-center flex-shrink-0">
+                                    <ion-icon name="albums-outline" class="text-lg text-indigo-700"></ion-icon>
+                                </div>
+                                <div>
+                                    <p class="text-slate-800">
+                                        <span id="acoes-totalCriadas" class="text-xl font-bold">0</span>
+                                        <span id="label-acoes-criadas" class="text-sm ml-1">criadas</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Concluídas -->
+                        <div
+                            class="rounded-lg bg-white p-3 shadow-md border border-slate-100 print:shadow-none flex items-center h-full">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-lg bg-green-100 grid place-items-center flex-shrink-0">
+                                    <ion-icon name="checkmark-done-outline" class="text-lg text-green-700"></ion-icon>
+                                </div>
+                                <div>
+                                    <p class="text-slate-800">
+                                        <span id="acoes-totalConcluidas" class="text-xl font-bold">0</span>
+                                        <span id="label-acoes-concluidas" class="text-sm ml-1">concluídas</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!--===============================================================================
+// gráfico de gantt
+===================================================================================-->
+            <section id="gantt">
+                <div
+                    class="grid grid-cols-[auto_1fr] overflow-hidden bg-white border border-slate-200 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
+                    <div class="gantt-tasks">
+                        <div class="gantt-tasks-header">
+                            <div data-col="plano">Plano de ação<div
+                                    class="resizer absolute top-0 -right-[3px] w-[6px] h-full cursor-col-resize z-20">
+                                </div>
+                            </div>
+                            <div data-col="status" class="status-header">Status<div
+                                    class="resizer absolute top-0 -right-[3px] w-[6px] h-full cursor-col-resize z-20">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="gantt-task-list"></div>
+                    </div>
+                    <div class="gantt-timeline" id="gantt-timeline-container">
+                        <div class="gantt-months-header" id="gantt-months-header"></div>
+                        <div class="relative" id="gantt-rows">
+                            <div id="todayBar"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!--===============================================================================
+// cards de planos de ação
+===================================================================================-->
+            <section id="cards">
+                <div class="card-container 
+                        grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            </section>
+
+            <!--===============================================================================
+// painel de filtros
+===================================================================================-->
+            <section id="filters-container" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                        <ion-icon name="filter" class="text-base"></ion-icon> Painel de Filtros
+                    </h2>
+                    <button onclick="clearFilters()"
+                        class="text-xs font-medium text-slate-400 hover:text-sky-600 flex items-center gap-1 transition-colors">
+                        <ion-icon name="refresh-outline"></ion-icon> Limpar
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap items-end gap-x-8 gap-y-3">
+                    <!-- Filtro de Período -->
+                    <div class="flex flex-col w-full sm:w-48">
+                        <label for="filter-periodo" class="text-xs font-medium text-slate-600 mb-1">Período</label>
+                        <select id="filter-periodo"
+                            class="w-full bg-white border border-slate-300 text-slate-500 text-sm rounded-md focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 p-2 appearance-none transition duration-150 hover:border-slate-400 [&.filter-active]:border-sky-500 [&.filter-active]:font-semibold [&.filter-active]:text-slate-800">
+                            <option selected disabled hidden value="-">Selecione</option>
+                            <option value="mes">Este mês</option>
+                            <option value="semana">Esta semana</option>
+                            <option value="especifico">Período específico</option>
+                        </select>
+                    </div>
+
+                    <!-- Inputs de Período Específico -->
+                    <div id="periodo-especifico-inputs" class="hidden flex items-end gap-2 w-full sm:w-auto">
+                        <div>
+                            <label for="periodo-inicio" class="text-xs font-medium text-slate-600 mb-1">Início</label>
+                            <input type="date" id="periodo-inicio"
+                                class="w-full bg-white border border-slate-300 text-slate-800 text-sm rounded-md focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 p-2 transition duration-150 hover:border-slate-400" />
+                        </div>
+                        <div>
+                            <label for="periodo-fim" class="text-xs font-medium text-slate-600 mb-1">Fim</label>
+                            <input type="date" id="periodo-fim"
+                                class="w-full bg-white border border-slate-300 text-slate-800 text-sm rounded-md focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 p-2 transition duration-150 hover:border-slate-400" />
+                        </div>
+                        <div id="filtrar-especifico"
+                            class="cursor-pointer bg-sky-600 text-white font-semibold text-sm rounded-md px-3 py-2 whitespace-nowrap hover:bg-sky-700 transition-colors">
+                            Filtrar
+                        </div>
+                    </div>
+
+                    <!-- quebra de linha -->
+                    <div class="w-full"></div>
+
+                    <div class="flex flex-col w-full md:w-56">
+                        <label for="filter-Unidade"
+                            class="block text-sm font-medium text-slate-700 mb-1">Unidade</label>
+                        <select id="filter-Unidade" multiple data-placeholder="Todas as unidades"
+                            class="filter-select w-full bg-white border border-slate-300 text-slate-500 text-sm rounded-md focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 p-2 appearance-none transition duration-150 hover:border-slate-400 [&.filter-active]:border-sky-500 [&.filter-active]:font-semibold [&.filter-active]:text-slate-800">
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col w-full md:w-56">
+                        <label for="filter-Nome" class="block text-sm font-medium text-slate-700 mb-1">Pessoa</label>
+                        <select id="filter-Nome" multiple data-placeholder="Todas as pessoas"
+                            class="filter-select w-full bg-white border border-slate-300 text-slate-500 text-sm rounded-md focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 p-2 appearance-none transition duration-150 hover:border-slate-400 [&.filter-active]:border-sky-500 [&.filter-active]:font-semibold [&.filter-active]:text-slate-800">
+                        </select>
+                    </div>
+
+                    <div class="w-full"></div>
+                </div>
+            </section>
+
+            <!--===============================================================================
+// Visão geral por IA
+===================================================================================-->
+            <section id="ai-summary-section"
+                class="bg-white p-5 rounded-xl shadow-md border border-slate-200 transition-all duration-300 hover:shadow-lg">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="flex items-center gap-2">
+                        <ion-icon name="sparkles-outline" class="text-xl text-sky-600"></ion-icon>
+                        <h2 class="text-lg font-bold text-slate-800">Visão geral criada por IA</h2>
+                    </div>
+
+                    <!-- Menu de 3 pontos (Estilo copiado dos cards) -->
+                    <div id="ai-menu-container" class="relative">
+                        <button id="ai-menu-button" type="button"
+                            class="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path
+                                    d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z">
+                                </path>
+                            </svg>
+                        </button>
+                        <div id="ai-menu-dropdown"
+                            class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-slate-200 z-30">
+                            <div class="py-1">
+                                <a href="#" id="ai-regenerate"
+                                    class="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Gerar
+                                    novamente</a>
+                                <a href="#" id="ai-show-prompt"
+                                    class="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Mais
+                                    detalhes do prompt</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conteúdo gerado pela IA (classe text-sm adicionada) -->
+                <div id="ai-summary-content" class="text-slate-700 space-y-3 text-sm">
+                    <!-- O loading state e o conteúdo da IA serão injetados aqui -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer id="footer"></footer>
+
+    <!--===============================================================================
+    // scripts
+    ===================================================================================-->
+    <script src="/planos_acao/components/multiple_select.js"></script>
+    <script src='/planos_acao/components/apiConnection.js'></script>
+    <script src='/planos_acao/components/chatbot.js'></script>
+    <script src="/planos_acao/components/modalPlanos.js"></script>
+    <script src='scripts.js'></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+
+</html>

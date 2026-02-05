@@ -5,8 +5,8 @@ import { MdCameraAlt, MdEdit } from 'react-icons/md';
 
 export default function ProfileSettingsPage() {
     const [formData, setFormData] = useState({
-        name: 'Stefania User',
-        email: 'stefania.user@sef.mg.gov.br'
+        name: 'Pedro BI',
+        email: 'pedro.cardoso@fazenda.mg.gov.br'
     });
 
     const handleChange = (e) => {
@@ -24,7 +24,7 @@ export default function ProfileSettingsPage() {
                 <div className="flex items-start gap-6">
                     <div className="relative group cursor-pointer">
                         <div className="w-24 h-24 rounded-full bg-surface-alt border-4 border-surface shadow-md overflow-hidden flex items-center justify-center">
-                            <span className="text-2xl font-bold text-text-muted">ST</span>
+                            <span className="text-2xl font-bold text-text-muted">PBI</span>
                         </div>
                         <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <MdCameraAlt className="text-white text-xl" />

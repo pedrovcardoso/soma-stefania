@@ -243,3 +243,22 @@ export const fetchDetalheDocumento = async (protocolo) => {
         throw error;
     }
 };
+
+export const getDistinctProcesses = async () => {
+    try {
+        const response = await apiClient.get('/processodistintos');
+        return response.data || [];
+    } catch (error) {
+        console.error('Erro ao buscar processos distintos:', error);
+        return [];
+    }
+};
+
+export const fetchFilterOptions = async () => {
+    try {
+        return await apiClient.get('/filtros');
+    } catch (error) {
+        console.error('Error fetching filter options:', error);
+        throw error;
+    }
+};

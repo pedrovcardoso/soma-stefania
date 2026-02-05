@@ -2,15 +2,6 @@
 import { apiClient } from './api';
 
 export const stefaniaService = {
-    async getDistinctProcesses() {
-        try {
-            const response = await apiClient.get('/processodistintos');
-            return response.data || [];
-        } catch (error) {
-            console.error('Erro ao buscar processos distintos:', error);
-            return [];
-        }
-    },
     async askStefania(prompt, filtros = {}) {
         try {
             const payload = {
