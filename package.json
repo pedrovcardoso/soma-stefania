@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fontsource/opendyslexic": "^5.2.5",
     "@headlessui/react": "^2.2.9",
     "@tailwindcss/typography": "^0.5.19",
     "@tiptap/extension-character-count": "^3.15.3",

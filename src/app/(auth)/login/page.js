@@ -6,6 +6,7 @@ import { MdVisibility, MdVisibilityOff, MdLockOutline, MdEmail } from 'react-ico
 import ToastContainer from '@/components/ui/toast';
 import { login } from '@/services/authService';
 import ParticleBackground from '@/components/ui/ParticleBackground';
+import AccessibilityMenu from '@/components/accessibility/AccessibilityMenu';
 
 export default function LoginPage() {
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -65,6 +66,9 @@ export default function LoginPage() {
 
     return (
         <div className="relative min-h-screen flex items-center justify-center p-4 bg-slate-100">
+            <div className="absolute top-4 right-4 z-50">
+                <AccessibilityMenu />
+            </div>
             <main className="relative z-10 w-full max-w-4xl bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white/50">
 
                 <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">

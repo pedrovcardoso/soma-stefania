@@ -142,6 +142,106 @@ html {
   --color-accent-500: #166534;
 }
 
+
+
+:root[data-theme="protanopia"] {
+  /* Vermelho-Cego - Evitar vermelho/verde, usar Azul/Amarelo */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f0f4f8;
+  --color-elevated: #ffffff;
+
+  --color-text: #1a202c;
+  --color-text-muted: #4a5568;
+  --color-border: #cbd5e0;
+
+  --color-accent: #005cc5;
+  /* Azul forte */
+  --color-accent-rgb: 0, 92, 197;
+  --color-accent-soft: #e6f7ff;
+  --color-accent-100: #b3e0ff;
+  --color-accent-contrast: white;
+
+  --color-error: #d73a49;
+  /* Ajustado */
+  --color-success: #22863a;
+  /* Ajustado */
+  --color-warning: #b08800;
+}
+
+:root[data-theme="deuteranopia"] {
+  /* Verde-Cego - Similar a Protanopia */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f3f4f6;
+  --color-elevated: #ffffff;
+
+  --color-text: #111827;
+  --color-text-muted: #4b5563;
+  --color-border: #d1d5db;
+
+  --color-accent: #2563eb;
+  /* Azul padrão funciona bem */
+  --color-accent-rgb: 37, 99, 235;
+  --color-accent-soft: #eff6ff;
+  --color-accent-100: #dbeafe;
+  --color-accent-contrast: white;
+
+  --color-error: #dc2626;
+  --color-success: #059669;
+  --color-warning: #d97706;
+  /* Laranja/Amarelo escuro */
+}
+
+:root[data-theme="tritanopia"] {
+  /* Azul-Cego - Usar Vermelho/Turquesa */
+  --color-surface: #fffafa;
+  --color-surface-alt: #f5f5f5;
+  --color-elevated: #ffffff;
+
+  --color-text: #2d3748;
+  --color-text-muted: #718096;
+  --color-border: #e2e8f0;
+
+  --color-accent: #d0021b;
+  /* Vermelho como cor primária */
+  --color-accent-rgb: 208, 2, 27;
+  --color-accent-soft: #ffeef0;
+  --color-accent-100: #ffdce0;
+  --color-accent-contrast: white;
+}
+
+:root[data-theme="achromatopsia"] {
+  /* Escala de Cinza */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f0f0f0;
+  --color-elevated: #ffffff;
+
+  --color-text: #000000;
+  --color-text-muted: #555555;
+  --color-border: #888888;
+
+  --color-accent: #000000;
+  --color-accent-rgb: 0, 0, 0;
+  --color-accent-soft: #dedede;
+  --color-accent-100: #bdbdbd;
+  --color-accent-contrast: white;
+
+  --color-success: #555555;
+  --color-warning: #777777;
+  --color-error: #333333;
+}
+
+.font-opendyslexic {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+/* Force VLibras below our Accessibility Menu */
+[vw].active,
+.vw-plugin-wrapper.active,
+.vw-access-button.active {
+  z-index: 9999 !important;
+}
+
+
 body {
   font-family: var(--font-primary);
   background-color: var(--color-surface-alt);

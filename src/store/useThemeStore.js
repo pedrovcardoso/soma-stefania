@@ -16,7 +16,8 @@ const applyTypography = (fontFamily, fontSizeScale) => {
     'Roboto': 'var(--font-roboto), sans-serif',
     'Segoe UI': '"Segoe UI", system-ui, -apple-system, sans-serif',
     'Serif': 'Georgia, Cambria, "Times New Roman", Times, serif',
-    'Mono': 'Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace'
+    'Mono': 'Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+    'OpenDyslexic': 'OpenDyslexic, sans-serif'
   }
 
   const family = fontStacks[fontFamily] || fontStacks['Segoe UI']
@@ -29,6 +30,7 @@ const useThemeStore = create((set, get) => ({
   theme: 'light',
   fontFamily: 'Segoe UI',
   fontSizeScale: 1, // 1 = 100% (Normal)
+  vLibrasActive: false,
 
   setTheme: (themeName) => {
     set({ theme: themeName })
@@ -45,8 +47,12 @@ const useThemeStore = create((set, get) => ({
     applyTypography(get().fontFamily, scale)
   },
 
+  setVLibrasActive: (active) => {
+    set({ vLibrasActive: active })
+  },
+
   resetTheme: () => {
-    set({ theme: 'light', fontFamily: 'Inter', fontSizeScale: 1 })
+    set({ theme: 'light', fontFamily: 'Inter', fontSizeScale: 1, vLibrasActive: false })
     applyTheme('light')
     applyTypography('Inter', 1)
   },

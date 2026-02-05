@@ -38,21 +38,27 @@ export default function PreferencesSettingsPage() {
         { name: 'Roboto', family: 'var(--font-roboto), sans-serif' },
         { name: 'Segoe UI', family: '"Segoe UI", system-ui, -apple-system, sans-serif' },
         { name: 'Serif', family: 'Georgia, serif' },
-        { name: 'Mono', family: 'monospace' }
+        { name: 'Mono', family: 'monospace' },
+        { name: 'OpenDyslexic', family: 'OpenDyslexic, sans-serif' }
     ];
 
     const themes = [
         { id: 'light', name: 'Claro', bg: 'bg-white', text: 'bg-slate-800', border: 'border-slate-200', category: 'Clássico' },
         { id: 'dark', name: 'Escuro', bg: 'bg-[#1e1e1e]', text: 'bg-[#d4d4d4]', border: 'border-[#3e3e42]', category: 'Clássico' },
+        { id: 'hc', name: 'Alto Contraste', bg: 'bg-black', text: 'bg-yellow-400', border: 'border-white', category: 'Acessibilidade' },
+        { id: 'protanopia', name: 'Protanopia', bg: 'bg-white', text: 'bg-slate-800', border: 'border-slate-200', category: 'Acessibilidade' },
+        { id: 'deuteranopia', name: 'Deuteranopia', bg: 'bg-white', text: 'bg-slate-800', border: 'border-slate-200', category: 'Acessibilidade' },
+        { id: 'tritanopia', name: 'Tritanopia', bg: 'bg-[#fffafa]', text: 'bg-slate-800', border: 'border-slate-200', category: 'Acessibilidade' },
+        { id: 'achromatopsia', name: 'Achromatopsia', bg: 'bg-white', text: 'bg-black', border: 'border-slate-200', category: 'Acessibilidade' },
         { id: 'dracula', name: 'Dracula', bg: 'bg-[#282a36]', text: 'bg-[#f8f8f2]', border: 'border-[#44475a]', category: 'Cores' },
-        { id: 'hc', name: 'Alto Contraste', bg: 'bg-black', text: 'bg-yellow-400', border: 'border-white', category: 'Clássico' },
         { id: 'pink', name: 'Rosa', bg: 'bg-pink-50', text: 'bg-pink-600', border: 'border-pink-200', category: 'Cores' },
         { id: 'green', name: 'Verde', bg: 'bg-green-50', text: 'bg-green-600', border: 'border-green-200', category: 'Cores' },
-        { id: 'natureza', name: 'Natureza', bg: 'bg-[#fdfcf0]', text: 'bg-[#166534]', border: 'border-[#e2dec9]', category: 'Cores' }
+        { id: 'natureza', name: 'Natureza', bg: 'bg-[#fdfcf0]', text: 'bg-[#166534]', border: 'border-[#e2dec9]', category: 'Cores' },
     ];
 
     const groupedThemes = {
         'Clássico': themes.filter(t => t.category === 'Clássico'),
+        'Acessibilidade': themes.filter(t => t.category === 'Acessibilidade'),
         'Cores': themes.filter(t => t.category === 'Cores'),
     };
 

@@ -22,6 +22,7 @@ import {
   MdFolder
 } from 'react-icons/md'
 import Modal from '@/components/ui/Modal'
+import AccessibilityMenu from '@/components/accessibility/AccessibilityMenu'
 
 const getTabIcon = (type, title) => {
   if (type === 'home') return MdHome
@@ -437,6 +438,7 @@ export default function Navbar() {
         <button className="p-2 hover:bg-surface-alt rounded-lg transition-colors">
           <MdNotifications className="w-5 h-5 text-text-secondary" />
         </button>
+        <AccessibilityMenu />
       </div>
 
       <ImportProcessModal
