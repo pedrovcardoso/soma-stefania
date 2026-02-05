@@ -30,7 +30,6 @@ export default function Sidebar() {
 
   const { recentAccesses, pinnedIds, togglePin } = useHistoryStore()
 
-  // --- Lógica de filtragem (Mantida) ---
   const visibleAccesses = useMemo(() => {
     const uniqueMap = new Map();
     for (const item of recentAccesses) {
@@ -52,69 +51,50 @@ export default function Sidebar() {
 
   const filteredAccesses = visibleAccesses;
 
-  // --- Estados e Refs para Cálculo Dinâmico ---
   const [maxVisibleItems, setMaxVisibleItems] = useState(0)
-  const wrapperRef = useRef(null)     // Container da lista
-  const itemRef = useRef(null)        // Ref para medir um item individual
-  const viewMoreRef = useRef(null)    // Ref para medir o botão 'Ver mais'
+  const wrapperRef = useRef(null)
+  const itemRef = useRef(null)
+  const viewMoreRef = useRef(null)
   const sidebarRef = useRef(null)
 
   const [isResizing, setIsResizing] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const userMenuRef = useRef(null)
 
-  // --- Função de Cálculo Robusta ---
   const calculateVisibleItems = useCallback(() => {
     if (!wrapperRef.current || isCollapsed) return
 
-    // 1. Obtém a altura disponível real do container
-    // getBoundingClientRect é mais preciso que clientHeight para sub-pixels
     const containerHeight = wrapperRef.current.getBoundingClientRect().height
 
-    // 2. Mede a altura real de um item (se existir, senão usa fallback seguro)
-    // Se não houver itens renderizados ainda, assumimos 54px como base
     const itemHeight = itemRef.current
-      ? itemRef.current.getBoundingClientRect().height + 2 // +2px de margem de segurança (gap)
+      ? itemRef.current.getBoundingClientRect().height + 2
       : 56;
 
-    // 3. Mede a altura do botão "Ver mais" (ou fallback 44px)
     const viewMoreBtnHeight = viewMoreRef.current
-      ? viewMoreRef.current.getBoundingClientRect().height + 4 // +4px margin top
+      ? viewMoreRef.current.getBoundingClientRect().height + 4
       : 48;
 
     if (containerHeight <= 0) return
 
-    // Altura total necessária se mostrássemos tudo
     const totalContentHeight = filteredAccesses.length * itemHeight
 
-    // Se tudo cabe no container, mostre tudo
     if (totalContentHeight <= containerHeight) {
       setMaxVisibleItems(filteredAccesses.length)
       return
     }
 
-    // Se não cabe, precisamos reservar espaço para o botão "Ver mais"
     const availableSpaceForItems = containerHeight - viewMoreBtnHeight
 
-    // Quantos itens cabem no espaço restante?
-    // Math.floor garante que não cortaremos um item pela metade
     const maxFit = Math.max(0, Math.floor(availableSpaceForItems / itemHeight))
 
     setMaxVisibleItems(maxFit)
-  }, [filteredAccesses.length, isCollapsed]) // Dependências críticas
-
-  // --- Efeitos de Monitoramento ---
+  }, [filteredAccesses.length, isCollapsed])
 
   useEffect(() => {
-    // Roda o cálculo imediatamente
     calculateVisibleItems()
-
-    // Roda novamente após a transição CSS (300ms) para garantir
-    // Isso conserta o bug onde o cálculo roda enquanto a sidebar ainda está animando
     const transitionTimeout = setTimeout(calculateVisibleItems, 310)
 
     const resizeObserver = new ResizeObserver(() => {
-      // Usar requestAnimationFrame evita erro de "Loop Limit Exceeded"
       window.requestAnimationFrame(calculateVisibleItems)
     })
 
@@ -129,9 +109,8 @@ export default function Sidebar() {
       resizeObserver.disconnect()
       window.removeEventListener('resize', calculateVisibleItems)
     }
-  }, [calculateVisibleItems, sidebarWidth, isCollapsed]) // Adicionado sidebarWidth aqui
+  }, [calculateVisibleItems, sidebarWidth, isCollapsed])
 
-  // --- Lógica de Resize da Sidebar (Mantida) ---
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!isResizing) return
@@ -155,7 +134,6 @@ export default function Sidebar() {
     }
   }, [isResizing, setSidebarWidth])
 
-  // --- Lógica de Menu de Usuário (Mantida) ---
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
@@ -170,7 +148,6 @@ export default function Sidebar() {
     }
   }, [isUserMenuOpen])
 
-  // Handlers
   const handleMenuClick = (item) => openTab({ id: item.id, type: item.type, title: item.title })
   const handleRecentClick = (access) => openTab({ id: access.id, type: access.type, title: access.title })
   const handlePinClick = (e, accessId) => { e.stopPropagation(); togglePin(accessId); }
@@ -190,7 +167,6 @@ export default function Sidebar() {
         className="h-full flex flex-col bg-surface border-r border-border"
         style={{ width: `${validWidth}px`, maxWidth: '100%' }}
       >
-        {/* Header Logo */}
         <div className={`border-b border-border flex-shrink-0 bg-surface flex transition-all duration-300 ${isCollapsed ? 'flex-col items-center gap-1 py-1.5' : 'items-center justify-start px-4 h-16 gap-3'}`}>
           <button onClick={toggleCollapse} className="p-1 rounded-lg text-text-muted hover:bg-surface-alt hover:text-text transition-colors flex-shrink-0">
             <MdMenu className="w-6 h-6" />
@@ -202,9 +178,7 @@ export default function Sidebar() {
           )}
         </div>
 
-        {/* Navigation & List */}
         <nav className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          {/* Main Menu Items */}
           <div className={`flex-shrink-0 py-1 overflow-y-auto custom-scrollbar ${isCollapsed ? 'px-1' : 'px-2'}`} style={{ maxHeight: isCollapsed ? '100%' : '50%' }}>
             {menuItems.map((item) => {
               const Icon = item.icon
@@ -229,20 +203,16 @@ export default function Sidebar() {
             })}
           </div>
 
-          {/* Recent Accesses Area */}
           {!isCollapsed && (
             <div className={`flex-1 flex flex-col min-h-0 border-t border-border mx-2 mt-2 pt-4 animate-in fade-in duration-300`}>
               <h3 className="px-3 text-xs font-semibold text-text-muted uppercase tracking-wider mb-2 flex-shrink-0">
                 Acessos recentes
               </h3>
-
-              {/* Wrapper Ref is here - it defines the available space */}
               <div ref={wrapperRef} className="flex-1 overflow-hidden relative flex flex-col">
                 <div className="flex flex-col gap-0.5 h-full">
                   {visibleRecentAccesses.map((access, index) => (
                     <div
                       key={access.id}
-                      // Attach ref to the FIRST item to measure its height dynamically
                       ref={index === 0 ? itemRef : null}
                       className="group w-full flex items-center px-3 py-2 rounded-lg text-left hover:bg-surface-alt transition-colors min-w-0 cursor-pointer relative flex-shrink-0"
                       onClick={() => handleRecentClick(access)}
@@ -261,8 +231,6 @@ export default function Sidebar() {
                     </div>
                   ))}
                 </div>
-
-                {/* Botão Ver Mais - Renderizado condicionalmente, mas medido via Ref ou hardcode se necessário */}
                 {hasMore && (
                   <div ref={viewMoreRef} className="mt-1 flex-shrink-0">
                     <button
@@ -278,9 +246,7 @@ export default function Sidebar() {
           )}
         </nav>
 
-        {/* User Footer */}
         <div ref={userMenuRef} className={`p-1 border-t border-border bg-surface flex-shrink-0 relative ${isCollapsed ? 'flex justify-center' : ''}`}>
-          {/* ... (Conteúdo do menu de usuário mantido igual) ... */}
           {isUserMenuOpen && (
             <div className={`absolute mb-2 bg-elevated rounded-xl shadow-[0_4px_25px_rgba(0,0,0,0.12)] border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-[100]
                 ${isCollapsed ? 'left-full bottom-0 ml-2 w-56' : 'bottom-full left-2 right-2'}
