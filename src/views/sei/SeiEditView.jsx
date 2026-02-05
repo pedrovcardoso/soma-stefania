@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { MdSave, MdCancel, MdContentCopy, MdEdit, MdCalendarToday, MdWarning } from 'react-icons/md';
 import { toast } from '@/components/ui/toast';
+import CustomSelect from '@/components/ui/CustomSelect';
 import Modal from '@/components/ui/Modal';
 import useTabStore from '@/store/useTabStore';
 
@@ -83,22 +84,15 @@ const InputField = ({ label, name, value, onChange, fullWidth = false, type = 't
 };
 
 const StatusSelect = ({ status, onChange }) => {
-    const currentStyle = getStatusColor(status);
-
     return (
-        <select
-            name="status"
-            value={status || ''}
-            onChange={onChange}
-            className={`px-3 py-1 rounded-full text-xs font-bold border ${currentStyle} appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/20 pr-8 relative`}
-            style={{ backgroundImage: 'none' }}
-        >
-            {STATUS_OPTIONS.map(opt => (
-                <option key={opt} value={opt} className="bg-white text-text p-2">
-                    {opt}
-                </option>
-            ))}
-        </select>
+        <CustomSelect
+            multiple={false}
+            showSearch={false}
+            options={STATUS_OPTIONS}
+            value={status}
+            onChange={(val) => onChange({ target: { name: 'status', value: val } })}
+            placeholder="Selecione o status"
+        />
     );
 };
 

@@ -4,14 +4,14 @@ import { useState, useEffect, Fragment } from 'react';
 import { MdSearch, MdMoreVert, MdLaunch, MdCalendarToday, MdExpandMore, MdSort, MdCheck, MdArrowUpward, MdArrowDownward, MdAdd } from 'react-icons/md';
 import SmartTable from '@/components/ui/SmartTable';
 import FilterPanel from '@/components/ui/FilterPanel';
-import MultiSelect from '@/components/ui/MultiSelect';
+import CustomSelect from '@/components/ui/CustomSelect';
 import useTabStore from '@/store/useTabStore';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, subWeeks, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Popover, Transition } from '@headlessui/react';
-import { fetchSeiProcesses } from '@/services/seiService';
+import { fetchSeiProcesses, fetchFilterOptions } from '@/services/seiService';
 import Modal from '@/components/ui/Modal';
 
 const getStatusColor = (status) => {
@@ -97,6 +97,27 @@ export default function SeiListView({ lastReload }) {
   const updateTab = useTabStore((state) => state.updateTab);
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+  const [filterOptions, setFilterOptions] = useState({ anos: [], types: [], status: [] });
+  const [isFiltersLoading, setIsFiltersLoading] = useState(true);
+
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        setIsFiltersLoading(true);
+        const options = await fetchFilterOptions();
+        setFilterOptions({
+          anos: options.anos || [],
+          types: options.tipos || [],
+          status: options.status || []
+        });
+      } catch (error) {
+        console.error("Failed to fetch filters", error);
+      } finally {
+        setIsFiltersLoading(false);
+      }
+    };
+    loadFilters();
+  }, []);
 
   useEffect(() => {
     updateTab('sei', {
@@ -280,42 +301,56 @@ export default function SeiListView({ lastReload }) {
 
         <FilterPanel onClear={handleClearFilters}>
           <div className="flex-grow min-w-[150px]">
-            <label className="text-xs font-semibold text-text-muted">Ano de Referência</label>
-            <div className="relative mt-1">
-              <select
-                value={filters.year}
-                onChange={(e) => handleFilterChange('year', e.target.value)}
-                className={filterInputClass}
-              >
-                <option value="">Todos os anos</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-              </select>
-              <MdExpandMore className="text-text-muted/60 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" size={20} />
-            </div>
+            <CustomSelect
+              label="Ano de Referência"
+              multiple={true}
+              showSearch={false}
+              options={["Todos os anos", ...filterOptions.anos.map(String)]}
+              value={filters.year || "Todos os anos"}
+              onChange={(val) => handleFilterChange('year', val === "Todos os anos" ? "" : val)}
+              shouldGroup={false}
+              placeholder={isFiltersLoading ? "Carregando..." : "Selecione..."}
+              isLoading={isFiltersLoading}
+              showClear={true}
+            />
           </div>
 
           <div className="flex-grow min-w-[180px]">
-            <label className="text-xs font-semibold text-text-muted flex items-center gap-1">
-              <MdCalendarToday />
-              Filtrar por Prazo
-            </label>
-            <div className="relative mt-1">
-              <select
-                value={filters.datePreset}
-                onChange={(e) => handleDatePresetChange(e.target.value)}
-                className={filterInputClass}
-              >
-                <option value="all">Qualquer data</option>
-                <option value="today">Hoje</option>
-                <option value="thisWeek">Esta Semana</option>
-                <option value="lastWeek">Semana Passada</option>
-                <option value="thisMonth">Este Mês</option>
-                <option value="lastMonth">Mês Passado</option>
-                <option value="specific">Período Específico...</option>
-              </select>
-              <MdExpandMore className="text-text-muted/60 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" size={20} />
-            </div>
+            <CustomSelect
+              label="Filtrar por Prazo"
+              multiple={false}
+              showSearch={false}
+              options={[
+                { value: "all", label: "Qualquer data" },
+                { value: "today", label: "Hoje" },
+                { value: "thisWeek", label: "Esta Semana" },
+                { value: "lastWeek", label: "Semana Passada" },
+                { value: "thisMonth", label: "Este Mês" },
+                { value: "lastMonth", label: "Mês Passado" },
+                { value: "specific", label: "Período Específico..." }
+              ].map(opt => opt.label)}
+              value={[
+                { value: "all", label: "Qualquer data" },
+                { value: "today", label: "Hoje" },
+                { value: "thisWeek", label: "Esta Semana" },
+                { value: "lastWeek", label: "Semana Passada" },
+                { value: "thisMonth", label: "Este Mês" },
+                { value: "lastMonth", label: "Mês Passado" },
+                { value: "specific", label: "Período Específico..." }
+              ].find(opt => opt.value === filters.datePreset)?.label}
+              onChange={(val) => {
+                const preset = [
+                  { value: "all", label: "Qualquer data" },
+                  { value: "today", label: "Hoje" },
+                  { value: "thisWeek", label: "Esta Semana" },
+                  { value: "lastWeek", label: "Semana Passada" },
+                  { value: "thisMonth", label: "Este Mês" },
+                  { value: "lastMonth", label: "Mês Passado" },
+                  { value: "specific", label: "Período Específico..." }
+                ].find(opt => opt.label === val)?.value;
+                handleDatePresetChange(preset);
+              }}
+            />
           </div>
           {filters.datePreset === 'specific' && (
             <div className="flex-grow min-w-[180px]">
@@ -338,39 +373,40 @@ export default function SeiListView({ lastReload }) {
           )}
 
           <div className="flex-grow min-w-[220px]">
-            <MultiSelect
+            <CustomSelect
               label="Tipo"
-              placeholder="Todos os tipos"
-              options={[
-                "Acompanhamento", "Auditoria", "Balanço Geral do Estado", "Denúncia",
-                "Inspeção Ordinária", "Monitoramento", "Outros", "Relatório Temático",
-                "Representação", "Solicitação TCE/CFAMGE", "Tomada de Contas Especial"
-              ]}
+              placeholder={isFiltersLoading ? "Carregando tipos..." : "Todos os tipos"}
+              options={filterOptions.types}
               value={filters.type}
               onChange={(val) => handleFilterChange('type', val)}
+              showSelectAll={true}
+              showClear={true}
+              isLoading={isFiltersLoading}
             />
           </div>
 
           <div className="flex-grow min-w-[220px]">
-            <MultiSelect
+            <CustomSelect
               label="Status"
-              placeholder="Todos os status"
-              options={[
-                "Aguarda resposta", "Acompanhamento especial",
-                "Finalizado e Concluído", "Finalizado com Desdobramentos"
-              ]}
+              placeholder={isFiltersLoading ? "Carregando status..." : "Todos os status"}
+              options={filterOptions.status}
               value={filters.status}
               onChange={(val) => handleFilterChange('status', val)}
+              showSelectAll={true}
+              showClear={true}
+              isLoading={isFiltersLoading}
             />
           </div>
 
           <div className="flex-grow min-w-[220px]">
-            <MultiSelect
+            <CustomSelect
               label="Atribuído para"
               placeholder="Todos"
               options={[...new Set(data.map(item => item.assigned_to))].sort()}
               value={filters.assignedTo}
               onChange={(val) => handleFilterChange('assignedTo', val)}
+              showSearch={true}
+              showClear={true}
             />
           </div>
 

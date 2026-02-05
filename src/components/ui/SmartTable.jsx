@@ -272,7 +272,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                         onDrop={handleDrop}
                                         onDragEnd={handleDragEnd}
                                         style={{ width: columnWidths[col.key] || col.width ? `${columnWidths[col.key] || col.width}px` : undefined }}
-                                        className="relative px-3 py-3 text-xs font-semibold text-text-muted tracking-wider group select-none hover:bg-surface-alt transition-colors"
+                                        className="relative px-3 py-3 text-xs text-text-muted tracking-wider group select-none hover:bg-surface-alt transition-colors"
                                     >
                                         {isDragOver && (
                                             <div
@@ -280,7 +280,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                             />
                                         )}
                                         <div className={`flex items-center gap-2 ${col.key === 'actions' ? 'justify-center' : 'justify-between'}`}>
-                                            <div className={`flex items-center gap-2 overflow-hidden cursor-pointer ${col.key === 'actions' ? '' : 'flex-1'}`} onClick={() => handleSort(col.key)}>
+                                            <div className={`font-semibold flex items-center gap-2 overflow-hidden cursor-pointer ${col.key === 'actions' ? '' : 'flex-1'}`} onClick={() => handleSort(col.key)}>
                                                 <span className={`${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}>
                                                     <MdDragIndicator className="text-text-muted opacity-0 group-hover:opacity-100" />
                                                 </span>
@@ -308,7 +308,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                                                 leaveFrom="transform opacity-100 scale-100"
                                                                 leaveTo="transform opacity-0 scale-95"
                                                             >
-                                                                <Popover.Panel className={`absolute mt-2 w-64 bg-surface rounded-xl shadow-xl border border-border z-[100] overflow-hidden ${index === 0 ? 'left-0' : 'right-0'}`}>
+                                                                <Popover.Panel className={`absolute mt-2 w-64 bg-surface rounded-xl shadow-xl border border-border z-[100] overflow-hidden font-normal normal-case ${index === 0 ? 'left-0' : 'right-0'}`}>
                                                                     <SearchableList
                                                                         options={uniqueValues}
                                                                         selected={activeFilters[col.key] || []}
@@ -319,7 +319,9 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
                                                                                 return newFilters;
                                                                             });
                                                                         }}
-                                                                        enableSelectAll={true}
+                                                                        multiple={true}
+                                                                        showSelectAll={true}
+                                                                        showClear={true}
                                                                     />
                                                                 </Popover.Panel>
                                                             </Transition>

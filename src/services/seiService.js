@@ -253,3 +253,12 @@ export const getDistinctProcesses = async () => {
         return [];
     }
 };
+
+export const fetchFilterOptions = async () => {
+    try {
+        return await apiClient.get('/filtros');
+    } catch (error) {
+        console.error('Error fetching filter options:', error);
+        throw error;
+    }
+};

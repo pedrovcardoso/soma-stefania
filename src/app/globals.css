@@ -167,6 +167,25 @@ input[type="number"] {
   }
 }
 
+@keyframes shimmer-fast {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg,
+      rgba(var(--color-neutral-500-rgb, 107, 114, 128), 0.1) 40%,
+      rgba(var(--color-neutral-500-rgb, 107, 114, 128), 0.25) 50%,
+      rgba(var(--color-neutral-500-rgb, 107, 114, 128), 0.1) 60%);
+  background-size: 200% 100%;
+  animation: shimmer-fast 2s infinite linear;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
