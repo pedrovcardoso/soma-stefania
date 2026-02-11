@@ -54,7 +54,7 @@ const inferFileType = (doc) => {
     return 'pdf'; // Default to pdf for SEI documents
 };
 
-export default function DocumentsDetailView({ processId, lastReload }) {
+export default function DocumentsDetailView({ processId, processUrl, lastReload }) {
     const [documents, setDocuments] = useState([]);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -68,7 +68,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
             if (!processId) return;
             setIsLoading(true);
             try {
-                const docs = await fetchListaDocumentos(processId);
+                const docs = await fetchListaDocumentos(processId, processUrl);
                 const mappedDocs = docs.map((doc, index) => {
                     const inferredType = inferFileType(doc);
                     return {
@@ -98,7 +98,7 @@ export default function DocumentsDetailView({ processId, lastReload }) {
         };
 
         loadDocuments();
-    }, [processId, lastReload]);
+    }, [processId, processUrl, lastReload]);
 
     const [listWidth, setListWidth] = useState(320);
     const [aiWidth, setAiWidth] = useState(350);

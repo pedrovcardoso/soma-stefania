@@ -217,11 +217,16 @@ export const prepararImportacao = async (seiNumber) => {
     }
 };
 
-export const fetchListaDocumentos = async (seiNumber) => {
+export const fetchListaDocumentos = async (seiNumber, urlProcesso) => {
     try {
         const params = new URLSearchParams();
         params.append('sei_principal', seiNumber);
-        params.append('url_processo', `https://sei.mg.gov.br/sei/controlador.php?acao=procedimento_selecionar&id_procedimento=${seiNumber}`);
+
+        if (urlProcesso) {
+            params.append('url_processo', urlProcesso);
+        } else {
+            params.append('url_processo', `https://sei.mg.gov.br/sei/controlador.php?acao=procedimento_selecionar&id_procedimento=${seiNumber}`);
+        }
 
         const response = await apiClient.post('/listaDocumentos', params);
         return response.documentos || [];

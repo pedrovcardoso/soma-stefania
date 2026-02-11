@@ -10,7 +10,7 @@ const { fetchActionPlan } = actionPlanService;
 
 function SinglePlanItem({ planData, isFirst }) {
     const [showAllTeam, setShowAllTeam] = useState(false);
-    const openTab = useTabStore((state) => state.openTab);
+
 
     if (!planData) return null;
 
@@ -233,7 +233,32 @@ export default function ActionPlanSection({ seiNumber }) {
         );
     }
 
-    if (error) return null;
+    const handleCreateNewPlan = () => {
+        useTabStore.getState().openTab({
+            id: 'action_plans',
+            title: 'Planos de Ação',
+            type: 'action_plans',
+            data: { isNew: true }
+        });
+    };
+
+    if (error) {
+        return (
+            <div className="bg-surface rounded-xl border border-dashed border-error/30 p-8 flex flex-col items-center justify-center mt-8 text-center bg-error/5">
+                <div className="w-12 h-12 bg-error/10 rounded-full flex items-center justify-center mb-4">
+                    <MdAssignment className="text-2xl text-error" />
+                </div>
+                <h3 className="text-base font-bold text-text mb-1">Não foi possível carregar os planos</h3>
+                <p className="text-sm text-text-muted max-w-xs mb-4">{error}</p>
+                <button
+                    onClick={handleCreateNewPlan}
+                    className="px-4 py-2 bg-surface border border-border rounded-lg text-sm font-bold text-text-secondary hover:bg-surface-alt transition-colors shadow-sm"
+                >
+                    Ir para Planos de Ação
+                </button>
+            </div>
+        );
+    }
 
     if (!data || data.length === 0) {
         return (
@@ -241,15 +266,21 @@ export default function ActionPlanSection({ seiNumber }) {
                 <div className="w-16 h-16 bg-surface-alt rounded-full flex items-center justify-center mb-4">
                     <MdAssignment className="text-3xl text-text-muted/40" />
                 </div>
-                <h3 className="text-lg font-bold text-text mb-1">Cuidado: Nenhum plano detectado</h3>
-                <p className="text-sm text-text-muted max-w-xs">Não encontramos planos de ação vinculados a este processo SEI no momento.</p>
+                <h3 className="text-lg font-bold text-text mb-1">Nenhum plano detectado</h3>
+                <p className="text-sm text-text-muted max-w-xs mb-6">Não encontramos planos de ação vinculados a este processo SEI no momento.</p>
+                <button
+                    onClick={handleCreateNewPlan}
+                    className="px-5 py-2.5 bg-accent text-white rounded-lg text-sm font-bold hover:bg-accent-hover transition-colors shadow-lg shadow-accent/20"
+                >
+                    Criar novo plano de ação
+                </button>
             </div>
         );
     }
 
     return (
         <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mt-8">
-            <div className="px-6 py-4 border-b border-border bg-surface">
+            <div className="px-6 py-4 border-b border-border bg-surface flex justify-between items-center">
                 <h2 className="text-lg font-bold text-text flex items-center gap-2">
                     <MdAssignment className="text-accent" />
                     Planos de ação envolvidos
@@ -257,6 +288,12 @@ export default function ActionPlanSection({ seiNumber }) {
                         {data.length}
                     </span>
                 </h2>
+                <button
+                    onClick={handleCreateNewPlan}
+                    className="text-xs font-bold text-accent hover:underline"
+                >
+                    + Criar novo plano
+                </button>
             </div>
 
             <div>

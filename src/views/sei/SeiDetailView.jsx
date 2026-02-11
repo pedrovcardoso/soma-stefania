@@ -484,7 +484,7 @@ export default function SeiDetailView({ id, lastReload, data: tabData }) {
             </div>
 
             <div className={viewMode === 'documents' ? 'block h-full' : 'hidden'}>
-              <DocumentsDetailView processId={sei} />
+              <DocumentsDetailView processId={sei} processUrl={link_acesso} />
             </div>
 
             {viewMode !== 'documents' && <StefaniaChatbot processCode={sei} />}
