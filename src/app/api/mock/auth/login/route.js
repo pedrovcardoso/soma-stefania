@@ -7,7 +7,7 @@ const MOCK_USERS = [
 ];
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'chave-secreta-dev'
+  process.env.JWT_SECRET
 );
 
 export async function POST(request) {

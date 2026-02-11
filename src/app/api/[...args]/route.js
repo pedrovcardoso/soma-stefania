@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
 const TARGET_API_URL = process.env.API_URL;
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sua-chave-secreta');
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 async function handler(request) {
   if (request.nextUrl.pathname.startsWith('/api/auth')) {
@@ -29,7 +29,7 @@ async function handler(request) {
     headers.delete('host');
     headers.delete('content-length');
     headers.delete('cookie');
-    
+
     const options = {
       method: request.method,
       headers: headers,
@@ -38,7 +38,7 @@ async function handler(request) {
     };
 
     const backendResponse = await fetch(targetUrl, options);
-    
+
     const data = await backendResponse.text();
 
     return new NextResponse(data, {
