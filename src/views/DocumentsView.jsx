@@ -13,11 +13,9 @@ import {
   MdFilterList
 } from 'react-icons/md';
 import StefanIAEditor from '@/components/ui/StefanIAEditor';
-import FilterPanel from '@/components/ui/FilterPanel'; // Import FilterPanel
+import FilterPanel from '@/components/ui/FilterPanel';
 import { stefaniaService } from '@/services/stefaniaService';
 import { fetchListaDocumentos, getDistinctProcesses } from '@/services/seiService';
-
-// --- Shared Components (Duplicated from StefaniaView for standalone functionality) ---
 
 const CustomTooltip = ({ children, content, bg = "bg-white text-gray-700 border border-gray-200", visible = false }) => {
   return (
@@ -156,9 +154,6 @@ export default function DocumentsPage() {
   const [selectedDocType, setSelectedDocType] = useState(null);
   const [selectedYear, setSelectedYear] = useState(null);
 
-
-  // --- Data Fetching ---
-
   useEffect(() => {
     getDistinctProcesses()
       .then(data => {
@@ -205,9 +200,6 @@ export default function DocumentsPage() {
     }
   }, [selectedProcess]);
 
-
-  // --- Computed ---
-
   const displayedDocuments = useMemo(() => {
     let filtered = documentList;
     if (selectedDocType) {
@@ -227,16 +219,13 @@ export default function DocumentsPage() {
   const hasFiltrosAtivos = selectedProcess || selectedDocument || selectedProcessType || selectedYear;
 
   return (
-    <div className="flex flex-col h-full bg-surface-alt px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 font-sans overflow-hidden">
-      <div className="max-w-7xl mx-auto w-full flex flex-col h-full">
+    <div className="flex flex-col h-full bg-surface-alt px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 font-sans overflow-y-auto custom-scrollbar">
+      <div className="max-w-7xl mx-auto w-full flex flex-col">
 
-        {/* Header */}
         <div className="mb-6 flex-shrink-0">
           <h1 className="text-4xl font-extrabold text-text tracking-tight">Documentos</h1>
           <p className="text-text-secondary mt-2">Crie e edite documentos inteligentes com auxílio da StefanIA.</p>
         </div>
-
-        {/* Filter Panel (Standardized) */}
         <FilterPanel
           title="FILTROS DE DOCUMENTO"
           onClear={hasFiltrosAtivos ? handleClearFilters : null}
@@ -312,8 +301,7 @@ export default function DocumentsPage() {
 
         </FilterPanel>
 
-        {/* Main Editor Area */}
-        <div className="flex-1 min-h-0 relative shadow-lg rounded-xl overflow-hidden border border-border bg-white z-0">
+        <div className="h-[80vh] relative shadow-lg rounded-xl overflow-hidden border border-border bg-white z-0">
           <StefanIAEditor
             documents={documentList}
             processId={selectedProcess}

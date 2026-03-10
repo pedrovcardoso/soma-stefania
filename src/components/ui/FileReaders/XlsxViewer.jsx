@@ -10,7 +10,7 @@ const INDEXED_COLORS = { 0: "000000", 1: "FFFFFF", 2: "FF0000", 3: "00FF00", 4: 
 function applyTint(hex, tint) { if (!hex || !tint) return hex; hex = hex.replace('#', ''); let r = parseInt(hex.substring(0, 2), 16), g = parseInt(hex.substring(2, 4), 16), b = parseInt(hex.substring(4, 6), 16); if (tint > 0) { r = Math.round(r * (1 - tint) + 255 * tint); g = Math.round(g * (1 - tint) + 255 * tint); b = Math.round(b * (1 - tint) + 255 * tint) } else { r = Math.round(r * (1 + tint)); g = Math.round(g * (1 + tint)); b = Math.round(b * (1 + tint)) } const toHex = (c) => { const h = Math.min(255, Math.max(0, c)).toString(16); return h.length === 1 ? "0" + h : h }; return "#" + toHex(r) + toHex(g) + toHex(b) }
 const resolveColorNode = (node, themeColors) => { if (!node) return null; let hex = null; const rgb = node.getAttribute("rgb"); if (rgb) { hex = rgb.length === 8 ? "#" + rgb.substring(2) : "#" + rgb } else if (node.hasAttribute("theme")) { const themeIdx = node.getAttribute("theme"); hex = themeColors[themeIdx] } else if (node.hasAttribute("indexed")) { const idx = node.getAttribute("indexed"); hex = INDEXED_COLORS[idx] ? "#" + INDEXED_COLORS[idx] : null } if (hex && node.hasAttribute("tint")) { hex = applyTint(hex, parseFloat(node.getAttribute("tint"))) } return hex };
 
-export default function XlsxViewer({ url, onLoad }) {
+export default function XlsxViewer({ url, fileType, onLoad }) {
   const [data, setData] = useState({ workbook: null, sheetNames: [], currentSheet: null, styles: {}, theme: {}, zip: null });
   const [gridData, setGridData] = useState([]);
   const [loading, setLoading] = useState(true);

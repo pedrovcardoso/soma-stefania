@@ -123,7 +123,7 @@ const handleOdt = async (arrayBuffer) => {
   return { value: html };
 };
 
-export default function DocumentViewer({ url, onLoad }) {
+export default function DocumentViewer({ url, type, onLoad }) {
   const [htmlContent, setHtmlContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -165,7 +165,12 @@ export default function DocumentViewer({ url, onLoad }) {
         const response = await fetch(url);
         if (!response.ok) throw new Error("Erro ao baixar arquivo");
         const arrayBuffer = await response.arrayBuffer();
-        const extension = getFileExtension(url);
+        
+        let extension = type;
+        if (!extension) {
+            extension = getFileExtension(url);
+        }
+        
         let result;
 
         if (extension === 'docx') {

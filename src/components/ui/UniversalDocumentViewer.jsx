@@ -2,8 +2,9 @@
 
 import React, { useMemo, Suspense } from 'react';
 import { ImSpinner8 } from 'react-icons/im';
-import { MdWarning, MdDescription, MdPictureAsPdf, MdImage, MdTableChart, MdSlideshow, MdCode, MdVideocam, MdAudiotrack, MdArchive, MdEmail, MdFileDownload, MdAutoAwesome, MdContentCopy, MdPerson, MdAccessTime, MdHistory } from 'react-icons/md';
+import { MdWarning, MdDescription, MdPictureAsPdf, MdImage, MdTableChart, MdSlideshow, MdCode, MdVideocam, MdAudiotrack, MdArchive, MdEmail, MdFileDownload, MdAutoAwesome, MdContentCopy, MdPerson, MdAccessTime, MdHistory, MdExpandMore } from 'react-icons/md';
 import { toast } from '@/components/ui/toast';
+import { getProxiedUrl } from '@/services/fileService';
 
 const PdfViewer = React.lazy(() => import('./FileReaders/PdfViewer'));
 const DocxViewer = React.lazy(() => import('./FileReaders/DocxViewer'));
@@ -15,8 +16,16 @@ const MultimediaViewer = React.lazy(() => import('./FileReaders/MultimediaViewer
 const ZipViewer = React.lazy(() => import('./FileReaders/ZipViewer'));
 const UnsupportedViewer = React.lazy(() => import('./FileReaders/UnsupportedViewer'));
 
+// Stable PDF Viewer Wrapper to prevent re-mounts
+const ProxiedPdfViewer = React.memo(({ url, onLoad, onError }) => (
+  <DocumentFetcher url={url} type="pdf" onLoad={onLoad} onError={onError}>
+    {(blobUrl) => <PdfViewer url={blobUrl} onLoad={onLoad} />}
+  </DocumentFetcher>
+));
+ProxiedPdfViewer.displayName = 'ProxiedPdfViewer';
+
 // Enhanced component for fetch-based viewing (HTML and PDF/Blobs)
-const DocumentFetcher = ({ url, type, onError, children }) => {
+const DocumentFetcher = ({ url, type, onLoad, onError, children }) => {
   const [blobUrl, setBlobUrl] = React.useState(null);
   const [content, setContent] = React.useState('');
   const [loading, setLoading] = React.useState(true);
@@ -27,7 +36,8 @@ const DocumentFetcher = ({ url, type, onError, children }) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(url);
+        const proxiedUrl = getProxiedUrl(url);
+        const response = await fetch(proxiedUrl);
         if (!response.ok) throw new Error('Não foi possível carregar o conteúdo');
 
         if (type === 'pdf') {
@@ -73,9 +83,9 @@ const DocumentFetcher = ({ url, type, onError, children }) => {
 };
 
 const LoadingFallback = () => (
-  <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50">
-    <ImSpinner8 className="animate-spin text-blue-500 text-4xl" />
-    <p className="mt-4 text-sm text-slate-600">Carregando visualizador...</p>
+  <div className="w-full h-full flex flex-col items-center justify-center bg-surface-alt/30">
+    <ImSpinner8 className="animate-spin text-accent text-4xl" />
+    <p className="mt-3 text-xs font-semibold text-text-muted uppercase tracking-widest">Carregando visualizador...</p>
   </div>
 );
 
@@ -123,13 +133,32 @@ class ViewerErrorBoundary extends React.Component {
   }
 }
 
-export default function UniversalDocumentViewer({ document, onOpenAiTools }) {
+export default function UniversalDocumentViewer({ document, onOpenAiTools, isAiToolsOpen }) {
   const [viewerError, setViewerError] = React.useState(false);
   const [viewerLoading, setViewerLoading] = React.useState(true);
+  const [showDetails, setShowDetails] = React.useState(false);
+
+  const loadedUrlRef = React.useRef(null);
+
+  const onLoad = React.useCallback(() => {
+    loadedUrlRef.current = document?.url;
+    setViewerLoading(false);
+  }, [document?.url]);
+
+  const onError = React.useCallback(() => {
+    loadedUrlRef.current = document?.url;
+    setViewerError(true);
+    setViewerLoading(false);
+  }, [document?.url]);
+
+  const urlChanged = document?.url !== loadedUrlRef.current;
 
   React.useEffect(() => {
-    setViewerError(false);
-    setViewerLoading(true);
+    if (urlChanged) {
+      setViewerError(false);
+      setViewerLoading(true);
+      setShowDetails(false);
+    }
   }, [document?.url]);
 
   if (!document) {
@@ -142,6 +171,7 @@ export default function UniversalDocumentViewer({ document, onOpenAiTools }) {
 
   const downloadUrl = document.url;
   const fileName = document.name;
+  const documentType = document.type?.toLowerCase();
 
   const { ViewerComponent, props } = useMemo(() => {
     const docType = document.type?.toLowerCase();
@@ -153,11 +183,7 @@ export default function UniversalDocumentViewer({ document, onOpenAiTools }) {
     switch (docType) {
       case 'pdf':
         return {
-          ViewerComponent: ({ url, onLoad, onError }) => (
-            <DocumentFetcher url={url} type="pdf" onLoad={onLoad} onError={onError}>
-              {(blobUrl) => <PdfViewer url={blobUrl} onLoad={onLoad} />}
-            </DocumentFetcher>
-          ),
+          ViewerComponent: ProxiedPdfViewer,
           props: {}
         };
       case 'html':
@@ -165,7 +191,7 @@ export default function UniversalDocumentViewer({ document, onOpenAiTools }) {
         return { ViewerComponent: DocumentFetcher, props: { type: 'html' } };
       case 'docx':
       case 'odt':
-        return { ViewerComponent: DocxViewer, props: {} };
+        return { ViewerComponent: DocxViewer, props: { type: docType } };
       case 'jpg':
       case 'jpeg':
       case 'png':
@@ -177,7 +203,7 @@ export default function UniversalDocumentViewer({ document, onOpenAiTools }) {
       case 'xlsx':
       case 'xls':
       case 'csv':
-        return { ViewerComponent: XlsxViewer, props: {} };
+        return { ViewerComponent: XlsxViewer, props: { type: docType } };
       case 'pptx':
         return { ViewerComponent: PptxViewer, props: {} };
       case 'txt':
@@ -207,7 +233,7 @@ export default function UniversalDocumentViewer({ document, onOpenAiTools }) {
         }
         return { ViewerComponent: UnsupportedViewer, props: { name: document.name } };
     }
-  }, [document]);
+  }, [document.url, document.type, document.name]);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -238,23 +264,16 @@ export default function UniversalDocumentViewer({ document, onOpenAiTools }) {
               <span className="text-text-secondary font-medium">{document.tipo || document.type}</span>
             </h2>
           </div>
-          {onOpenAiTools && (
+          {onOpenAiTools && !isAiToolsOpen && (
             <button
               onClick={onOpenAiTools}
-              className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-accent text-accent-contrast text-xs font-bold rounded-xl shadow-lg shadow-accent/20 hover:bg-accent hover:opacity-90 transition-all active:scale-95 group"
+              className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-accent text-accent-contrast text-xs font-bold rounded-xl shadow-lg shadow-accent/20 hover:bg-accent hover:opacity-90 transition-all active:scale-95 group animate-in fade-in zoom-in duration-300"
             >
               <MdAutoAwesome size={16} className="group-hover:rotate-12 transition-transform" />
               Ferramentas de IA
             </button>
           )}
         </div>
-
-        {andamento?.Descricao && (
-          <div className="flex items-start gap-2 text-[11px] text-text-muted bg-surface-alt/50 p-2 rounded-lg border border-border/50">
-            <MdHistory size={14} className="mt-0.5 shrink-0" />
-            <p className="line-clamp-2 italic">{andamento.Descricao}</p>
-          </div>
-        )}
       </div>
 
       {!viewerLoading && !viewerError && ViewerComponent !== UnsupportedViewer && (
@@ -291,61 +310,75 @@ export default function UniversalDocumentViewer({ document, onOpenAiTools }) {
           >
             <Suspense fallback={<LoadingFallback />}>
               <ViewerComponent
-                url={document.url}
+                url={getProxiedUrl(document.url)}
+                fileType={documentType}
                 {...props}
-                onLoad={() => setViewerLoading(false)}
-                onError={() => {
-                  setViewerError(true);
-                  setViewerLoading(false);
-                }}
+                onLoad={onLoad}
+                onError={onError}
               />
             </Suspense>
           </ViewerErrorBoundary>
         </div>
 
-        {(andamento || signatures.length > 0) && (
-          <div className="flex-shrink-0 bg-surface border-t border-border overflow-hidden">
-            <div className={`p-4 ${andamento ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'flex justify-center'}`}>
-              {andamento && (
+        <div className="flex-shrink-0 bg-surface border-t border-border">
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            className="w-full h-8 flex items-center justify-center gap-2 text-[10px] font-bold text-text-muted hover:text-accent transition-colors bg-surface-alt/30 border-b border-border/50"
+          >
+            {showDetails ? 'OCULTAR DETALHES' : 'VISUALIZAR DETALHES DO DOCUMENTO'}
+            <MdExpandMore className={`transition-transform duration-200 ${showDetails ? 'rotate-180' : ''}`} size={16} />
+          </button>
+
+          {showDetails && (
+            <div className="p-4 space-y-4 animate-in slide-in-from-bottom-2 duration-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider flex items-center gap-1.5 font-sans">
-                    <MdPerson size={14} /> Registrado por
+                    Descrição
                   </h3>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs font-bold text-text">{andamento.Usuario?.Nome}</p>
-                    <div className="flex items-center gap-2 text-[10px] text-text-muted">
-                      <MdAccessTime size={12} />
-                      <span>{andamento.DataHora}</span>
-                      <span className="opacity-30">•</span>
-                      <span>{andamento.Unidade?.Sigla}</span>
-                    </div>
+                  <div className="bg-surface-alt/50 p-3 rounded-xl border border-border/50">
+                    <p className="text-xs text-text-secondary leading-relaxed italic">
+                      {andamento?.Descricao || 'Nenhuma descrição disponível.'}
+                    </p>
                   </div>
-                </div>
-              )}
 
-              {signatures.length > 0 && (
-                <div className={`space-y-4 w-full ${!andamento ? 'max-w-2xl mx-auto' : ''}`}>
-                  <details className="group">
-                    <summary className="text-[10px] font-bold text-text-muted uppercase tracking-wider flex items-center justify-between cursor-pointer list-none hover:border-accent transition-colors font-sans py-2 px-3 border border-border rounded-xl bg-surface-alt/30">
-                      <div className="flex items-center gap-2">
-                        <span>Assinaturas ({signatures.length})</span>
+                  {andamento?.Usuario?.Nome && (
+                    <div className="pt-2">
+                      <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider flex items-center gap-1.5 font-sans mb-1.5">
+                        <MdPerson size={14} /> Registrado por
+                      </h3>
+                      <div className="flex flex-col gap-0.5">
+                        <p className="text-xs font-bold text-text">{andamento.Usuario.Nome}</p>
+                        <div className="flex items-center gap-2 text-[10px] text-text-muted">
+                          <MdAccessTime size={12} />
+                          <span>{andamento.DataHora}</span>
+                          <span className="opacity-30">•</span>
+                          <span>{andamento.Unidade?.Sigla}</span>
+                        </div>
                       </div>
-                      <span className="text-[8px] transition-transform group-open:rotate-180 opacity-50">▼</span>
-                    </summary>
-                    <div className="mt-3 space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
+                    </div>
+                  )}
+                </div>
+
+                {signatures.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider flex items-center gap-1.5 font-sans">
+                      Assinaturas ({signatures.length})
+                    </h3>
+                    <div className="space-y-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
                       {signatures.map((sig, idx) => (
-                        <div key={idx} className="flex flex-col gap-0.5 pl-3 border-l-2 border-slate-300">
+                        <div key={idx} className="flex flex-col gap-0.5 pl-3 border-l-2 border-accent/20 hover:border-accent transition-colors">
                           <span className="text-xs font-semibold text-text">{sig.Nome}</span>
                           <span className="text-[10px] text-text-muted">{sig.DataHora}</span>
                         </div>
                       ))}
                     </div>
-                  </details>
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {document.metadata && (
           <div className="flex-shrink-0">

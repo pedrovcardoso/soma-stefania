@@ -3,6 +3,40 @@
 import { useState, useMemo, useEffect } from 'react';
 import { MdCloudDone, MdCloudOff, MdUpload, MdDescription, MdPictureAsPdf, MdImage, MdEmail, MdTableChart, MdSlideshow, MdCode, MdVideocam, MdAudiotrack, MdStar, MdArchive, MdModeEdit, MdFilterList, MdSearch } from 'react-icons/md';
 import { ImSpinner8 } from 'react-icons/im';
+
+const DocumentDetailSkeleton = () => (
+  <div className="w-full h-full flex flex-col animate-pulse">
+    <div className="flex-shrink-0 p-4 border-b border-border bg-surface">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-border rounded-lg"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-border rounded w-40"></div>
+            <div className="h-3 bg-border rounded w-28"></div>
+          </div>
+        </div>
+        <div className="h-8 w-32 bg-border rounded-xl"></div>
+      </div>
+    </div>
+    <div className="flex-1 bg-surface-alt/50 p-8 space-y-4">
+      <div className="mx-auto max-w-2xl space-y-3">
+        <div className="h-3 bg-border rounded w-full"></div>
+        <div className="h-3 bg-border rounded w-full"></div>
+        <div className="h-3 bg-border rounded w-4/5"></div>
+        <div className="h-3 bg-border rounded w-full"></div>
+        <div className="h-3 bg-border rounded w-3/4"></div>
+        <div className="mt-6 h-24 bg-border/80 rounded-2xl"></div>
+        <div className="h-3 bg-border rounded w-full"></div>
+        <div className="h-3 bg-border rounded w-5/6"></div>
+        <div className="mt-4 flex gap-4">
+          <div className="h-16 flex-1 bg-border/80 rounded-xl"></div>
+          <div className="h-16 flex-1 bg-border/80 rounded-xl"></div>
+        </div>
+      </div>
+    </div>
+    <div className="flex-shrink-0 h-8 bg-surface border-t border-border"></div>
+  </div>
+);
 import UniversalDocumentViewer from '@/components/ui/UniversalDocumentViewer';
 import StefanIAEditor from '@/components/ui/StefanIAEditor';
 import AiDocumentChat from './AiDocumentChat';
@@ -32,7 +66,6 @@ const inferFileType = (doc) => {
     const tipo = doc.tipo?.toLowerCase() || '';
     const name = doc.name?.toLowerCase() || '';
 
-    // Check extension in URL or Name
     const checkExt = (str) => {
         const ext = str.split(/[#?]/)[0].split('.').pop();
         if (['pdf', 'xlsx', 'xls', 'docx', 'doc', 'png', 'jpg', 'jpeg', 'txt', 'zip', 'csv'].includes(ext)) return ext;
@@ -45,13 +78,12 @@ const inferFileType = (doc) => {
     const extFromName = checkExt(name);
     if (extFromName) return extFromName;
 
-    // Check 'tipo' text or name patterns
     if (tipo.includes('planilha') || tipo.includes('excel') || tipo.includes('tabela') || name.includes('planilha')) return 'xlsx';
     if (tipo.includes('imagem') || tipo.includes('foto') || tipo.includes('jpg') || tipo.includes('png')) return 'jpg';
-    if (tipo.includes('texto') || tipo.includes('txt') || tipo.includes('ofício')) return 'pdf'; // SEI documents are usually PDF
+    if (tipo.includes('texto') || tipo.includes('txt') || tipo.includes('ofício')) return 'pdf';
     if (tipo.includes('apresentação') || tipo.includes('slides')) return 'pptx';
 
-    return 'pdf'; // Default to pdf for SEI documents
+    return 'pdf';
 };
 
 export default function DocumentsDetailView({ processId, processUrl, lastReload }) {
@@ -334,13 +366,11 @@ export default function DocumentsDetailView({ processId, processUrl, lastReload 
 
                     <div className={`flex-grow bg-surface rounded-2xl border border-border overflow-hidden flex flex-col min-w-0 ${resizing ? 'pointer-events-none' : ''}`}>
                         {isDetailLoading ? (
-                            <div className="w-full h-full flex flex-col items-center justify-center bg-surface-alt/10">
-                                <ImSpinner8 className="animate-spin text-accent text-4xl" />
-                                <p className="mt-4 text-sm text-text-muted font-medium">Buscando detalhes do documento...</p>
-                            </div>
+                            <DocumentDetailSkeleton />
                         ) : selectedDocument ? (
                             <UniversalDocumentViewer
                                 document={selectedDocument}
+                                isAiToolsOpen={isAiSidebarOpen}
                                 onOpenAiTools={() => setIsAiSidebarOpen(true)}
                             />
                         ) : (
