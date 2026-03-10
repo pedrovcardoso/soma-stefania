@@ -4,11 +4,13 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import useTabStore from '@/store/useTabStore'
 import useSidebarStore from '@/store/useSidebarStore'
 import useHistoryStore from '@/store/useHistoryStore'
+import useAuthStore from '@/store/useAuthStore'
+import UnitSelectionModal from '@/components/auth/UnitSelectionModal'
 import { logout } from '@/services/authService'
 import {
   MdBarChart, MdLanguage, MdDescription, MdChat, MdFavorite,
   MdAddToPhotos, MdPushPin, MdSettings, MdLogout, MdChevronLeft,
-  MdChevronRight, MdMenu
+  MdChevronRight, MdMenu, MdDomain
 } from 'react-icons/md'
 
 const menuItems = [
@@ -27,6 +29,12 @@ export default function Sidebar() {
   const setSidebarWidth = useSidebarStore((state) => state.setSidebarWidth)
   const isCollapsed = useSidebarStore((state) => state.isCollapsed)
   const toggleCollapse = useSidebarStore((state) => state.toggleCollapse)
+
+  const selectedUnidade = useAuthStore((state) => state.selectedUnidade)
+  const userEmail = useAuthStore((state) => state.userEmail)
+  const unidades = useAuthStore((state) => state.unidades)
+  const setSelectedUnidade = useAuthStore((state) => state.setSelectedUnidade)
+  const [showUnitModal, setShowUnitModal] = useState(false)
 
   const { recentAccesses, pinnedIds, togglePin } = useHistoryStore()
 
@@ -254,12 +262,16 @@ export default function Sidebar() {
               <div className="py-1">
                 {isCollapsed && (
                   <div className="px-4 py-3 border-b border-border bg-surface-alt">
-                    <p className="text-sm font-semibold text-text truncate">Pedro BI</p>
-                    <p className="text-xs text-text-muted truncate">pedro.cardoso@fazenda.mg.gov.br</p>
+                    <p className="text-sm font-semibold text-text truncate">{userEmail?.split('@')[0] || 'Usuário'}</p>
+                    <p className="text-xs text-text-muted truncate">{selectedUnidade?.sigla || 'Unidade não definida'}</p>
                   </div>
                 )}
                 <button onClick={handleProfileClick} className="w-full text-left px-4 py-3 text-sm text-text-secondary hover:bg-surface-alt flex items-center gap-3 transition-colors">
                   <MdSettings className="w-5 h-5 text-text-muted" /> Editar Perfil
+                </button>
+                <div className="h-px bg-gray-50 mx-2" />
+                <button onClick={() => { setIsUserMenuOpen(false); setShowUnitModal(true); }} className="w-full text-left px-4 py-3 text-sm text-text-secondary hover:bg-surface-alt flex items-center gap-3 transition-colors">
+                  <MdDomain className="w-5 h-5 text-text-muted" /> Trocar Unidade
                 </button>
                 <div className="h-px bg-gray-50 mx-2" />
                 <button onClick={() => { handleLogout(); setIsUserMenuOpen(false); }} className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors">
@@ -276,8 +288,8 @@ export default function Sidebar() {
             {!isCollapsed && (
               <>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="text-sm font-semibold text-text truncate">Pedro BI</p>
-                  <p className="text-xs text-text-muted truncate">pedro.cardoso@fazenda.mg.gov.br</p>
+                  <p className="text-sm font-semibold text-text truncate">{userEmail?.split('@')[0] || 'Usuário'}</p>
+                  <p className="text-xs text-text-muted truncate">{selectedUnidade?.sigla || 'Unidade não definida'}</p>
                 </div>
                 <MdChevronRight className={`w-5 h-5 text-text-muted flex-shrink-0 group-hover:text-text-secondary transition-transform ${isUserMenuOpen ? 'rotate-90' : ''}`} />
               </>
@@ -288,6 +300,17 @@ export default function Sidebar() {
 
       {!isCollapsed && (
         <div onMouseDown={handleResizerMouseDown} className={`absolute right-0 top-0 w-1 h-full cursor-col-resize z-50 hover:bg-border transition-colors ${isResizing ? 'bg-border' : 'bg-transparent'}`} />
+      )}
+
+      {showUnitModal && (
+          <UnitSelectionModal
+              unidades={unidades}
+              onSelect={(unidade) => {
+                  setSelectedUnidade(unidade);
+                  setShowUnitModal(false);
+              }}
+              onClose={() => setShowUnitModal(false)}
+          />
       )}
     </div>
   )

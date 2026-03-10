@@ -4,15 +4,21 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MdVisibility, MdVisibilityOff, MdLockOutline, MdEmail } from 'react-icons/md';
 import ToastContainer from '@/components/ui/toast';
-import { login } from '@/services/authService';
+import { login, listarAcessos } from '@/services/authService';
 import ParticleBackground from '@/components/ui/ParticleBackground';
 import AccessibilityMenu from '@/components/accessibility/AccessibilityMenu';
+import useAuthStore from '@/store/useAuthStore';
+import UnitSelectionModal from '@/components/auth/UnitSelectionModal';
 
 export default function LoginPage() {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [toasts, setToasts] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const setAuthData = useAuthStore((state) => state.setAuthData);
+    const setSelectedUnidade = useAuthStore((state) => state.setSelectedUnidade);
+    const [showUnitModal, setShowUnitModal] = useState(false);
+    const [availableUnits, setAvailableUnits] = useState([]);
 
     const addToast = (message, variant = 'info') => {
         const now = new Date();
@@ -49,14 +55,29 @@ export default function LoginPage() {
         const result = await login(email, password);
 
         if (result.success) {
-            addToast('Login bem-sucedido! Redirecionando...', 'success');
-            setTimeout(() => {
-                router.push('/home');
-            }, 1000);
+            const accResult = await listarAcessos(email);
+            if (accResult.success && accResult.data?.length > 0) {
+                setAuthData(email, accResult.data);
+                setAvailableUnits(accResult.data);
+                setShowUnitModal(true);
+                setIsLoading(false);
+            } else {
+                addToast('Usuário sem unidades vinculadas ou erro ao carregar.', 'error');
+                setIsLoading(false);
+            }
         } else {
             addToast(result.error, 'error');
             setIsLoading(false);
         }
+    };
+
+    const handleUnitSelect = (unidade) => {
+        setSelectedUnidade(unidade);
+        setShowUnitModal(false);
+        addToast(`Acessando como ${unidade.sigla} - Redirecionando...`, 'success');
+        setTimeout(() => {
+            router.push('/home');
+        }, 1000);
     };
 
     const handleForgotPassword = (event) => {
@@ -184,6 +205,13 @@ export default function LoginPage() {
                     </div>
                 </div>
             </main>
+
+            {showUnitModal && (
+                <UnitSelectionModal 
+                    unidades={availableUnits} 
+                    onSelect={handleUnitSelect} 
+                />
+            )}
 
             <ToastContainer toasts={toasts} onClose={removeToast} />
         </div>

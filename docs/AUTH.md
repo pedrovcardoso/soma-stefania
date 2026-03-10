@@ -69,11 +69,14 @@ JWT_SECRET=chave-secreta-complexa-e-longa
 4.  Se válido:
     - Next.js cria um JWT com validade de 2 horas.
     - O token é anexado ao cabeçalho `Set-Cookie`.
-5.  O navegador salva o cookie e o usuário é redirecionado.
+5.  O frontend chama `/listaracessos` para definir quais unidades o usuário logado possui.
+6.  O usuário escolhe a Unidade de Contexto (`id_unidade`) através de um Modal. Essa seleção é persistida no `useAuthStore` (Zustand).
+7.  O navegador salva o cookie e o usuário é redirecionado para a `/home`.
 
 ### Acesso a Dados (Proxy)
 1.  O componente React solicita dados (ex: `apiClient.get('/clientes')`).
-2.  A requisição vai para `/api/clientes`. O navegador anexa o cookie automaticamente.
+    - Para requisições restritas de processos (`/consultaDocumento`, `/detalheProcesso`, `/listaDocumentos`, `/validaProcessos`), o interceptador global em `api.js` lê automaticamente o `id_unidade` do estado e o injeta na requisição (via json, formData, searchParams, etc).
+2.  A requisição vai para `/api/...`. O navegador anexa o cookie automaticamente.
 3.  O arquivo `[...args]/route.js`:
     - Lê o cookie.
     - Valida a assinatura com `JWT_SECRET`.

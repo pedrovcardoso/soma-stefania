@@ -13,6 +13,9 @@ import { ptBR } from 'date-fns/locale';
 import { Popover, Transition } from '@headlessui/react';
 import { fetchSeiProcesses, fetchFilterOptions } from '@/services/seiService';
 import Modal from '@/components/ui/Modal';
+import useAuthStore from '@/store/useAuthStore';
+import UnitSelectionModal from '@/components/auth/UnitSelectionModal';
+import { MdDomain } from 'react-icons/md';
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -27,6 +30,11 @@ const getStatusColor = (status) => {
 const NewProcessModal = ({ isOpen, onClose, onConfirm }) => {
   const [newSeiNumber, setNewSeiNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showUnitModal, setShowUnitModal] = useState(false);
+
+  const selectedUnidade = useAuthStore((state) => state.selectedUnidade);
+  const unidades = useAuthStore((state) => state.unidades);
+  const setSelectedUnidade = useAuthStore((state) => state.setSelectedUnidade);
 
   const handleConfirm = async () => {
     if (!newSeiNumber.trim()) return;
@@ -80,10 +88,41 @@ const NewProcessModal = ({ isOpen, onClose, onConfirm }) => {
           value={newSeiNumber}
           onChange={(e) => setNewSeiNumber(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}
-          className="w-full h-12 px-4 text-sm border border-border rounded-xl focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none bg-surface text-text"
+          className="w-full h-12 px-4 text-sm border border-border rounded-xl focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none bg-surface text-text mb-4"
           autoFocus
         />
+
+        {selectedUnidade && (
+          <div className="p-3 bg-surface-alt rounded-lg border border-border flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-accent-soft rounded-md">
+                <MdDomain className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <p className="text-xs text-text-muted font-medium uppercase tracking-wider">Unidade de Vínculo</p>
+                <p className="text-sm font-semibold text-text">{selectedUnidade.sigla}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowUnitModal(true)}
+              className="px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent-soft rounded-md transition-colors"
+            >
+              Alterar
+            </button>
+          </div>
+        )}
       </div>
+
+      {showUnitModal && (
+        <UnitSelectionModal
+          unidades={unidades}
+          onSelect={(unidade) => {
+            setSelectedUnidade(unidade);
+            setShowUnitModal(false);
+          }}
+          onClose={() => setShowUnitModal(false)}
+        />
+      )}
     </Modal>
   );
 };

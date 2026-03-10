@@ -1,3 +1,5 @@
+import useAuthStore from '@/store/useAuthStore';
+
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
 const API_BASE_URL = USE_MOCK ? '/api/mock' : '/api';
@@ -18,17 +20,45 @@ async function request(endpoint, { method = 'GET', data, headers: customHeaders 
     ...customHeaders
   };
 
+  const selectedUnidade = typeof window !== 'undefined' ? useAuthStore.getState().selectedUnidade : null;
+  const id_unidade = selectedUnidade?.id_unidade;
+
+  const endpointsWithUnit = [
+    '/consultaDocumento',
+    '/detalheProcesso',
+    '/listaDocumentos',
+    '/validaProcessos'
+  ];
+
+  let finalEndpoint = endpoint;
+  let finalData = data;
+
+  if (id_unidade && endpointsWithUnit.some(ep => endpoint.startsWith(ep))) {
+    if (method === 'GET') {
+      const separator = finalEndpoint.includes('?') ? '&' : '?';
+      finalEndpoint = `${finalEndpoint}${separator}id_unidade=${id_unidade}`;
+    } else if (method === 'POST' || method === 'PUT') {
+      if (finalData instanceof FormData) {
+        finalData.append('id_unidade', id_unidade);
+      } else if (finalData instanceof URLSearchParams) {
+        finalData.append('id_unidade', id_unidade);
+      } else {
+        finalData = { ...finalData, id_unidade };
+      }
+    }
+  }
+
   let body = undefined;
 
-  if (method !== 'GET' && data) {
-    if (data instanceof FormData) {
+  if (method !== 'GET' && finalData) {
+    if (finalData instanceof FormData) {
       delete headers['Content-Type'];
-      body = data;
-    } else if (data instanceof URLSearchParams) {
+      body = finalData;
+    } else if (finalData instanceof URLSearchParams) {
       delete headers['Content-Type'];
-      body = data;
+      body = finalData;
     } else {
-      body = JSON.stringify(data);
+      body = JSON.stringify(finalData);
     }
   }
 
@@ -40,7 +70,7 @@ async function request(endpoint, { method = 'GET', data, headers: customHeaders 
 
   try {
     const baseUrl = (USE_MOCK && endpoint === '/planoAcao') ? '/api' : API_BASE_URL;
-    const response = await fetch(`${baseUrl}${endpoint}`, config);
+    const response = await fetch(`${baseUrl}${finalEndpoint}`, config);
 
     if (response.status === 401) {
       if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
