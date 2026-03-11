@@ -296,32 +296,64 @@ function AIPreviewModal({ visible, originalText, modifiedText, actionLabel, isLo
     return (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 overflow-hidden">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose} />
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col animate-in zoom-in-95 fade-in duration-200 overflow-hidden">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
-                    <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"><MdCompareArrows className="text-white" size={20} /></div><div><h2 className="font-bold text-gray-900 text-lg">Preview da Alteração</h2><p className="text-sm text-gray-500">{actionLabel}</p></div></div>
-                    <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"><MdClose size={20} /></button>
+            <div className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col animate-in zoom-in-95 fade-in duration-200 overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
+                    <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center"><MdCompareArrows className="text-accent-contrast" size={20} /></div><div><h2 className="font-bold text-text text-lg">Preview da Alteração</h2><p className="text-sm text-text-muted">{actionLabel}</p></div></div>
+                    <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-surface-alt flex items-center justify-center text-text-muted hover:text-text transition-colors"><MdClose size={20} /></button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6 min-h-0">
+                <div className="flex-1 overflow-y-auto min-h-0 relative">
                     {isLoading ? (
-                        <div className="h-64 flex flex-col items-center justify-center gap-4"><div className="w-12 h-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" /><p className="text-gray-500 font-medium">Processando com StefanIA...</p></div>
+                        <div className="h-64 flex flex-col items-center justify-center gap-3">
+                            <SidebarLoadingCard />
+                        </div>
                     ) : (
-                        <div className="flex flex-col gap-6">
+                        <div className="p-6 flex flex-col gap-6">
                             <div className="grid grid-cols-2 gap-6">
-                                <div className="flex flex-col"><div className="flex items-center gap-2 mb-3"><div className="w-3 h-3 rounded-full bg-red-400" /><span className="text-sm font-bold text-gray-600 uppercase tracking-wide">Original</span></div><div className="bg-red-50/50 border border-red-100 rounded-xl p-4 max-h-[300px] overflow-y-auto"><p className="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed">{originalText || '(Documento vazio)'}</p></div></div>
-                                <div className="flex flex-col"><div className="flex items-center gap-2 mb-3"><div className="w-3 h-3 rounded-full bg-green-400" /><span className="text-sm font-bold text-gray-600 uppercase tracking-wide">Sugestão da IA</span></div><div className="bg-green-50/50 border border-green-100 rounded-xl p-4 max-h-[300px] overflow-y-auto"><p className="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed">{modifiedText}</p></div></div>
+                                <div className="flex flex-col"><div className="flex items-center gap-2 mb-3"><div className="w-3 h-3 rounded-full bg-error" /><span className="text-sm font-bold text-text-muted uppercase tracking-wide">Original</span></div><div className="bg-error/5 border border-error/20 rounded-xl p-4 max-h-[300px] overflow-y-auto"><p className="text-text whitespace-pre-wrap text-sm leading-relaxed">{originalText || '(Documento vazio)'}</p></div></div>
+                                <div className="flex flex-col"><div className="flex items-center gap-2 mb-3"><div className="w-3 h-3 rounded-full bg-success" /><span className="text-sm font-bold text-text-muted uppercase tracking-wide">Sugestão da IA</span></div><div className="bg-success/5 border border-success/20 rounded-xl p-4 max-h-[300px] overflow-y-auto"><p className="text-text whitespace-pre-wrap text-sm leading-relaxed">{modifiedText}</p></div></div>
                             </div>
                             {documentosUtilizados?.length > 0 && (
-                                <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4"><div className="flex items-center gap-2 mb-3"><MdDescription className="text-blue-500" size={18} /><span className="text-sm font-bold text-blue-700">Documentos Utilizados ({documentosUtilizados.length})</span></div><div className="flex flex-wrap gap-2">{documentosUtilizados.map((doc, index) => (<span key={index} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-200 rounded-lg text-xs font-medium text-blue-700 shadow-sm"><MdDescription size={14} />{doc}</span>))}</div></div>
+                                <div className="bg-accent-soft border border-accent/20 rounded-xl p-4"><div className="flex items-center gap-2 mb-3"><MdDescription className="text-accent" size={18} /><span className="text-sm font-bold text-accent">Documentos Utilizados ({documentosUtilizados.length})</span></div><div className="flex flex-wrap gap-2">{documentosUtilizados.map((doc, index) => (<span key={index} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-border rounded-lg text-xs font-medium text-accent shadow-sm"><MdDescription size={14} />{doc}</span>))}</div></div>
                             )}
                         </div>
                     )}
                 </div>
                 {!isLoading && (
-                    <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
-                        <button onClick={onReject} className="px-5 py-2.5 rounded-lg font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-all flex items-center gap-2"><MdClose size={18} /> Rejeitar</button>
-                        <button onClick={onAccept} className="px-5 py-2.5 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-200"><MdCheck size={18} /> Aceitar Alteração</button>
+                    <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-surface-alt/50 flex-shrink-0">
+                        <button onClick={onReject} className="px-5 py-2.5 rounded-lg font-semibold text-text bg-surface border border-border hover:bg-surface-alt transition-all flex items-center gap-2"><MdClose size={18} /> Rejeitar</button>
+                        <button onClick={onAccept} className="px-5 py-2.5 rounded-lg font-semibold text-accent-contrast bg-accent hover:opacity-90 transition-all flex items-center gap-2"><MdCheck size={18} /> Aceitar Alteração</button>
                     </div>
                 )}
+            </div>
+        </div>
+    );
+}
+
+function SidebarLoadingCard() {
+    return (
+        <div className="flex flex-col items-center justify-center gap-4 py-8 w-full">
+            <style dangerouslySetInnerHTML={{ __html: `
+                @keyframes stefania-pulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+                @keyframes stefania-orbit { from { transform: rotate(0deg) translateX(26px) rotate(0deg); } to { transform: rotate(360deg) translateX(26px) rotate(-360deg); } }
+                @keyframes stefania-orbit2 { from { transform: rotate(120deg) translateX(18px) rotate(-120deg); } to { transform: rotate(480deg) translateX(18px) rotate(-480deg); } }
+                @keyframes stefania-orbit3 { from { transform: rotate(240deg) translateX(30px) rotate(-240deg); } to { transform: rotate(600deg) translateX(30px) rotate(-600deg); } }
+                @keyframes stefania-dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
+                @keyframes stefania-bar { 0% { width: 10%; margin-left: 0%; } 50% { width: 55%; margin-left: 20%; } 100% { width: 10%; margin-left: 85%; } }
+                .stefania-dot::after { content: ''; animation: stefania-dots 1.5s steps(1) infinite; }
+            ` }} />
+            <div className="relative flex items-center justify-center" style={{ width: 60, height: 60 }}>
+                <div className="absolute rounded-full bg-accent" style={{ width: 48, height: 48, animation: 'stefania-pulse 2s ease-in-out infinite', opacity: 0.85 }} />
+                <div className="absolute rounded-full bg-accent-soft border border-accent/30" style={{ width: 8, height: 8, animation: 'stefania-orbit 1.4s linear infinite' }} />
+                <div className="absolute rounded-full bg-accent/60" style={{ width: 6, height: 6, animation: 'stefania-orbit2 1.9s linear infinite' }} />
+                <div className="absolute rounded-full bg-accent-soft border border-accent/50" style={{ width: 5, height: 5, animation: 'stefania-orbit3 1.1s linear infinite' }} />
+                <MdAutoAwesome className="text-accent-contrast relative z-10" size={20} />
+            </div>
+            <div className="text-center">
+                <p className="text-sm font-bold text-accent stefania-dot">Gerando conteúdo</p>
+                <p className="text-xs text-text-muted mt-1">A IA está trabalhando</p>
+            </div>
+            <div className="w-full px-4 bg-surface-alt rounded-full h-1.5 overflow-hidden">
+                <div className="h-full rounded-full bg-accent" style={{ animation: 'stefania-bar 1.5s ease-in-out infinite' }} />
             </div>
         </div>
     );
@@ -351,7 +383,7 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
     const triggerRef = useRef(null);
     const colorInputRef = useRef(null);
     const isPickingCustomColor = useRef(false);
-    const [aiMode, setAiMode] = useState('quick');
+    const [aiMode, setAiMode] = useState('ask');
     const [isAILoading, setIsAILoading] = useState(false);
     const [customPrompt, setCustomPrompt] = useState('');
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
@@ -473,6 +505,7 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
 
     const executeAIAction = async (action, label, targetText, replaceSelection = false) => {
         setIsAILoading(true);
+        editor.setEditable(false);
         try {
             let prompt = '';
             switch (action) {
@@ -490,7 +523,7 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
             const resultText = response.resposta || "Não foi possível gerar uma resposta.";
             if (aiMode === 'quick') applyTextToEditor(resultText, replaceSelection);
             else setPreviewModal({ visible: true, originalText: targetText, modifiedText: resultText, actionLabel: label, documentosUtilizados: response.documentos_utilizados || [], pendingAction: () => applyTextToEditor(resultText, replaceSelection) });
-        } catch (error) { console.error('Erro na chamada de IA:', error); } finally { setIsAILoading(false); }
+        } catch (error) { console.error('Erro na chamada de IA:', error); } finally { setIsAILoading(false); editor.setEditable(true); }
     };
 
     const handleDownloadPDF = async () => {
@@ -604,7 +637,7 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
                 </div>
 
                 <div className="flex-1 flex overflow-hidden relative">
-                    <div className="flex-1 overflow-y-auto bg-neutral-200/80 flex justify-center py-8 custom-scrollbar transition-colors duration-300" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ visible: true, x: e.clientX, y: e.clientY }); }}>
+                    <div className="flex-1 overflow-y-auto bg-neutral-200/80 flex justify-center py-8 custom-scrollbar transition-colors duration-300 relative" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ visible: true, x: e.clientX, y: e.clientY }); }}>
                         <EditorContent editor={editor} />
                     </div>
 
@@ -620,30 +653,36 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
                                 <div className="px-4 py-3 border-b border-border bg-surface-alt/50">
                                     <div className="flex items-center gap-2 text-xs font-semibold text-text-muted mb-2"><span>Modo de aplicação</span></div>
                                     <div className="flex bg-surface-alt rounded-lg p-1 border border-border">
+                                        <button onClick={() => setAiMode('ask')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-semibold transition-all ${aiMode === 'ask' ? 'bg-surface text-accent shadow-sm' : 'text-text-muted hover:text-text'}`}><MdQuestionAnswer size={14} /> Validar</button>
                                         <button onClick={() => setAiMode('quick')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-semibold transition-all ${aiMode === 'quick' ? 'bg-surface text-accent shadow-sm' : 'text-text-muted hover:text-text'}`}><MdFlashOn size={14} /> Rápido</button>
-                                        <button onClick={() => setAiMode('ask')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-semibold transition-all ${aiMode === 'ask' ? 'bg-surface text-accent shadow-sm' : 'text-text-muted hover:text-text'}`}><MdQuestionAnswer size={14} /> Perguntar</button>
                                     </div>
                                 </div>
                                 <div className="p-4 flex-1 flex flex-col gap-3 min-h-0 overflow-y-auto custom-scrollbar">
-                                    <button onClick={() => executeAIAction('generate_draft', 'Sugestão de Minuta', editor.getText(), false)} disabled={isAILoading} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Sugestão de Minuta</h3></div>
-                                        <p className="text-xs text-text-muted">Estrutura básica para seu documento.</p>
-                                    </button>
-                                    <button onClick={() => executeAIAction('adjust_language', 'Ajustar Linguagem', editor.getText(), false)} disabled={isAILoading || editor.getText().trim().length === 0} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Ajustar Linguagem</h3></div>
-                                        <p className="text-xs text-text-muted">Tornar mais formal e impessoal.</p>
-                                    </button>
-                                    <button onClick={() => executeAIAction('summarize', 'Resumo Executivo', editor.getText(), false)} disabled={isAILoading || editor.getText().trim().length === 0} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Resumo Executivo</h3></div>
-                                        <p className="text-xs text-text-muted">Extrair pontos principais.</p>
-                                    </button>
-                                    <div className="mt-2 pt-3 border-t border-border">
-                                        <div className="text-xs font-semibold text-text-muted mb-2">Prompt Personalizado</div>
-                                        <div className="flex gap-2">
-                                            <input type="text" value={customPrompt} onChange={(e) => setCustomPrompt(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && customPrompt.trim() && (executeAIAction('custom', 'Prompt Personalizado', editor.getText(), false), setCustomPrompt(''))} placeholder="Digite sua instrução..." className="flex-1 px-3 py-2 text-sm bg-surface text-text border border-border rounded-lg focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent-soft" disabled={isAILoading} />
-                                            <button onClick={() => { if (!customPrompt.trim()) return; executeAIAction('custom', 'Prompt Personalizado', editor.getText(), false); setCustomPrompt(''); }} disabled={isAILoading || !customPrompt.trim()} className="w-10 h-10 flex items-center justify-center bg-accent text-accent-contrast rounded-lg hover:bg-accent-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-accent/20"><MdSend size={18} /></button>
-                                        </div>
-                                    </div>
+                                    {isAILoading ? (
+                                        <SidebarLoadingCard />
+                                    ) : (
+                                        <>
+                                            <button onClick={() => executeAIAction('generate_draft', 'Sugestão de Minuta', editor.getText(), false)} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group">
+                                                <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Sugestão de Minuta</h3></div>
+                                                <p className="text-xs text-text-muted">Estrutura básica para seu documento.</p>
+                                            </button>
+                                            <button onClick={() => executeAIAction('adjust_language', 'Ajustar Linguagem', editor.getText(), false)} disabled={editor.getText().trim().length === 0} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Ajustar Linguagem</h3></div>
+                                                <p className="text-xs text-text-muted">Tornar mais formal e impessoal.</p>
+                                            </button>
+                                            <button onClick={() => executeAIAction('summarize', 'Resumo Executivo', editor.getText(), false)} disabled={editor.getText().trim().length === 0} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Resumo Executivo</h3></div>
+                                                <p className="text-xs text-text-muted">Extrair pontos principais.</p>
+                                            </button>
+                                            <div className="mt-2 pt-3 border-t border-border">
+                                                <div className="text-xs font-semibold text-text-muted mb-2">Prompt Personalizado</div>
+                                                <div className="flex gap-2">
+                                                    <input type="text" value={customPrompt} onChange={(e) => setCustomPrompt(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && customPrompt.trim() && (executeAIAction('custom', 'Prompt Personalizado', editor.getText(), false), setCustomPrompt(''))} placeholder="Digite sua instrução..." className="flex-1 px-3 py-2 text-sm bg-surface text-text border border-border rounded-lg focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent-soft" />
+                                                    <button onClick={() => { if (!customPrompt.trim()) return; executeAIAction('custom', 'Prompt Personalizado', editor.getText(), false); setCustomPrompt(''); }} disabled={!customPrompt.trim()} className="w-10 h-10 flex items-center justify-center bg-accent text-accent-contrast rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"><MdSend size={18} /></button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="p-4 border-t border-border bg-surface-alt/30">
                                     <button onClick={handleDownloadPDF} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-neutral-50 text-text border border-border hover:border-accent/50 px-4 py-2.5 rounded-lg transition-all shadow-sm hover:shadow group"><div className="p-1.5 bg-red-50 text-red-600 rounded-md group-hover:scale-110 transition-transform"><MdFileDownload size={18} /></div><span className="font-medium text-sm text-text-muted group-hover:text-text transition-colors">Baixar como PDF</span></button>

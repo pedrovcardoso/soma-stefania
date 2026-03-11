@@ -9,7 +9,7 @@ export default function StefaniaChatbot({ processCode }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const [messages, setMessages] = useState([
-        { id: 1, text: "Olá! Sou a Stefania, sua assistente virtual. Como posso ajudar com este processo hoje?", sender: 'bot', timestamp: new Date() }
+        { id: 1, text: "Olá! Sou a StefanIA, sua assistente virtual. Como posso ajudar com este processo hoje?", sender: 'bot', timestamp: new Date() }
     ]);
     const [inputValue, setInputValue] = useState("");
     const [useTreeContext, setUseTreeContext] = useState(false);
@@ -254,7 +254,7 @@ export default function StefaniaChatbot({ processCode }) {
                             <Image src="/stefan.svg" alt="Stefania" width={40} height={40} />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg leading-tight">Stefania</h3>
+                            <h3 className="font-bold text-lg leading-tight">StefanIA</h3>
                             <p className="text-xs text-accent-contrast/70">Sua assistente virtual</p>
                         </div>
                     </div>
@@ -444,7 +444,7 @@ export default function StefaniaChatbot({ processCode }) {
                         </button>
                     </form>
                     <div className="text-center mt-2">
-                        <span className="text-[10px] text-text-muted">Stefania pode cometer erros. Verifique informações importantes.</span>
+                        <span className="text-[10px] text-text-muted">StefanIA pode cometer erros. Verifique informações importantes.</span>
                     </div>
                 </div>
             </Transition>
