@@ -221,12 +221,7 @@ export const fetchListaDocumentos = async (seiNumber, urlProcesso) => {
     try {
         const params = new URLSearchParams();
         params.append('sei_principal', seiNumber);
-
-        if (urlProcesso) {
-            params.append('url_processo', urlProcesso);
-        } else {
-            params.append('url_processo', `https://sei.mg.gov.br/sei/controlador.php?acao=procedimento_selecionar&id_procedimento=${seiNumber}`);
-        }
+        params.append('link_processo', urlProcesso);
 
         const response = await apiClient.post('/listaDocumentos', params);
         return response.documentos || [];
