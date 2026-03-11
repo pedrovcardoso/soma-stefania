@@ -1,33 +1,27 @@
 function initModalPlanos() {
     const modalHtml = `
-        <section id="modal">
-            <!-- Modal de edição -->
-            <div id="edit-modal-plan"
+        <section id="plan-modal">
+            <div id="plan-edit-modal"
                 class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
                 <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
-                    <!-- Cabeçalho do Modal -->
                     <div class="flex items-center justify-between p-4 border-b border-slate-200 flex-shrink-0">
                         <h3 class="text-xl font-bold text-slate-800">Editar Plano de Ação</h3>
-                        <button id="modal-btn-close-plan" type="button"
+                        <button id="plan-modal-btn-close" type="button"
                             class="text-slate-500 hover:text-red-600 transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                             <ion-icon name="close-outline" class="text-2xl"></ion-icon>
                         </button>
                     </div>
-
-                    <!-- Corpo do Modal -->
                     <div class="p-5 overflow-y-auto">
-                        <form id="modal-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                            <!-- Título Editável -->
+                        <form id="plan-modal-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                             <div class="md:col-span-2">
-                                <input type="text" id="edit-Nome" name="Nome"
+                                <input type="text" id="plan-edit-Nome" name="Nome"
                                     class="w-full bg-transparent border-none p-0 text-2xl font-bold text-sky-700 focus:ring-0 placeholder-slate-400 -mx-2 px-2 hover:bg-slate-50 rounded-lg"
                                     placeholder="Nome do Plano de Ação">
                             </div>
-                            <!-- Campos Principais -->
                             <div>
-                                <label for="edit-Status"
+                                <label for="plan-edit-Status"
                                     class="block text-sm font-semibold text-slate-500 mb-1">Status</label>
-                                <select id="edit-Status" name="Status"
+                                <select id="plan-edit-Status" name="Status"
                                     class="block w-full rounded-md border border-slate-150 bg-white p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500">
                                     <option value="Em desenvolvimento">Em desenvolvimento</option>
                                     <option value="Planejado">Planejado</option>
@@ -37,51 +31,47 @@ function initModalPlanos() {
                                 </select>
                             </div>
                             <div>
-                                <label for="edit-Resolução"
+                                <label for="plan-edit-Resolução"
                                     class="block text-sm font-semibold text-slate-500 mb-1">Resolução</label>
-                                <input type="text" id="edit-Resolução" name="Resolução"
+                                <input type="text" id="plan-edit-Resolução" name="Resolução"
                                     class="block w-full rounded-md border border-slate-150 bg-white p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500">
                             </div>
                             <div>
-                                <label for="edit-Data-inicio"
+                                <label for="plan-edit-Data-inicio"
                                     class="block text-sm font-semibold text-slate-500 mb-1">Data de início</label>
-                                <input type="date" id="edit-Data-inicio" name="Data início"
+                                <input type="date" id="plan-edit-Data-inicio" name="Data início"
                                     class="block w-full rounded-md border border-slate-150 bg-white p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500">
                             </div>
                             <div>
-                                <label for="edit-Data-fim"
+                                <label for="plan-edit-Data-fim"
                                     class="block text-sm font-semibold text-slate-500 mb-1">Data fim</label>
-                                <input type="date" id="edit-Data-fim" name="Data fim"
+                                <input type="date" id="plan-edit-Data-fim" name="Data fim"
                                     class="block w-full rounded-md border border-slate-150 bg-white p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500">
                             </div>
                             <div class="md:col-span-2">
-                                <label for="edit-Observacoes"
+                                <label for="plan-edit-Observacoes"
                                     class="block text-sm font-semibold text-slate-500 mb-1">Observações</label>
-                                <textarea id="edit-Observacoes" name="Observações" rows="2"
+                                <textarea id="plan-edit-Observacoes" name="Observações" rows="2"
                                     class="block w-full rounded-md border border-slate-150 bg-white p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500"></textarea>
                             </div>
-
-                            <!-- Seção SEI -->
                             <div class="md:col-span-2 flex items-center gap-2 pt-4 border-t border-slate-200 mt-2">
                                 <img src="../../assets/images/logo_sei_mg.png" class="h-6 w-auto object-contain"
                                     alt="Logo SEI">
                             </div>
                             <div>
-                                <label for="edit-Processo-SEI"
+                                <label for="plan-edit-Processo-SEI"
                                     class="block text-sm font-semibold text-slate-500 mb-1">Processo SEI de
                                     origem</label>
-                                <input type="text" id="edit-Processo-SEI" name="Processo SEI"
+                                <input type="text" id="plan-edit-Processo-SEI" name="Processo SEI"
                                     class="block w-full rounded-md border border-slate-150 bg-white p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500">
                             </div>
                             <div class="md:col-span-2">
-                                <label for="edit-SEI-relacionados"
+                                <label for="plan-edit-SEI-relacionados"
                                     class="block text-sm font-semibold text-slate-500 mb-1">Outros SEI
                                     relacionados</label>
-                                <textarea id="edit-SEI-relacionados" name="SEI relacionados" rows="2"
+                                <textarea id="plan-edit-SEI-relacionados" name="SEI relacionados" rows="2"
                                     class="block w-full rounded-md border border-slate-150 bg-white p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500"></textarea>
                             </div>
-
-                            <!-- Seção Equipe -->
                             <div class="md:col-span-2 pt-4 border-t border-slate-200 mt-2">
                                 <h4 class="flex items-center gap-2 text-base font-semibold text-slate-700">
                                     <ion-icon name="people" class="text-lg"></ion-icon> Equipe responsável
@@ -89,7 +79,7 @@ function initModalPlanos() {
                             </div>
                             <div class="md:col-span-2">
                                 <div class="mt-2 overflow-x-auto rounded-lg border border-slate-200">
-                                    <table id="tabelaPessoas" class="min-w-full divide-y divide-slate-200">
+                                    <table id="plan-tabelaPessoas" class="min-w-full divide-y divide-slate-200">
                                         <thead class="bg-slate-50">
                                             <tr>
                                                 <th scope="col"
@@ -108,19 +98,17 @@ function initModalPlanos() {
                                                         class="sr-only">Remover</span></th>
                                             </tr>
                                         </thead>
-                                        <tbody id="corpoTabelaPessoas" class="bg-white divide-y divide-slate-200">
+                                        <tbody id="plan-corpoTabelaPessoas" class="bg-white divide-y divide-slate-200">
                                         </tbody>
                                     </table>
                                 </div>
                                 <div class="mt-3 text-right">
-                                    <button type="button" id="btnAdicionarPessoa"
+                                    <button type="button" id="plan-btnAdicionarPessoa"
                                         class="inline-flex items-center gap-2 px-3 py-1.5 bg-sky-100 text-sky-800 text-sm font-medium rounded-md hover:bg-sky-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-sky-300 transition-colors">
                                         <ion-icon name="add-outline" class="text-base"></ion-icon> Adicionar Pessoa
                                     </button>
                                 </div>
                             </div>
-
-                            <!-- Seção Documentos -->
                             <div class="md:col-span-2 pt-4 border-t border-slate-200 mt-2">
                                 <h4 class="flex items-center gap-2 text-base font-semibold text-slate-700">
                                     <ion-icon name="documents" class="text-lg"></ion-icon>
@@ -128,38 +116,34 @@ function initModalPlanos() {
                                 </h4>
                             </div>
                             <div class="md:col-span-2">
-                                <label for="edit-Documento-TCE"
+                                <label for="plan-edit-Documento-TCE"
                                     class="block text-sm font-semibold text-slate-500 mb-1">Documento TCE</label>
-                                <input type="text" id="edit-Documento-TCE" name="Documento TCE"
+                                <input type="text" id="plan-edit-Documento-TCE" name="Documento TCE"
                                     class="block w-full rounded-md border border-slate-150 bg-white p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500">
                             </div>
                             <div class="md:col-span-2">
-                                <label for="edit-Documentos-relacionados"
+                                <label for="plan-edit-Documentos-relacionados"
                                     class="block text-sm font-semibold text-slate-500 mb-1">Documentos
                                     relacionados</label>
-                                <textarea id="edit-Documentos-relacionados" name="Documentos relacionados" rows="2"
+                                <textarea id="plan-edit-Documentos-relacionados" name="Documentos relacionados" rows="2"
                                     class="block w-full rounded-md border border-slate-150 bg-white p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500"></textarea>
                             </div>
                         </form>
                     </div>
-
-                    <!-- Rodapé do Modal -->
                     <div
                         class="flex items-center justify-end p-4 border-t border-slate-200 bg-slate-50 rounded-b-xl space-x-3 flex-shrink-0">
-                        <button id="modal-btn-cancel-plan" type="button"
-                            class="bg-white text-slate-700 font-semibold py-2 px-5 rounded-lg border border border-slate-150 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
+                        <button id="plan-modal-btn-cancel" type="button"
+                            class="bg-white text-slate-700 font-semibold py-2 px-5 rounded-lg border border-slate-150 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
                             Cancelar
                         </button>
-                        <button id="modal-btn-save-plan" type="button"
+                        <button id="plan-modal-btn-save" type="button"
                             class="bg-sky-600 text-white font-semibold py-2 px-5 rounded-lg shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
                             Salvar Alterações
                         </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Modal de confirmação para descartar alterações -->
-            <div id="confirmation-modal-plan"
+            <div id="plan-confirmation-modal"
                 class="hidden fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
                 <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
                     <div class="p-6">
@@ -169,25 +153,22 @@ function initModalPlanos() {
                     </div>
                     <div
                         class="flex items-center justify-end p-4 border-t border-slate-200 bg-slate-50 rounded-b-xl space-x-3">
-                        <button id="confirm-btn-no-plan" type="button"
+                        <button id="plan-confirm-btn-no" type="button"
                             class="bg-white text-slate-700 font-bold py-2 px-6 rounded-lg border border-slate-300 hover:bg-slate-100">
                             Não
                         </button>
-                        <button id="confirm-btn-yes-plan" type="button"
+                        <button id="plan-confirm-btn-yes" type="button"
                             class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700">
                             Sim, Descartar
                         </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Modal de confirmação de exclusão -->
-            <div id="delete-confirmation-modal-plan"
+            <div id="plan-delete-confirmation-modal"
                 class="hidden fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
                 <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
                     <div class="p-6">
                         <div class="flex items-center">
-                            <!-- Ícone de Alerta -->
                             <div
                                 class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
                                 <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -202,7 +183,7 @@ function initModalPlanos() {
                         </div>
                         <div class="mt-4">
                             <p class="text-sm text-slate-600">
-                                Tem certeza de que deseja excluir o plano de ação: <strong id="plano-to-delete-name"
+                                Tem certeza de que deseja excluir o plano de ação <strong id="plan-to-delete-name"
                                     class="font-bold text-slate-800"></strong>?
                             </p>
                             <p class="mt-2 text-sm font-semibold text-red-700 bg-red-50 p-3 rounded-md">
@@ -212,34 +193,14 @@ function initModalPlanos() {
                     </div>
                     <div
                         class="flex items-center justify-end p-4 border-t border-slate-200 bg-slate-50 rounded-b-xl space-x-3">
-                        <button id="delete-confirm-btn-no-plan" type="button"
+                        <button id="plan-delete-confirm-btn-no" type="button"
                             class="bg-white text-slate-700 font-bold py-2 px-6 rounded-lg border border-slate-300 hover:bg-slate-100 disabled:cursor-not-allowed">
                             Cancelar
                         </button>
-                        <button id="delete-confirm-btn-yes-plan" type="button"
+                        <button id="plan-delete-confirm-btn-yes" type="button"
                             class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700 disabled:cursor-not-allowed">
                             Sim, Excluir
                         </button>
-                    </div>
-                </div>
-            </div>
-            <!-- Modal do prompt de visãoi geral -->
-            <div id="prompt-modal"
-                class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-                <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col">
-                    <div class="flex justify-between items-center p-4 border-b">
-                        <h3 class="text-lg font-semibold text-slate-800">Detalhes do Prompt</h3>
-                        <button id="close-modal-button"
-                            class="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors">
-                            <ion-icon name="close-outline" class="text-2xl"></ion-icon>
-                        </button>
-                    </div>
-                    <div class="p-6 overflow-y-auto">
-                        <p class="text-sm text-slate-600 mb-4">
-                            Model: GPT-4.1 mini
-                        </p>
-                        <pre
-                            class="bg-slate-100 text-slate-800 text-xs p-4 rounded-lg whitespace-pre-wrap font-mono"><code id="prompt-text-container"></code></pre>
                     </div>
                 </div>
             </div>
@@ -253,16 +214,11 @@ function initModalPlanos() {
     setupModalPlanosLogic();
 }
 
-let currentPlanId = null;
-let hasChangesPlanos = false;
-let isNewPlan = false;
+let modalPlanos_currentId = null;
+let modalPlanos_hasChanges = false;
+let modalPlanos_isNew = false;
 
 function setupModalPlanosLogic() {
-    // --- Configuração dos botões de edição ---
-    // Como os botões podem ser gerados dinamicamente nos cards, 
-    // precisamos usar delegação de eventos ou re-atachar.
-    // Para simplificar, vamos expor funções globais ou delegar no body.
-
     document.body.addEventListener('click', (event) => {
         const editBtn = event.target.closest('.edit-plano-button');
         if (editBtn) {
@@ -275,18 +231,17 @@ function setupModalPlanosLogic() {
         }
     });
 
-    // --- Controles do modal de edição ---
-    const modalForm = document.getElementById('modal-form');
+    const modalForm = document.getElementById('plan-modal-form');
     if (modalForm) {
-        modalForm.addEventListener('input', () => (hasChangesPlanos = true));
+        modalForm.addEventListener('input', () => (modalPlanos_hasChanges = true));
     }
 
     const modalBtnMap = {
-        'modal-btn-close-plan': () => closeEditModalPlan(),
-        'modal-btn-cancel-plan': () => closeEditModalPlan(),
-        'modal-btn-save-plan': handleSave,
-        'confirm-btn-no-plan': () => document.getElementById('confirmation-modal-plan').classList.add('hidden'),
-        'confirm-btn-yes-plan': () => closeEditModalPlan(true)
+        'plan-modal-btn-close': () => modalPlanos_closeModal(),
+        'plan-modal-btn-cancel': () => modalPlanos_closeModal(),
+        'plan-modal-btn-save': modalPlanos_handleSave,
+        'plan-confirm-btn-no': () => document.getElementById('plan-confirmation-modal').classList.add('hidden'),
+        'plan-confirm-btn-yes': () => modalPlanos_closeModal(true)
     };
 
     Object.entries(modalBtnMap).forEach(([id, handler]) => {
@@ -294,13 +249,11 @@ function setupModalPlanosLogic() {
         if (btn) btn.addEventListener('click', handler);
     });
 
-
-    // --- Controles do modal de confirmação de exclusão ---
-    const deleteModal = document.getElementById('delete-confirmation-modal-plan');
+    const deleteModal = document.getElementById('plan-delete-confirmation-modal');
     if (deleteModal) {
         const deleteBtnMap = {
-            'delete-confirm-btn-no-plan': () => { deleteModal.classList.add('hidden'); currentPlanId = '' },
-            'delete-confirm-btn-yes-plan': handleDelete
+            'plan-delete-confirm-btn-no': () => { deleteModal.classList.add('hidden'); modalPlanos_currentId = '' },
+            'plan-delete-confirm-btn-yes': modalPlanos_handleDelete
         };
 
         Object.entries(deleteBtnMap).forEach(([id, handler]) => {
@@ -309,15 +262,14 @@ function setupModalPlanosLogic() {
         });
     }
 
-    // --- controles da tabela ---
-    const btnAdicionar = document.getElementById('btnAdicionarPessoa');
+    const btnAdicionar = document.getElementById('plan-btnAdicionarPessoa');
     if (btnAdicionar) {
         btnAdicionar.addEventListener('click', () => adicionarLinhaPessoa());
     }
 }
 
 function adicionarLinhaPessoa(pessoaData = {}) {
-    const corpoTabela = document.getElementById('corpoTabelaPessoas');
+    const corpoTabela = document.getElementById('plan-corpoTabelaPessoas');
     const novaLinha = document.createElement('tr');
     novaLinha.innerHTML = `
         <td class="px-4 py-2 whitespace-nowrap">
@@ -344,13 +296,13 @@ function adicionarLinhaPessoa(pessoaData = {}) {
         </td>`;
 
     corpoTabela.appendChild(novaLinha);
-    novaLinha.addEventListener('input', () => (hasChangesPlanos = true));
+    novaLinha.addEventListener('input', () => (modalPlanos_hasChanges = true));
 
     novaLinha.querySelector('.remover-linha').addEventListener('click', function (e) {
         const btn = e.currentTarget;
         const linha = btn.closest('tr');
         linha.remove();
-        hasChangesPlanos = true;
+        modalPlanos_hasChanges = true;
 
         const linhasRestantes = corpoTabela.querySelectorAll('tr');
         if (linhasRestantes.length === 0) {
@@ -360,33 +312,33 @@ function adicionarLinhaPessoa(pessoaData = {}) {
 }
 
 function openEditModal(planId) {
-    const modal = document.getElementById('edit-modal-plan');
-    const form = document.getElementById('modal-form');
+    const modal = document.getElementById('plan-edit-modal');
+    const form = document.getElementById('plan-modal-form');
     const modalTitle = modal.querySelector('h3');
 
-    currentPlanId = planId;
-    isNewPlan = !planId;
+    modalPlanos_currentId = planId;
+    modalPlanos_isNew = !planId;
 
     form.reset();
 
-    if (isNewPlan) {
+    if (modalPlanos_isNew) {
         modalTitle.textContent = 'Criar Novo Plano de Ação';
         form.querySelector('[name="Status"]').value = 'Planejado';
         adicionarLinhaPessoa();
     } else {
         modalTitle.textContent = 'Editar Plano de Ação';
-        const planData = window.jsonPlanos.find(p => p.ID === currentPlanId);
-        fillModalEdicao(planData);
+        const planData = window.jsonPlanos.find(p => p.ID === modalPlanos_currentId);
+        modalPlanos_fillModal(planData);
     }
 
-    hasChangesPlanos = false;
+    modalPlanos_hasChanges = false;
     modal.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
 }
 
-function fillModalEdicao(planData) {
-    const form = document.getElementById('modal-form');
-    const corpoTabela = document.getElementById('corpoTabelaPessoas');
+function modalPlanos_fillModal(planData) {
+    const form = document.getElementById('plan-modal-form');
+    const corpoTabela = document.getElementById('plan-corpoTabelaPessoas');
     corpoTabela.innerHTML = '';
 
     const pessoas = planData.objPessoas || [];
@@ -406,47 +358,47 @@ function fillModalEdicao(planData) {
     });
 }
 
-function closeEditModalPlan(force = false) {
-    const confirmationModal = document.getElementById('confirmation-modal-plan');
-    const editModal = document.getElementById('edit-modal-plan');
+function modalPlanos_closeModal(force = false) {
+    const confirmationModal = document.getElementById('plan-confirmation-modal');
+    const editModal = document.getElementById('plan-edit-modal');
     const body = document.body;
 
-    if (hasChangesPlanos && !force) {
+    if (modalPlanos_hasChanges && !force) {
         confirmationModal.classList.remove('hidden');
         return;
     }
 
-    const form = document.getElementById('modal-form');
+    const form = document.getElementById('plan-modal-form');
     form.reset();
 
     editModal.classList.add('hidden');
     confirmationModal.classList.add('hidden');
 
-    document.getElementById('corpoTabelaPessoas').innerHTML = '';
+    document.getElementById('plan-corpoTabelaPessoas').innerHTML = '';
 
-    hasChangesPlanos = false;
-    isNewPlan = false;
+    modalPlanos_hasChanges = false;
+    modalPlanos_isNew = false;
 
     editModal.removeAttribute('data-plan-id');
     body.classList.remove('overflow-hidden');
 }
 
-async function handleSave() {
-    if (!hasChangesPlanos) {
-        closeEditModalPlan(true);
+async function modalPlanos_handleSave() {
+    if (!modalPlanos_hasChanges) {
+        modalPlanos_closeModal(true);
         return;
     }
 
-    const saveBtn = document.getElementById('modal-btn-save-plan');
-    const cancelBtn = document.getElementById('modal-btn-cancel-plan');
-    const closeBtn = document.getElementById('modal-btn-close-plan');
+    const saveBtn = document.getElementById('plan-modal-btn-save');
+    const cancelBtn = document.getElementById('plan-modal-btn-cancel');
+    const closeBtn = document.getElementById('plan-modal-btn-close');
 
-    const form = document.getElementById('modal-form');
+    const form = document.getElementById('plan-modal-form');
     const formData = new FormData(form);
 
     ['nome', 'email', 'unidade', 'coordenador'].forEach(v => { formData.delete(v); });
 
-    const corpoTabela = document.getElementById('corpoTabelaPessoas');
+    const corpoTabela = document.getElementById('plan-corpoTabelaPessoas');
     const linhasTabela = corpoTabela.querySelectorAll('tr');
     const objPessoas = [];
 
@@ -482,19 +434,19 @@ async function handleSave() {
         return;
     }
 
-    [saveBtn, cancelBtn, closeBtn].forEach(btn => (btn.disabled = true));
+    modalPlanos_togglePageInteractivity(false);
     saveBtn.textContent = 'Salvando...';
 
     try {
-        const action = isNewPlan ? 'create' : 'update';
-        const id = isNewPlan ? '' : currentPlanId;
+        const action = modalPlanos_isNew ? 'create' : 'update';
+        const id = modalPlanos_isNew ? '' : modalPlanos_currentId;
 
-        const oldPlan = !isNewPlan ? window.jsonPlanos.find(p => p.ID === currentPlanId) : null;
+        const oldPlan = !modalPlanos_isNew ? window.jsonPlanos.find(p => p.ID === modalPlanos_currentId) : null;
 
         const response = await window.salvarArquivoNoOneDrive(id, 'planos.txt', action, updatedPlan, 'jsonPlanos');
 
         if (response?.status === 200) {
-            await sincronizarNotificacoesComPessoasDoPlano(oldPlan, updatedPlan);
+            awaitSincronizarNotificacoesComPessoasDoPlano(oldPlan, updatedPlan);
             window.location.reload();
         } else {
             throw new Error(response?.message || 'Erro desconhecido ao salvar');
@@ -502,23 +454,23 @@ async function handleSave() {
     } catch (error) {
         console.error('Falha ao salvar o plano:', error);
         alert(`Ocorreu um erro ao salvar: ${error.message}`);
-        [saveBtn, cancelBtn, closeBtn].forEach(btn => (btn.disabled = false));
+        modalPlanos_togglePageInteractivity(true);
         saveBtn.textContent = 'Salvar Alterações';
     }
 }
 
-async function handleDelete() {
-    const confirmButton = document.getElementById('delete-confirm-btn-yes-plan');
-    const cancelButton = document.getElementById('delete-confirm-btn-no-plan');
-    const deleteConfirmationModal = document.getElementById('delete-confirmation-modal-plan');
+async function modalPlanos_handleDelete() {
+    const confirmButton = document.getElementById('plan-delete-confirm-btn-yes');
+    const cancelButton = document.getElementById('plan-delete-confirm-btn-no');
+    const deleteConfirmationModal = document.getElementById('plan-delete-confirmation-modal');
 
     const originalConfirmText = confirmButton.textContent;
 
-    [confirmButton, cancelButton].forEach(btn => (btn.disabled = true));
+    modalPlanos_togglePageInteractivity(false);
     confirmButton.textContent = 'Excluindo...';
 
     try {
-        const response = await window.salvarArquivoNoOneDrive(currentPlanId, 'planos.txt', 'delete', '', 'jsonPlanos');
+        const response = await window.salvarArquivoNoOneDrive(modalPlanos_currentId, 'planos.txt', 'delete', '', 'jsonPlanos');
         if (response.status === 200) {
             window.location.reload();
         } else {
@@ -529,7 +481,7 @@ async function handleDelete() {
     } catch (error) {
         console.error("Falha ao excluir o plano:", error);
         alert("Ocorreu um erro inesperado ao excluir o plano. Por favor, tente novamente.");
-        [confirmButton, cancelButton].forEach(btn => (btn.disabled = false));
+        modalPlanos_togglePageInteractivity(true);
     } finally {
         confirmButton.textContent = originalConfirmText;
         deleteConfirmationModal.classList.add('hidden');
@@ -538,15 +490,15 @@ async function handleDelete() {
 
 function openDeleteConfirmationModal(idPlan) {
     const planData = window.jsonPlanos.find(p => p.ID === idPlan);
-    currentPlanId = idPlan;
-    const modal = document.getElementById('delete-confirmation-modal-plan');
-    const nameSpan = document.getElementById('plano-to-delete-name');
+    modalPlanos_currentId = idPlan;
+    const modal = document.getElementById('plan-delete-confirmation-modal');
+    const nameSpan = document.getElementById('plan-to-delete-name');
     nameSpan.textContent = `"${planData.Nome}"`;
     modal.classList.remove('hidden');
 }
 
-async function sincronizarNotificacoesComPessoasDoPlano(oldPlan, newPlan) {
-    if (!oldPlan || !newPlan || isNewPlan) return;
+async function awaitSincronizarNotificacoesComPessoasDoPlano(oldPlan, newPlan) {
+    if (!oldPlan || !newPlan || modalPlanos_isNew) return;
 
     const oldPessoas = oldPlan.objPessoas || [];
     const newPessoas = newPlan.objPessoas || [];
@@ -612,6 +564,24 @@ async function sincronizarNotificacoesComPessoasDoPlano(oldPlan, newPlan) {
     }
 }
 
-// Expondo as funções necessárias globalmente para os botões "Novo Plano" nas páginas
 window.openEditModalPlanos = openEditModal;
 window.initModalPlanos = initModalPlanos;
+window.openModalForNewPlan = function () {
+    openEditModal();
+};
+
+function modalPlanos_togglePageInteractivity(enabled) {
+    const elements = document.querySelectorAll('input, select, checkbox, textarea, button');
+    elements.forEach(el => {
+        el.disabled = !enabled;
+    });
+
+    const customSelects = document.querySelectorAll('.custom-select-container');
+    customSelects.forEach(cs => {
+        if (!enabled) {
+            cs.classList.add('pointer-events-none', 'opacity-70', 'grayscale-[0.5]');
+        } else {
+            cs.classList.remove('pointer-events-none', 'opacity-70', 'grayscale-[0.5]');
+        }
+    });
+}
