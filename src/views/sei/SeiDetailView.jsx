@@ -449,7 +449,7 @@ export default function SeiDetailView({ id, lastReload, data: tabData }) {
                 </div>
               </div>
 
-              <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden">
+              <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden hidden">
                 <div className="px-6 py-4 border-b border-border bg-surface">
                   <h2 className="text-lg font-bold text-text">Árvore de Processos Relacionados</h2>
                 </div>

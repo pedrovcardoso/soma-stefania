@@ -77,7 +77,12 @@ function SinglePlanItem({ planData, isFirst }) {
     ];
 
     const handleViewFullPlan = () => {
-        alert(`Em breve: Página detalhada do plano de ação: ${plano.Nome}`);
+        useTabStore.getState().openTab({
+            id: `plan_detail_${plano.ID}`,
+            title: `Detalhes: ${plano.Nome.substring(0, 15)}...`,
+            type: 'action_plans',
+            data: { url: `/planos_acao/pages/detalhes_plano/index.html?id=${plano.ID}` }
+        });
     };
 
     return (
