@@ -341,7 +341,7 @@ export default function ProcessBasketTree({ seiNumber }) {
         </button>
       </div>
 
-      <div className="relative overflow-x-auto py-12 px-12 flex justify-start bg-dots min-h-[400px] custom-scrollbar">
+      <div className="relative overflow-x-auto py-12 px-12 flex justify-start bg-dots min-h-[400px]">
         {/* Visual Flow Area - Added padding-right to avoid sticking on the end as well */}
         <div className="flex flex-col items-start min-w-max relative gap-16 pr-12">
 
@@ -426,7 +426,7 @@ export default function ProcessBasketTree({ seiNumber }) {
                     Não há outras cestas disponíveis para vinculação.
                   </div>
                 ) : (
-                  <div className="max-h-48 overflow-y-auto rounded-lg border border-border divide-y divide-surface-alt custom-scrollbar">
+                  <div className="max-h-48 overflow-y-auto rounded-lg border border-border divide-y divide-surface-alt">
                     {availableBaskets.map(basket => (
                       <div key={basket.cesta} className="flex justify-between items-center p-3 hover:bg-surface-alt transition-colors">
                         <span className="text-sm font-medium text-text">{basket.cesta}</span>
@@ -558,7 +558,7 @@ export default function ProcessBasketTree({ seiNumber }) {
               </div>
 
               {/* List of Processes */}
-              <div className="max-h-48 overflow-y-auto rounded-lg border border-border bg-surface-alt/30 custom-scrollbar mt-1">
+              <div className="max-h-48 overflow-y-auto rounded-lg border border-border bg-surface-alt/30 mt-1">
                 {!(mockProcessesByBasket[selectedBasket.cesta] && mockProcessesByBasket[selectedBasket.cesta].length > 0) ? (
                   <div className="p-4 text-center text-xs text-text-muted italic">Cesta vazia</div>
                 ) : (

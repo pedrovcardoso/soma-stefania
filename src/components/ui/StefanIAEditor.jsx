@@ -332,7 +332,8 @@ function AIPreviewModal({ visible, originalText, modifiedText, actionLabel, isLo
 function SidebarLoadingCard() {
     return (
         <div className="flex flex-col items-center justify-center gap-4 py-8 w-full">
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @keyframes stefania-pulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
                 @keyframes stefania-orbit { from { transform: rotate(0deg) translateX(26px) rotate(0deg); } to { transform: rotate(360deg) translateX(26px) rotate(-360deg); } }
                 @keyframes stefania-orbit2 { from { transform: rotate(120deg) translateX(18px) rotate(-120deg); } to { transform: rotate(480deg) translateX(18px) rotate(-480deg); } }
@@ -637,7 +638,7 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
                 </div>
 
                 <div className="flex-1 flex overflow-hidden relative">
-                    <div className="flex-1 overflow-y-auto bg-neutral-200/80 flex justify-center py-8 custom-scrollbar transition-colors duration-300 relative" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ visible: true, x: e.clientX, y: e.clientY }); }}>
+                    <div className="flex-1 overflow-y-auto bg-neutral-200/80 flex justify-center py-8 transition-colors duration-300 relative" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ visible: true, x: e.clientX, y: e.clientY }); }}>
                         <EditorContent editor={editor} />
                     </div>
 
@@ -657,7 +658,7 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
                                         <button onClick={() => setAiMode('quick')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-semibold transition-all ${aiMode === 'quick' ? 'bg-surface text-accent shadow-sm' : 'text-text-muted hover:text-text'}`}><MdFlashOn size={14} /> Rápido</button>
                                     </div>
                                 </div>
-                                <div className="p-4 flex-1 flex flex-col gap-3 min-h-0 overflow-y-auto custom-scrollbar">
+                                <div className="p-4 flex-1 flex flex-col gap-3 min-h-0 overflow-y-auto">
                                     {isAILoading ? (
                                         <SidebarLoadingCard />
                                     ) : (
@@ -668,13 +669,13 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
                                             </button>
                                             <button onClick={() => executeAIAction('adjust_language', 'Ajustar Linguagem', editor.getText(), false)} disabled={editor.getText().trim().length === 0} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
                                                 <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Ajustar Linguagem</h3></div>
-                                                <p className="text-xs text-text-muted">Tornar mais formal e impessoal.</p>
+                                                <p className="text-xs text-text-muted">Tornar mais formal e corrigir erros gramaticais.</p>
                                             </button>
-                                            <button onClick={() => executeAIAction('summarize', 'Resumo Executivo', editor.getText(), false)} disabled={editor.getText().trim().length === 0} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <button onClick={() => executeAIAction('summarize', 'Resumo Executivo', editor.getText(), false)} disabled={editor.getText().trim().length === 0} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed hidden">
                                                 <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Resumo Executivo</h3></div>
                                                 <p className="text-xs text-text-muted">Extrair pontos principais.</p>
                                             </button>
-                                            <div className="mt-2 pt-3 border-t border-border">
+                                            <div className="pt-2 border-t border-border">
                                                 <div className="text-xs font-semibold text-text-muted mb-2">Prompt Personalizado</div>
                                                 <div className="flex gap-2">
                                                     <input type="text" value={customPrompt} onChange={(e) => setCustomPrompt(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && customPrompt.trim() && (executeAIAction('custom', 'Prompt Personalizado', editor.getText(), false), setCustomPrompt(''))} placeholder="Digite sua instrução..." className="flex-1 px-3 py-2 text-sm bg-surface text-text border border-border rounded-lg focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent-soft" />

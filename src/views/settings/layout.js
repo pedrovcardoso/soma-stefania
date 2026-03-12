@@ -46,7 +46,7 @@ export default function SettingsLayout({ children }) {
                     </aside>
 
                     <main className="flex-1 bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
-                        <div className="h-full overflow-y-auto custom-scrollbar p-6">
+                        <div className="h-full overflow-y-auto p-6">
                             {children}
                         </div>
                     </main>

@@ -20,7 +20,7 @@ const applyTypography = (fontFamily, fontSizeScale) => {
     'OpenDyslexic': 'OpenDyslexic, sans-serif'
   }
 
-  const family = fontStacks[fontFamily] || fontStacks['Segoe UI']
+  const family = fontStacks[fontFamily] || fontStacks['Inter']
 
   root.style.setProperty('--font-primary', family)
   root.style.setProperty('--font-size-scale', fontSizeScale)
@@ -28,7 +28,7 @@ const applyTypography = (fontFamily, fontSizeScale) => {
 
 const useThemeStore = create((set, get) => ({
   theme: 'light',
-  fontFamily: 'Segoe UI',
+  fontFamily: 'Inter',
   fontSizeScale: 1, // 1 = 100% (Normal)
   vLibrasActive: false,
 

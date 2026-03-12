@@ -152,7 +152,7 @@ export default function AiDocumentChat({ document, onSelectDocument, onClose }) 
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar bg-surface-alt/20 shadow-inner">
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-surface-alt/20 shadow-inner">
                 {messages.map((msg, index) => {
                     const isLastUserMsg = msg.sender === 'user' && !messages.slice(index + 1).some(m => m.sender === 'user');
 

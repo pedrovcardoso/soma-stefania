@@ -141,17 +141,17 @@ export default function PreferencesSettingsPage() {
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <span className="text-xs text-text-muted font-medium">Aa</span>
+                                <span className="text-xs text-text-muted font-medium">80%</span>
                                 <input
                                     type="range"
                                     min="0.8"
-                                    max="1.2"
+                                    max="1.5"
                                     step="0.05"
                                     value={localFontSizeScale}
                                     onChange={handleSliderChange}
                                     className="flex-1 h-2 bg-border rounded-lg appearance-none cursor-pointer accent-accent hover:accent-accent-700"
                                 />
-                                <span className="text-lg text-text-muted font-medium">Aa</span>
+                                <span className="text-lg text-text-muted font-medium">150%</span>
                             </div>
 
                             <div className="mt-4 p-4 bg-surface rounded-lg border border-border">

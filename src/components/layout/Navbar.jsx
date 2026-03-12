@@ -392,7 +392,7 @@ export default function Navbar() {
           {/* Search Results Dropdown */}
           {showResults && (
             <div className="absolute top-full right-0 mt-2 w-80 bg-surface border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-1 duration-200">
-              <div className="max-h-[300px] overflow-y-auto p-1 text-text custom-scrollbar">
+              <div className="max-h-[300px] overflow-y-auto p-1 text-text">
                 {isSearching ? (
                   <div className="flex flex-col items-center justify-center p-6 text-text-muted gap-2">
                     <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>

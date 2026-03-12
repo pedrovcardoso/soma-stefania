@@ -133,7 +133,7 @@ const SingleSelectDropdown = ({
             </div>
           </div>
 
-          <div className="max-h-[240px] overflow-y-auto p-1.5 custom-scrollbar">
+          <div className="max-h-[240px] overflow-y-auto p-1.5">
             {filteredOptions.length > 0 ? (
               filteredOptions.map(opt => (
                 <button
@@ -593,7 +593,7 @@ export default function StefaniaPage() {
         <div
           ref={messagesContainerRef}
           onScroll={handleScroll}
-          className={`flex-1 overflow-y-auto custom-scrollbar scroll-smooth transition-all duration-700 ease-in-out relative ${isChatStarted ? 'opacity-100' : 'h-0 opacity-0 overflow-hidden max-h-0'}`}
+          className={`flex-1 overflow-y-auto scroll-smooth transition-all duration-700 ease-in-out relative ${isChatStarted ? 'opacity-100' : 'h-0 opacity-0 overflow-hidden max-h-0'}`}
         >
           <div className="max-w-3xl mx-auto px-4 py-6 flex flex-col gap-6">
             {messages.map((msg, idx) => (
@@ -611,7 +611,7 @@ export default function StefaniaPage() {
                         autoFocus
                         value={editingContent}
                         onChange={(e) => setEditingContent(e.target.value)}
-                        className="w-full bg-transparent text-inherit placeholder-current placeholder-opacity-50 p-1 text-sm outline-none resize-none custom-scrollbar border-none focus:ring-0"
+                        className="w-full bg-transparent text-inherit placeholder-current placeholder-opacity-50 p-1 text-sm outline-none resize-none border-none focus:ring-0"
                         rows={Math.min(editingContent.split('\n').length + 1, 8)}
                       />
                       <div className="flex items-center justify-end gap-0.5 transition-opacity">
@@ -746,7 +746,7 @@ export default function StefaniaPage() {
                         </div>
                         <MdArrowRight size={16} className="text-text-muted" />
                       </div>
-                      <div className="custom-scrollbar absolute bottom-0 left-full ml-1 w-56 max-h-64 overflow-y-auto bg-surface border border-border rounded-xl shadow-xl p-1.5 hidden group-hover/item:block animate-in fade-in zoom-in-95 origin-left">
+                      <div className="absolute bottom-0 left-full ml-1 w-56 max-h-64 overflow-y-auto bg-surface border border-border rounded-xl shadow-xl p-1.5 hidden group-hover/item:block animate-in fade-in zoom-in-95 origin-left">
                         {filterOptions.tiposProcesso.length > 0 ? filterOptions.tiposProcesso.map(t => (
                           <button key={t} onClick={() => { setSelectedProcessType(t === selectedProcessType ? null : t); setIsMoreFiltersOpen(false); }} className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center justify-between ${selectedProcessType === t ? 'bg-accent/10 text-accent font-bold' : 'text-text hover:bg-surface-alt'}`}>
                             <span className="truncate">{t}</span>
@@ -766,7 +766,7 @@ export default function StefaniaPage() {
                           <MdArrowRight size={16} className="text-text-muted" />
                         </div>
                         {selectedProcess && (
-                          <div className="custom-scrollbar absolute bottom-0 left-full ml-1 w-56 max-h-64 overflow-y-auto bg-surface border border-border rounded-xl shadow-xl p-1.5 hidden group-hover/item:block animate-in fade-in zoom-in-95 origin-left">
+                          <div className="absolute bottom-0 left-full ml-1 w-56 max-h-64 overflow-y-auto bg-surface border border-border rounded-xl shadow-xl p-1.5 hidden group-hover/item:block animate-in fade-in zoom-in-95 origin-left">
                             {filterOptions.tiposDocumento.length > 0 ? filterOptions.tiposDocumento.map(t => (
                               <button key={t} onClick={() => { setSelectedDocType(t === selectedDocType ? null : t); setIsMoreFiltersOpen(false); }} className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center justify-between ${selectedDocType === t ? 'bg-accent/10 text-accent font-bold' : 'text-text hover:bg-surface-alt'}`}>
                                 <span className="truncate">{t}</span>
@@ -786,7 +786,7 @@ export default function StefaniaPage() {
                         </div>
                         <MdArrowRight size={16} className="text-text-muted" />
                       </div>
-                      <div className="custom-scrollbar absolute bottom-0 left-full ml-1 w-56 max-h-64 overflow-y-auto bg-surface border border-border rounded-xl shadow-xl p-1.5 hidden group-hover/item:block animate-in fade-in zoom-in-95 origin-left">
+                      <div className="absolute bottom-0 left-full ml-1 w-56 max-h-64 overflow-y-auto bg-surface border border-border rounded-xl shadow-xl p-1.5 hidden group-hover/item:block animate-in fade-in zoom-in-95 origin-left">
                         {filterOptions.anos.length > 0 ? filterOptions.anos.map(a => (
                           <button key={a} onClick={() => { setSelectedYear(a === selectedYear ? null : a); setIsMoreFiltersOpen(false); }} className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center justify-between ${selectedYear === a ? 'bg-accent/10 text-accent font-bold' : 'text-text hover:bg-surface-alt'}`}>
                             <span className="truncate">{a}</span>

@@ -187,7 +187,7 @@ export default function Sidebar() {
         </div>
 
         <nav className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <div className={`flex-shrink-0 py-1 overflow-y-auto custom-scrollbar ${isCollapsed ? 'px-1' : 'px-2'}`} style={{ maxHeight: isCollapsed ? '100%' : '50%' }}>
+          <div className={`flex-shrink-0 py-1 overflow-y-auto ${isCollapsed ? 'px-1' : 'px-2'}`} style={{ maxHeight: isCollapsed ? '100%' : '50%' }}>
             {menuItems.map((item) => {
               const Icon = item.icon
               const isActive = activeTabId === item.id

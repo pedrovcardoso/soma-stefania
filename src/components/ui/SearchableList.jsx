@@ -80,7 +80,7 @@ export default function SearchableList({
                 </div>
             )}
 
-            <div className="overflow-y-auto p-1.5 custom-scrollbar scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+            <div className="overflow-y-auto p-1.5">
                 {isLoading ? (
                     <div className="px-4 py-8 text-center text-text-muted text-xs italic flex flex-col items-center gap-2 font-normal normal-case">
                         <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>

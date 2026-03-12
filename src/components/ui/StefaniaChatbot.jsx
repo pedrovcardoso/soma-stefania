@@ -291,7 +291,7 @@ export default function StefaniaChatbot({ processCode }) {
                 <div
                     ref={messagesContainerRef}
                     onScroll={handleScroll}
-                    className="flex-1 overflow-y-auto p-4 bg-surface-alt/30 scroll-smooth custom-scrollbar relative"
+                    className="flex-1 overflow-y-auto p-4 bg-surface-alt/30 scroll-smooth relative"
                 >
                     <div className="space-y-1">
                         {messages.map((msg, index) => {
@@ -332,7 +332,7 @@ export default function StefaniaChatbot({ processCode }) {
                                                         autoFocus
                                                         value={editingContent}
                                                         onChange={(e) => setEditingContent(e.target.value)}
-                                                        className="w-full bg-transparent text-inherit placeholder-current placeholder-opacity-50 p-1 text-sm outline-none resize-none custom-scrollbar border-none focus:ring-0"
+                                                        className="w-full bg-transparent text-inherit placeholder-current placeholder-opacity-50 p-1 text-sm outline-none resize-none border-none focus:ring-0"
                                                         rows={Math.min(editingContent.split('\n').length + 1, 6)}
                                                     />
                                                     <div className="flex items-center justify-end gap-0.5">

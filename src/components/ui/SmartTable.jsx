@@ -247,7 +247,7 @@ export default function SmartTable({ data = [], columns = [], className = '' }) 
 
     return (
         <div className={`border border-border rounded-lg overflow-hidden bg-surface shadow-sm flex flex-col ${className}`}>
-            <div className="overflow-x-auto custom-scrollbar relative w-full min-h-[400px]">
+            <div className="overflow-x-auto relative w-full min-h-[400px]">
                 <table
                     ref={tableRef}
                     className="text-left border-collapse"

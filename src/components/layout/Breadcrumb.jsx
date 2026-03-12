@@ -402,7 +402,7 @@ export default function Breadcrumb() {
                                 ref={suggestionsRef}
                                 className="absolute top-[calc(100%+8px)] left-0 w-full bg-surface border border-border rounded-xl shadow-lg z-[999] suggestions-container overflow-hidden"
                             >
-                                <div className="py-1 flex flex-col max-h-[400px] overflow-y-auto custom-scrollbar">
+                                <div className="py-1 flex flex-col max-h-[400px] overflow-y-auto">
                                     {suggestions.map((suggestion, index) => (
                                         <div
                                             key={suggestion.value + index}

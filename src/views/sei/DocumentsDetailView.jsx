@@ -311,7 +311,7 @@ export default function DocumentsDetailView({ processId, processUrl, lastReload 
                                 </div>
                             </div>
 
-                            <div className="overflow-y-auto flex-grow custom-scrollbar overscroll-contain">
+                            <div className="overflow-y-auto flex-grow overscroll-contain">
                                 <ul className="divide-y divide-surface-alt">
                                     {filteredDocuments.map(doc => (
                                         <li key={doc.id}>

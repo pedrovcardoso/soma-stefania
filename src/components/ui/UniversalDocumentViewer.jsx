@@ -365,7 +365,7 @@ export default function UniversalDocumentViewer({ document, onOpenAiTools, isAiT
                     <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider flex items-center gap-1.5 font-sans">
                       Assinaturas ({signatures.length})
                     </h3>
-                    <div className="space-y-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
+                    <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2">
                       {signatures.map((sig, idx) => (
                         <div key={idx} className="flex flex-col gap-0.5 pl-3 border-l-2 border-accent/20 hover:border-accent transition-colors">
                           <span className="text-xs font-semibold text-text">{sig.Nome}</span>

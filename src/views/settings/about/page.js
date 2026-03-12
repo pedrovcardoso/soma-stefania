@@ -43,7 +43,7 @@ export default function AboutSettingsPage() {
                             Secretaria de Estado de Fazenda de Minas Gerais
                         </p>
                         <div className="mt-6 inline-flex px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-medium backdrop-blur-sm">
-                            Versão 1.0.0
+                            Versão BETA
                         </div>
                     </div>
                     <div className="absolute right-0 bottom-0 opacity-10">
@@ -91,7 +91,7 @@ export default function AboutSettingsPage() {
                                 className="mb-2 h-9 w-9"
                             />
                             <span className="text-sm font-medium text-text-secondary">Python</span>
-                            <span className="text-xs text-text-muted">v0</span>
+                            <span className="text-xs text-text-muted hidden">v0</span>
                         </div>
 
                         <div className="flex flex-col items-center justify-center p-4 bg-surface border border-border rounded-xl shadow-sm hover:shadow-md transition-shadow">
@@ -101,7 +101,7 @@ export default function AboutSettingsPage() {
                                 className="mb-2 h-9 w-9"
                             />
                             <span className="text-sm font-medium text-text-secondary">MySQL</span>
-                            <span className="text-xs text-text-muted">v0</span>
+                            <span className="text-xs text-text-muted hidden">v0</span>
                         </div>
 
                         <div className="flex flex-col items-center justify-center p-4 bg-surface border border-border rounded-xl shadow-sm hover:shadow-md transition-shadow">
@@ -117,7 +117,7 @@ export default function AboutSettingsPage() {
                         <div className="flex flex-col items-center justify-center p-4 bg-surface border border-border rounded-xl shadow-sm hover:shadow-md transition-shadow">
                             <SiFlask className="text-4xl text-text-muted mb-2" />
                             <span className="text-sm font-medium text-text-secondary">Flask</span>
-                            <span className="text-xs text-text-muted">v0</span>
+                            <span className="text-xs text-text-muted hidden">v0</span>
                         </div>
                     </div>
                 </section>
@@ -147,7 +147,7 @@ export default function AboutSettingsPage() {
                     </div>
                 </section>
 
-                <section className="border border-border rounded-xl overflow-hidden bg-surface shadow-sm">
+                <section className="border border-border rounded-xl overflow-hidden bg-surface shadow-sm hidden">
                     <div className="bg-surface-alt px-6 py-4 border-b border-border">
                         <h3 className="text-base font-medium text-text">Documentação da API</h3>
                         <p className="text-sm text-text-muted mt-1">Endpoints e especificações técnicas.</p>

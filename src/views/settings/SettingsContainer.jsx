@@ -69,7 +69,7 @@ export default function SettingsContainer({ data = {} }) {
                     </aside>
 
                     <main className="flex-1 bg-surface rounded-xl shadow-sm border border-border overflow-hidden flex flex-col">
-                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                        <div className="flex-1 overflow-y-auto p-6">
                             <ActiveComponent />
                         </div>
                     </main>

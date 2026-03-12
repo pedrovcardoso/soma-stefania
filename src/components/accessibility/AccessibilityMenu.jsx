@@ -59,17 +59,19 @@ export default function AccessibilityMenu({ className = '' }) {
                         leaveFrom="opacity-100 translate-y-0"
                         leaveTo="opacity-0 translate-y-1"
                     >
-                        <Popover.Panel className="absolute right-0 z-[999999] mt-3 w-[22rem] origin-top-right rounded-2xl bg-surface border border-border shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden">
-                            <div className="p-5 space-y-4 custom-scrollbar max-h-[85vh] overflow-y-auto">
-
-                                {/* Header */}
-                                <div className="flex items-center justify-between border-b border-border pb-3">
+                        <Popover.Panel className="absolute right-0 z-[999999] mt-3 w-[22rem] origin-top-right rounded-2xl bg-surface border border-border shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden flex flex-col max-h-[85vh]">
+                            {/* Header - Fixed */}
+                            <div className="p-5 border-b border-border bg-surface shrink-0">
+                                <div className="flex items-center justify-between">
                                     <h3 className="text-sm font-bold text-text flex items-center gap-2 uppercase tracking-wider">
                                         <MdAccessibility className="text-accent w-5 h-5" />
                                         Acessibilidade
                                     </h3>
                                 </div>
+                            </div>
 
+                            {/* Content - Scrollable */}
+                            <div className="flex-1 p-5 space-y-4 overflow-y-auto">
                                 {/* Font Size */}
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
@@ -77,22 +79,22 @@ export default function AccessibilityMenu({ className = '' }) {
                                             <MdTextFormat className="w-4 h-4" />
                                             <span>Tamanho da Fonte</span>
                                         </div>
-                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
+                                        <span className="text-sm font-bold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
                                             {Math.round(fontSizeScale * 100)}%
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <span className="text-xs text-text-muted font-medium">A-</span>
+                                        <span className="text-xs text-text-muted font-medium">80%</span>
                                         <input
                                             type="range"
-                                            min="1.0"
+                                            min="0.8"
                                             max="1.5"
                                             step="0.05"
                                             value={fontSizeScale}
                                             onChange={(e) => setFontSizeScale(parseFloat(e.target.value))}
                                             className="flex-1 h-1.5 bg-border rounded-lg appearance-none cursor-pointer accent-accent"
                                         />
-                                        <span className="text-lg text-text-muted font-bold">A+</span>
+                                        <span className="text-lg text-text-muted font-bold">150%</span>
                                     </div>
                                 </div>
 
@@ -100,8 +102,7 @@ export default function AccessibilityMenu({ className = '' }) {
                                 <div className="space-y-2 pt-4 border-t border-border/50">
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-semibold text-text-secondary">Fonte para Dislexia</span>
-                                            <span className="text-[10px] text-text-muted">Melhora a legibilidade</span>
+                                            <span className="text-sm font-semibold text-text-secondary">Fonte OpenDislexy</span>
                                         </div>
                                         <button
                                             onClick={toggleDyslexicFont}
@@ -125,8 +126,8 @@ export default function AccessibilityMenu({ className = '' }) {
                                     </div>
                                 </div>
 
-                                {/* VLibras Toggle */}
-                                <div className="space-y-4 pt-4 border-t border-border/50">
+                                {/* VLibras Toggle - Hidden but not deleted */}
+                                <div className="hidden space-y-4 pt-4 border-t border-border/50">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
@@ -178,9 +179,10 @@ export default function AccessibilityMenu({ className = '' }) {
                                         ))}
                                     </div>
                                 </div>
-
                             </div>
-                            <div className="p-4 bg-surface-alt border-t border-border rounded-b-2xl">
+
+                            {/* Footer - Fixed */}
+                            <div className="p-4 bg-surface-alt border-t border-border shrink-0">
                                 <button
                                     onClick={() => useThemeStore.getState().resetTheme()}
                                     className="w-full py-2.5 text-xs font-bold text-accent hover:bg-accent/10 rounded-xl transition-all border border-accent/20 flex items-center justify-center gap-2 active:scale-95 group"

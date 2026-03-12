@@ -109,7 +109,7 @@ const SingleSelectDropdown = ({
             </div>
           </div>
 
-          <div className="max-h-[240px] overflow-y-auto p-1.5 custom-scrollbar">
+          <div className="max-h-[240px] overflow-y-auto p-1.5">
             {filteredOptions.length > 0 ? (
               filteredOptions.map(opt => (
                 <button
@@ -219,7 +219,7 @@ export default function DocumentsPage() {
   const hasFiltrosAtivos = selectedProcess || selectedDocument || selectedProcessType || selectedYear;
 
   return (
-    <div className="flex flex-col h-full bg-surface-alt px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 font-sans overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col h-full bg-surface-alt px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10 font-sans overflow-y-auto">
       <div className="max-w-7xl mx-auto w-full flex flex-col">
 
         <div className="mb-6 flex-shrink-0">
