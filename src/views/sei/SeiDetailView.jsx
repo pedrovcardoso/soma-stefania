@@ -4,13 +4,14 @@ import { useState, useEffect, useRef, Fragment } from 'react';
 import { MdContentCopy, MdShare, MdEdit, MdOpenInNew, MdError, MdDeleteOutline, MdKeyboardArrowDown, MdDescription, MdInfoOutline } from 'react-icons/md';
 import { Menu, Transition } from '@headlessui/react';
 import useTabStore from '@/store/useTabStore';
-import ActionPlanSection from './ActionPlanSection';
+import ActionPlanSection from '@/components/ui/ActionPlanSection';
 import useHistoryStore from '@/store/useHistoryStore';
-import StefaniaChatbot from './StefaniaChatbot';
+import StefaniaChatbot from '@/components/ui/StefaniaChatbot';
 import DocumentsDetailView from './DocumentsDetailView';
 import SeiEditView from './SeiEditView';
 import { toast } from '@/components/ui/toast';
 import { fetchSeiProcessDetails, manterProcesso, prepararImportacao } from '@/services/seiService';
+import ProcessBasketTree from '@/components/ui/ProcessBasketTree';
 import Modal from '@/components/ui/Modal';
 import { MdWarning } from 'react-icons/md';
 
@@ -190,37 +191,7 @@ export default function SeiDetailView({ id, lastReload, data: tabData }) {
     </div>
   );
 
-  const TreeItem = ({ type, title, subtitle, status, isCurrent, isLast, statusColor }) => (
-    <div className="relative flex gap-4">
-      {!isLast && <div className="absolute left-[15px] top-8 bottom-0 w-0.5 bg-border" />}
 
-      <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-surface border-2 ${isCurrent ? 'border-accent ring-2 ring-accent-soft' : 'border-border'}`}>
-        {isCurrent && <div className="w-3 h-3 bg-accent rounded-full" />}
-      </div>
-
-      <div className="flex-grow pb-8">
-        <div className="flex flex-col mb-1">
-          <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isCurrent ? 'text-accent' : 'text-text-muted'}`}>
-            {type}
-          </span>
-          <div className={`p-4 rounded-lg border flex justify-between items-start ${isCurrent ? 'bg-accent-soft border-accent/20' : 'bg-surface border-border'}`}>
-            <div>
-              <h4 className={`text-sm font-bold ${isCurrent ? 'text-accent' : 'text-text'}`}>
-                {title}
-              </h4>
-              <p className="text-xs text-text-secondary mt-1">{subtitle}</p>
-              {!isCurrent && <button className="text-[10px] font-medium text-accent hover:underline mt-2">Ver detalhes</button>}
-            </div>
-            {status && (
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${statusColor || "bg-surface-alt text-text-muted border-border"}`}>
-                {status}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   const StatusLogic = status.includes('Concluído') ? 'bg-green-100 text-green-700 border-green-200' :
     status.includes('Análise') ? 'bg-amber-100 text-amber-700 border-amber-200' :
@@ -449,35 +420,9 @@ export default function SeiDetailView({ id, lastReload, data: tabData }) {
                 </div>
               </div>
 
-              <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden hidden">
-                <div className="px-6 py-4 border-b border-border bg-surface">
-                  <h2 className="text-lg font-bold text-text">Árvore de Processos Relacionados</h2>
-                </div>
-                <div className="p-6 md:p-8">
-                  <div className="pl-2">
-                    <TreeItem
-                      type="Processo Originário"
-                      title="1190.01.000450/2024-12"
-                      subtitle="Planejamento Orçamentário 2024 (Base para o atual)"
-                      status="Arquivado"
-                      statusColor="bg-slate-100 text-slate-500 border-slate-200"
-                    />
-                    <TreeItem
-                      type="Você está aqui"
-                      title={sei}
-                      subtitle={descricao}
-                      isCurrent={true}
-                    />
-                    <TreeItem
-                      type="Apensado"
-                      title="1190.01.000912/2025-01"
-                      subtitle="Solicitação de Crédito Suplementar (Depende deste)"
-                      status="Em Andamento"
-                      statusColor="bg-accent-soft text-accent border-accent/20"
-                      isLast={true}
-                    />
-                  </div>
-                </div>
+              {/* Process Basket mapping visualization */}
+              <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden">
+                <ProcessBasketTree seiNumber={sei} />
               </div>
 
               <ActionPlanSection seiNumber={sei} />

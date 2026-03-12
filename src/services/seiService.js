@@ -262,3 +262,25 @@ export const fetchFilterOptions = async () => {
         throw error;
     }
 };
+
+export const manterVinculacaoCesta = async (operacao, dados) => {
+    try {
+        const payload = { operacao, dados };
+        const response = await apiClient.post('/mantervinculacaoCesta', payload);
+        return response;
+    } catch (error) {
+        console.error(`Error in manterVinculacaoCesta (${operacao}):`, error);
+        throw error;
+    }
+};
+
+export const manterCesta = async (operacao, dados) => {
+    try {
+        const payload = { operacao, dados };
+        const response = await apiClient.post('/manterCesta_bp', payload);
+        return response;
+    } catch (error) {
+        console.error(`Error in manterCesta (${operacao}):`, error);
+        throw error;
+    }
+};

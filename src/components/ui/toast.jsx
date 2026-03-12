@@ -54,7 +54,7 @@ function ToastNotification({ id, message, variant, timestamp, onClose }) {
 
 export default function ToastContainer({ toasts, onClose }) {
     return (
-        <div className="fixed top-5 right-5 z-50 flex flex-col items-end gap-3">
+        <div className="fixed top-5 right-5 z-[150] flex flex-col items-end gap-3">
             {toasts.map((toast) => (
                 <ToastNotification
                     key={toast.id}

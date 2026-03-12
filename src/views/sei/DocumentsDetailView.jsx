@@ -39,7 +39,7 @@ const DocumentDetailSkeleton = () => (
 );
 import UniversalDocumentViewer from '@/components/ui/UniversalDocumentViewer';
 import StefanIAEditor from '@/components/ui/StefanIAEditor';
-import AiDocumentChat from './AiDocumentChat';
+import AiDocumentChat from '@/components/ui/AiDocumentChat';
 import { fetchListaDocumentos, fetchDetalheDocumento } from '@/services/seiService';
 
 const getFileIcon = (type) => {
