@@ -1,22 +1,38 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
+    const text = await request.text();
+    const params = new URLSearchParams(text);
+    const protocolo = params.get('protocolo');
+
     await new Promise(resolve => setTimeout(resolve, 800));
+
+    const documentosMap = {
+        "60660864": { tipo: "Portaria", data: "09/08/2022", ext: "pdf" },
+        "52683756": { tipo: "Relatorio.xlsx", data: "30/11/2021", ext: "xlsx" },
+        "52683779": { tipo: "Relatorio 2.csv", data: "30/11/2021", ext: "xlsx" },
+        "52443478": { tipo: "Minuta de resposta", data: "01/09/2022", ext: "docx" },
+        "52443425": { tipo: "Anexos Diversos.zip", data: "01/09/2022", ext: "zip" },
+        "52443481": { tipo: "Email de aprovação", data: "01/09/2022", ext: "pdf" },
+        "52443483": { tipo: "NF-E", data: "01/09/2022", ext: "png" }
+    };
+
+    const docInfo = documentosMap[protocolo] || { tipo: "Documento Generico", data: "01/01/2023", ext: "pdf" };
 
     return NextResponse.json({
         "metadata": {
-            "ano": "2023",
+            "ano": docInfo.data.split('/')[2],
             "categoria": "Outros",
-            "numero_documento": "70835357",
+            "numero_documento": protocolo || "70835357",
             "ordem": "20230802",
             "processo": "1500010250326202304",
-            "tipo": "Solicitacao_TCECFAMGE"
+            "tipo": docInfo.tipo
         },
         "sei": {
             "AndamentoGeracao": {
                 "Atributos": null,
-                "DataHora": "03/08/2023 08:47:10",
-                "Descricao": "Registro de documento externo público 70835357 (Correspondência), conferido com documento original",
+                "DataHora": `${docInfo.data} 08:47:10`,
+                "Descricao": `Registro de documento externo público ${protocolo} (${docInfo.tipo}), conferido com documento original`,
                 "IdAndamento": null,
                 "IdTarefa": null,
                 "IdTarefaModulo": null,
@@ -30,8 +46,8 @@ export async function POST(request) {
                 },
                 "Usuario": {
                     "IdUsuario": "100368660",
-                    "Nome": "Emilly Thais Marques da Silva ",
-                    "Sigla": "02323396609"
+                    "Nome": "Analista de Testes",
+                    "Sigla": "TESTE"
                 }
             },
             "Assinaturas": [
@@ -73,12 +89,12 @@ export async function POST(request) {
                 }
             ],
             "Campos": [],
-            "Data": "02/08/2023",
+            "Data": docInfo.data,
             "Descricao": null,
-            "DocumentoFormatado": "70835357",
+            "DocumentoFormatado": protocolo || "70835357",
             "IdDocumento": "80599928",
             "IdProcedimento": "80538323",
-            "LinkAcesso": "https://www.sei.mg.gov.br/sei/documento_consulta_externa.php?id_acesso_externo=18675381&id_documento=80599928&infra_hash=6a19e58240f5c25a3b5ff37f4959f2b4",
+            "LinkAcesso": `/mock/listaDocumentos/sample.${docInfo.ext}`,
             "NivelAcessoGlobal": "1",
             "NivelAcessoLocal": "0",
             "NomeArvore": "ENV.DESTINATARIO REMETENTE",
@@ -101,7 +117,7 @@ export async function POST(request) {
             "Serie": {
                 "Aplicabilidade": null,
                 "IdSerie": "38",
-                "Nome": "Correspondência"
+                "Nome": docInfo.tipo
             },
             "UnidadeElaboradora": {
                 "Descricao": "Ilha Central de Digitalização Cidade Administrativa - SEI",

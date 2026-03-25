@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MdVisibility, MdVisibilityOff, MdLockOutline, MdEmail } from 'react-icons/md';
+import { MdVisibility, MdVisibilityOff, MdLockOutline, MdEmail, MdInfoOutline } from 'react-icons/md';
 import ToastContainer from '@/components/ui/toast';
 import { login, listarAcessos } from '@/services/authService';
 import ParticleBackground from '@/components/ui/ParticleBackground';
@@ -87,7 +87,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center p-4 bg-slate-100">
+        <div className="relative min-h-screen flex flex-col items-center justify-center p-4 bg-slate-100">
             <div className="absolute top-4 right-4 z-50">
                 <AccessibilityMenu />
             </div>
@@ -206,6 +206,32 @@ export default function LoginPage() {
                     </div>
                 </div>
             </main>
+ 
+            {process.env.NEXT_PUBLIC_USE_MOCK_API === 'true' && (
+                <div className="mt-8 p-1.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white lg:border-slate-200/60 shadow-xl flex items-center gap-4 max-w-md mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                    <div className="bg-amber-100/50 p-3 rounded-xl flex-shrink-0">
+                        <MdInfoOutline size={24} className="text-amber-600" />
+                    </div>
+                    <div className="flex-grow pr-4">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-700/80 mb-0.5">Ambiente de Testes</h4>
+                        <div className="flex items-center gap-3">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-white/50 p-2 rounded-lg border border-amber-200/40">
+                                    <p className="text-[10px] text-amber-600 uppercase font-bold mb-0.5">E-mail</p>
+                                    <p className="text-xs font-mono text-amber-900 font-bold">admin@fazenda</p>
+                                </div>
+                                <div className="bg-white/50 p-2 rounded-lg border border-amber-200/40">
+                                    <p className="text-[10px] text-amber-600 uppercase font-bold mb-0.5">Senha</p>
+                                    <p className="text-xs font-mono text-amber-900 font-bold">123</p>
+                                </div>
+                            </div>
+                            <div className="h-4 w-px bg-slate-200" />
+                            <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">MOCK_API</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             {showUnitModal && (
                 <UnitSelectionModal 
