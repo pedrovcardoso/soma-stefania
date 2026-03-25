@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MdVisibility, MdVisibilityOff, MdLockOutline, MdEmail } from 'react-icons/md';
@@ -167,9 +168,9 @@ export default function LoginPage() {
 
                         <p className="text-center text-sm text-slate-500">
                             Não tem uma conta?{' '}
-                            <a href="/register" tabIndex={5} className="font-semibold text-blue-600 hover:underline">
+                            <Link href="/register" tabIndex={5} className="font-semibold text-blue-600 hover:underline">
                                 Registre-se
-                            </a>
+                            </Link>
                         </p>
                     </form>
                 </div>

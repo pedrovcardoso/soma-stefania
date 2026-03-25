@@ -161,20 +161,8 @@ export default function UniversalDocumentViewer({ document, onOpenAiTools, isAiT
     }
   }, [document?.url]);
 
-  if (!document) {
-    return (
-      <div className="w-full h-full flex items-center justify-center text-slate-500">
-        Nenhum documento selecionado
-      </div>
-    );
-  }
-
-  const downloadUrl = document.url;
-  const fileName = document.name;
-  const documentType = document.type?.toLowerCase();
-
   const { ViewerComponent, props } = useMemo(() => {
-    const docType = document.type?.toLowerCase();
+    const docType = document?.type?.toLowerCase();
 
     if (!docType) {
       return { ViewerComponent: UnsupportedViewer, props: {} };
@@ -233,7 +221,19 @@ export default function UniversalDocumentViewer({ document, onOpenAiTools, isAiT
         }
         return { ViewerComponent: UnsupportedViewer, props: { name: document.name } };
     }
-  }, [document.url, document.type, document.name]);
+  }, [document?.url, document?.type, document?.name]);
+
+  if (!document) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-slate-500">
+        Nenhum documento selecionado
+      </div>
+    );
+  }
+
+  const downloadUrl = document.url;
+  const fileName = document.name;
+  const documentType = document.type?.toLowerCase();
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);

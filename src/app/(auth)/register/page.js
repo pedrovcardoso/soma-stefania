@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MdPerson, MdEmail, MdLockOutline } from 'react-icons/md';
 import ParticleBackground from '@/components/ui/ParticleBackground';
@@ -26,7 +27,7 @@ export default function RegisterPage() {
             <main className="relative z-10 w-full max-w-4xl bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white/50">
                 <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
                     <div className="flex flex-col items-center mb-8">
-                        <img
+                        <Image
                             src="/logo.png"
                             alt="SEF Logo"
                             width={140}
@@ -103,9 +104,9 @@ export default function RegisterPage() {
 
                         <p className="text-center text-sm text-slate-500">
                             Já tem uma conta?{' '}
-                            <a href="/login" className="font-semibold text-blue-600 hover:underline">
+                            <Link href="/login" className="font-semibold text-blue-600 hover:underline">
                                 Faça login
-                            </a>
+                            </Link>
                         </p>
                     </form>
                 </div>

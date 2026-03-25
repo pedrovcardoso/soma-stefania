@@ -421,7 +421,7 @@ export default function Navbar() {
                       onClick={() => setIsImportModalOpen(true)}
                       className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg text-xs font-bold transition-colors"
                     >
-                      <MdAdd size={14} /> Importar "{searchQuery}"
+                      <MdAdd size={14} /> Importar &quot;{searchQuery}&quot;
                     </button>
                   </div>
                 )}
