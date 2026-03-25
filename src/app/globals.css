@@ -17,7 +17,10 @@
   --color-accent-700: #1d4ed8;
 
   --color-surface: white;
+  --color-surface-rgb: 255, 255, 255;
   --color-surface-alt: #f1f5f9;
+  --color-surface-reverse: #020617;
+  --color-surface-reverse-rgb: 2, 6, 23;
   --color-elevated: white;
 
   --color-text: var(--color-neutral-900);
@@ -49,7 +52,10 @@ html {
 
 :root[data-theme="dark"] {
   --color-surface: #1e1e1e;
+  --color-surface-rgb: 30, 30, 30;
   --color-surface-alt: #252526;
+  --color-surface-reverse: #f8fafc;
+  --color-surface-reverse-rgb: 248, 250, 252;
   --color-elevated: #333333;
 
   --color-text: #d4d4d4;
@@ -81,7 +87,10 @@ html {
 
 :root[data-theme="hc"] {
   --color-surface: black;
+  --color-surface-rgb: 0, 0, 0;
   --color-surface-alt: black;
+  --color-surface-reverse: white;
+  --color-surface-reverse-rgb: 255, 255, 255;
   --color-elevated: black;
 
   --color-text: white;

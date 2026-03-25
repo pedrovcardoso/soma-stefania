@@ -1,97 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { MdVisibility, MdVisibilityOff, MdLockOutline, MdEmail, MdInfoOutline } from 'react-icons/md';
-import ToastContainer from '@/components/ui/toast';
-import { login, listarAcessos } from '@/services/authService';
+import { MdInfoOutline } from 'react-icons/md';
 import ParticleBackground from '@/components/ui/ParticleBackground';
 import AccessibilityMenu from '@/components/accessibility/AccessibilityMenu';
-import useAuthStore from '@/store/useAuthStore';
-import UnitSelectionModal from '@/components/auth/UnitSelectionModal';
 
 export default function LoginPage() {
-    const [passwordVisible, setPasswordVisible] = useState(false);
-    const [toasts, setToasts] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const router = useRouter();
-    const setAuthData = useAuthStore((state) => state.setAuthData);
-    const setSelectedUnidade = useAuthStore((state) => state.setSelectedUnidade);
-    const [showUnitModal, setShowUnitModal] = useState(false);
-    const [availableUnits, setAvailableUnits] = useState([]);
-
-    const addToast = (message, variant = 'info') => {
-        const now = new Date();
-        const datePart = now.toLocaleDateString('pt-BR');
-        const timePart = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-        const newToast = {
-            id: Math.random().toString(36).substring(2) + Date.now().toString(36),
-            message,
-            variant,
-            timestamp: `${datePart} ${timePart}`
-        };
-        setToasts(prevToasts => [newToast, ...prevToasts]);
-    };
-
-    const removeToast = (id) => {
-        setToasts(prevToasts => prevToasts.filter(toast => toast.id !== id));
-    };
-
-    const handleLogin = async (event) => {
-        event.preventDefault();
-        setIsLoading(true);
-
-        const formData = new FormData(event.currentTarget);
-        const email = formData.get('email');
-        const password = formData.get('password');
-
-        if (!email || !email.includes('@')) {
-            addToast('Por favor, insira um e-mail válido.', 'error');
-            setIsLoading(false);
-            return;
-        }
-
-        const result = await login(email, password);
-
-        if (result.success) {
-            const accResult = await listarAcessos(email);
-            if (accResult.success && accResult.data?.length > 0) {
-                setAuthData(email, accResult.data);
-                setAvailableUnits(accResult.data);
-                setShowUnitModal(true);
-                setIsLoading(false);
-            } else {
-                addToast('Usuário sem unidades vinculadas ou erro ao carregar.', 'error');
-                setIsLoading(false);
-            }
-        } else {
-            addToast(result.error, 'error');
-            setIsLoading(false);
-        }
-    };
-
-    const handleUnitSelect = (unidade) => {
-        setSelectedUnidade(unidade);
-        setShowUnitModal(false);
-        addToast(`Acessando como ${unidade.sigla} - Redirecionando...`, 'success');
-        setTimeout(() => {
-            router.push('/home');
-        }, 1000);
-    };
-
-    const handleForgotPassword = (event) => {
-        event.preventDefault();
-        addToast('Instruções foram enviadas para o seu e-mail.', 'info');
-    };
-
     return (
-        <div className="relative min-h-screen flex flex-col items-center justify-center p-4 bg-slate-100">
+        <div className="relative min-h-screen flex flex-col items-center justify-center p-4 bg-surface-alt transition-colors duration-300">
             <div className="absolute top-4 right-4 z-50">
                 <AccessibilityMenu />
             </div>
-            <main className="relative z-10 w-full max-w-4xl bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white/50">
+            <main className="relative z-10 w-full max-w-4xl bg-surface backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-border">
 
                 <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
                     <div className="flex flex-col items-center mb-8">
@@ -102,102 +22,55 @@ export default function LoginPage() {
                             height={40}
                             className="mb-2"
                         />
-                        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Bem-vindo de volta</h2>
-                        <p className="text-slate-500 text-sm mt-2">Acesse sua conta para continuar</p>
+                        <h2 className="text-2xl font-bold text-text tracking-tight">Bem-vindo de volta</h2>
+                        <p className="text-text-muted text-sm mt-2">Acesse sua conta para continuar</p>
                     </div>
 
-                    <form id="login-form" className="space-y-5" onSubmit={handleLogin} noValidate>
-                        <div className="space-y-1">
-                            <label htmlFor="email" className="block text-xs font-bold uppercase text-slate-500 tracking-wider ml-1">E-mail Institucional</label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <MdEmail className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                                </div>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    placeholder="seu.email@fazenda.mg.gov.br"
-                                    required
-                                    tabIndex={1}
-                                    className="block w-full pl-10 pr-3 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all duration-200 outline-none placeholder:text-slate-400"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-1">
-                            <div className="flex justify-between items-center ml-1">
-                                <label htmlFor="password" className="block text-xs font-bold uppercase text-slate-500 tracking-wider">Senha</label>
-                                <button type="button" onClick={handleForgotPassword} tabIndex={4} className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline">
-                                    Esqueceu a senha?
-                                </button>
-                            </div>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <MdLockOutline className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                                </div>
-                                <input
-                                    type={passwordVisible ? 'text' : 'password'}
-                                    id="password"
-                                    name="password"
-                                    placeholder="••••••••"
-                                    required
-                                    tabIndex={2}
-                                    className="block w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all duration-200 outline-none placeholder:text-slate-400"
-                                />
-                                <button
-                                    type="button"
-                                    onMouseDown={() => setPasswordVisible(true)}
-                                    onMouseUp={() => setPasswordVisible(false)}
-                                    onMouseLeave={() => setPasswordVisible(false)}
-                                    className="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
-                                >
-                                    {passwordVisible ? <MdVisibilityOff className="h-5 w-5" /> : <MdVisibility className="h-5 w-5" />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            tabIndex={3}
-                            className="w-full mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 px-5 rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                    <div className="flex flex-col gap-4 w-full mt-6">
+                        <Link
+                            href={process.env.NEXT_PUBLIC_LOGIN_URL_GOVBR || '#'}
+                            className="w-full flex items-center justify-center gap-2 bg-[#1351b4] hover:bg-[#0c3d87] text-white font-semibold py-3 px-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
                         >
-                            {isLoading ? 'Acessando...' : 'Entrar no Sistema'}
-                        </button>
-
-                        <p className="text-center text-sm text-slate-500">
-                            Não tem uma conta?{' '}
-                            <Link href="/register" tabIndex={5} className="font-semibold text-blue-600 hover:underline">
-                                Registre-se
-                            </Link>
-                        </p>
-                    </form>
+                            <span className="text-[16px]">Entrar com</span>
+                            <img src="/govbr_logo.png" alt="Gov.br" className="h-6 w-auto object-contain filter invert brightness-0 opacity-100" />
+                        </Link>
+                        
+                        <Link
+                            href={process.env.NEXT_PUBLIC_LOGIN_URL_MICROSOFT || '#'}
+                            className="w-full flex items-center justify-center gap-3 bg-[#2f2f2f] hover:bg-[#1f1f1f] text-white font-semibold py-3 px-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
+                        >
+                            <img src="/microsoft-logo.svg" alt="Microsoft" className="w-6 h-6 object-contain" />
+                            <span className="text-[16px]">Entrar com Microsoft</span>
+                        </Link>
+                    </div>
                 </div>
 
-                <div className="hidden md:flex w-1/2 relative overflow-hidden bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white p-12 flex-col justify-between">
+                <div className="hidden md:flex w-1/2 relative overflow-hidden bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 border-l border-white/10 text-white p-12 flex-col justify-between">
                     <ParticleBackground
-                        particleColor="rgba(203, 213, 225, 0.5)"
-                        lineColorBase="203, 213, 225"
+                        particleColor="rgba(255, 255, 255, 0.4)"
+                        lineColorBase="255, 255, 255"
                     />
 
                     <div className="relative z-10">
-                        <div className="h-1 w-12 bg-white mb-6 rounded-full"></div>
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-none mb-4">
+                        <div className="h-1 w-12 bg-white mb-6 rounded-full opacity-80"></div>
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-none mb-4 text-white">
                             SOMA
                         </h1>
-                        <p className="text-slate-300 font-medium text-lg leading-relaxed max-w-sm">
+                        <p className="text-slate-100 opacity-90 font-medium text-lg leading-relaxed max-w-sm">
                             Sistema de Orquestração de Manifestações ao TCE
                         </p>
                     </div>
 
                     <div className="relative z-10 mt-12">
-                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/10">
-                            <h3 className="font-bold text-white mb-2 text-lg">
-                                Primeiro Acesso?
+                        <div className="bg-surface/10 backdrop-blur-sm rounded-xl p-6 border border-white/10 text-white mt-4">
+                            <h3 className="font-bold mb-2 text-base text-white">
+                                Autenticação Centralizada
                             </h3>
-                            <p className="text-slate-200 text-sm leading-relaxed">
-                                Caso seja o seu primeiro acesso, procure a página de registro para realizar seu cadastro e liberar suas credenciais.
+                            <p className="text-slate-200 text-xs leading-relaxed">
+                                O acesso ao sistema SOMA é realizado através do serviço corporativo de autenticação. Utilize sua conta institucional.
+                            </p>
+                            <p className="text-slate-100 text-xs leading-relaxed mt-3 font-semibold">
+                                Caso não tenha acesso, entre em contato com o gabinete do tesouro para a liberação.
                             </p>
                         </div>
                         <p className="text-slate-400 text-xs mt-6 text-center md:text-left">
@@ -208,39 +81,18 @@ export default function LoginPage() {
             </main>
  
             {process.env.NEXT_PUBLIC_USE_MOCK_API === 'true' && (
-                <div className="mt-8 p-1.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white lg:border-slate-200/60 shadow-xl flex items-center gap-4 max-w-md mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                    <div className="bg-amber-100/50 p-3 rounded-xl flex-shrink-0">
-                        <MdInfoOutline size={24} className="text-amber-600" />
+                <div className="mt-8 p-1.5 rounded-2xl bg-warning/10 backdrop-blur-md border border-warning/20 shadow-xl flex items-center gap-4 max-w-md mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                    <div className="bg-warning/20 p-3 rounded-xl flex-shrink-0">
+                        <MdInfoOutline size={24} className="text-warning" />
                     </div>
                     <div className="flex-grow pr-4">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-700/80 mb-0.5">Ambiente de Testes</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-warning mb-0.5">Ambiente de Testes</h4>
                         <div className="flex items-center gap-3">
-                            <div className="grid grid-cols-2 gap-2">
-                                <div className="bg-white/50 p-2 rounded-lg border border-amber-200/40">
-                                    <p className="text-[10px] text-amber-600 uppercase font-bold mb-0.5">E-mail</p>
-                                    <p className="text-xs font-mono text-amber-900 font-bold">admin@fazenda</p>
-                                </div>
-                                <div className="bg-white/50 p-2 rounded-lg border border-amber-200/40">
-                                    <p className="text-[10px] text-amber-600 uppercase font-bold mb-0.5">Senha</p>
-                                    <p className="text-xs font-mono text-amber-900 font-bold">123</p>
-                                </div>
-                            </div>
-                            <div className="h-4 w-px bg-slate-200" />
-                            <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">MOCK_API</span>
+                            <span className="text-[10px] font-semibold text-warning bg-warning/20 px-2 py-0.5 rounded-full border border-warning/30">MOCK_API</span>
                         </div>
                     </div>
                 </div>
             )}
-
-
-            {showUnitModal && (
-                <UnitSelectionModal 
-                    unidades={availableUnits} 
-                    onSelect={handleUnitSelect} 
-                />
-            )}
-
-            <ToastContainer toasts={toasts} onClose={removeToast} />
         </div>
     );
 }
