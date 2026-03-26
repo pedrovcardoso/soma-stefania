@@ -8,6 +8,7 @@ import SettingsContainer from '@/views/settings/SettingsContainer'
 import ActionPlansView from '@/views/ActionPlans'
 import DocumentsView from '@/views/DocumentsView'
 import StefaniaView from '@/views/StefaniaView'
+import DashboardView from '@/views/DashboardView'
 
 const viewMap = {
   'home': HomeView,
@@ -17,7 +18,8 @@ const viewMap = {
   'settings': SettingsContainer,
   'doc_list': DocumentsView,
   'action_plans': ActionPlansView,
-  'stefania': StefaniaView
+  'stefania': StefaniaView,
+  'dashboard': DashboardView
 }
 
 export default function TabRenderer({ tab }) {
