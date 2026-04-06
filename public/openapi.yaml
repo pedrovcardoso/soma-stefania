@@ -118,6 +118,353 @@ paths:
                     type: string
                     example: Erro ao consultar processos
 
+  /manterTags_bp:
+    post:
+      summary: Manter tags (consultar, inserir, alterar e excluir)
+      tags: [ Tags ]
+      operationId: manterTags
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required: [ operacao, dados ]
+                  properties:
+                    operacao:
+                      type: string
+                      example: consultar
+                      enum: [ consultar ]
+                    dados:
+                      type: object
+                      description: Nenhum campo obrigatório para consulta.
+                      properties: { }
+                  example:
+                    operacao: consultar
+                    dados: { }
+
+                - type: object
+                  required: [ operacao, dados ]
+                  properties:
+                    operacao:
+                      type: string
+                      example: inserir
+                      enum: [ inserir ]
+                    dados:
+                      type: object
+                      required: [ tag, responsavel ]
+                      properties:
+                        tag:
+                          type: string
+                          example: "TAG_EXEMPLO"
+                        responsavel:
+                          type: string
+                          example: "pedro.campos"
+                  example:
+                    operacao: inserir
+                    dados:
+                      tag: "TAG_EXEMPLO"
+                      responsavel: "pedro.campos"
+
+                - type: object
+                  required: [ operacao, dados ]
+                  properties:
+                    operacao:
+                      type: string
+                      example: alterar
+                      enum: [ alterar ]
+                    dados:
+                      type: object
+                      required: [ tag_original, tag, responsavel ]
+                      properties:
+                        tag_original:
+                          type: string
+                          example: "TAG_ANTIGA"
+                        tag:
+                          type: string
+                          example: "TAG_NOVA"
+                        responsavel:
+                          type: string
+                          example: "pedro.campos"
+                  example:
+                    operacao: alterar
+                    dados:
+                      tag_original: "TAG_ANTIGA"
+                      tag: "TAG_NOVA"
+                      responsavel: "pedro.campos"
+
+                - type: object
+                  required: [ operacao, dados ]
+                  properties:
+                    operacao:
+                      type: string
+                      example: excluir
+                      enum: [ excluir ]
+                    dados:
+                      type: object
+                      required: [ tag ]
+                      properties:
+                        tag:
+                          type: string
+                          example: "TAG_EXEMPLO"
+                  example:
+                    operacao: excluir
+                    dados:
+                      tag: "TAG_EXEMPLO"
+      responses:
+        "200":
+          description: Operação realizada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Operação realizada com sucesso
+                  data:
+                    type: array
+                    description: Retornado na operação de consulta
+                    items:
+                      type: object
+                      properties:
+                        tag:
+                          type: string
+                          example: "TAG_EXEMPLO"
+                  id_tag:
+                    type: integer
+                    description: Retornado nas operações de alteração e exclusão
+                    example: 12
+
+        "201":
+          description: Nova tag criada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Nova tag criada com sucesso
+
+        "400":
+          description: Requisição inválida ou operação não suportada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Campo obrigatório não informado
+
+        "404":
+          description: Tag não encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Tag não encontrada para atualização
+
+        "409":
+          description: Conflito de dados
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /mantervinculacaoTags_bp:
+    post:
+      summary: Manter vinculação de tags aos processos (consultar, inserir e excluir)
+      tags: [ Tags ]
+      operationId: manterVinculacaoTags
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required: [ operacao, dados ]
+                  properties:
+                    operacao:
+                      type: string
+                      enum: [ consultar ]
+                      example: consultar
+                    dados:
+                      type: object
+                      required: [ processo ]
+                      properties:
+                        processo:
+                          type: string
+                          example: "12345.01.000000/2023-11"
+                  example:
+                    operacao: consultar
+                    dados:
+                      processo: "12345.01.000000/2023-11"
+
+                - type: object
+                  required: [ operacao, dados ]
+                  properties:
+                    operacao:
+                      type: string
+                      enum: [ inserir ]
+                      example: inserir
+                    dados:
+                      type: object
+                      required: [ tag, processo, responsavel ]
+                      properties:
+                        tag:
+                          type: string
+                          example: "TAG_EXEMPLO"
+                        processo:
+                          type: string
+                          example: "12345.01.000000/2023-11"
+                        responsavel:
+                          type: string
+                          example: "pedro.campos"
+                  example:
+                    operacao: inserir
+                    dados:
+                      tag: "TAG_EXEMPLO"
+                      processo: "12345.01.000000/2023-11"
+                      responsavel: "pedro.campos"
+
+                - type: object
+                  required: [ operacao, dados ]
+                  properties:
+                    operacao:
+                      type: string
+                      enum: [ excluir ]
+                      example: excluir
+                    dados:
+                      type: object
+                      required: [ tag, processo ]
+                      properties:
+                        tag:
+                          type: string
+                          example: "TAG_EXEMPLO"
+                        processo:
+                          type: string
+                          example: "12345.01.000000/2023-11"
+                  example:
+                    operacao: excluir
+                    dados:
+                      tag: "TAG_EXEMPLO"
+                      processo: "12345.01.000000/2023-11"
+      responses:
+        "200":
+          description: Operação realizada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Operação realizada com sucesso
+                  data:
+                    type: array
+                    description: Retornado na operação de consulta
+                    items:
+                      type: object
+                      properties:
+                        idtb_processo_tag:
+                          type: integer
+                          example: 15
+                        tag:
+                          type: string
+                          example: "TAG_EXEMPLO"
+                  tag:
+                    type: string
+                    description: Retornado na operação de exclusão
+                    example: "TAG_EXEMPLO"
+                  processo:
+                    type: string
+                    description: Retornado na operação de exclusão
+                    example: "12345.01.000000/2023-11"
+
+        "201":
+          description: Nova tag vinculada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Nova tag vinculada com sucesso
+
+        "400":
+          description: Requisição inválida ou operação não suportada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Campo obrigatório não informado
+
+        "409":
+          description: Não foi possível efetivar a desvinculação
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Não foi possível efetivar a desvinculação
+                  detalhe:
+                    type: string
+                    example: Mensagem detalhada do erro
+
+        "500":
+          description: Erro interno ao processar vinculação de tags
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Erro ao consultar vinculações de tag
+                  detalhe:
+                    type: string
+                    example: Mensagem detalhada do erro
+
   /filtros:
     get:
       summary: Retorna valores para filtros

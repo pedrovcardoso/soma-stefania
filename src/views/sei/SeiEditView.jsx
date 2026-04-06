@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { MdSave, MdCancel, MdContentCopy, MdEdit, MdCalendarToday, MdWarning } from 'react-icons/md';
+import { MdSave, MdCancel, MdContentCopy, MdEdit, MdCalendarToday, MdWarning, MdAdd } from 'react-icons/md';
 import { toast } from '@/components/ui/toast';
 import CustomSelect from '@/components/ui/CustomSelect';
 import Modal from '@/components/ui/Modal';
 import useTabStore from '@/store/useTabStore';
+import useAuthStore from '@/store/useAuthStore';
+import { fetchTags } from '@/services/tagService';
 
 const STATUS_OPTIONS = [
     "Acompanhamento especial",
@@ -136,9 +138,43 @@ export default function SeiEditView({ tabId, data, onSave, onCancel, isSaving })
     const [formData, setFormData] = useState({
         ...data,
         status: data.status || 'Planejado',
+        tags: data.tags || [],
     });
+    const [availableTags, setAvailableTags] = useState([]);
+    const [loadingTags, setLoadingTags] = useState(false);
+
     const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false);
     const updateTab = useTabStore(state => state.updateTab);
+    const { userEmail } = useAuthStore();
+
+    useEffect(() => {
+        const loadTags = async () => {
+            setLoadingTags(true);
+            try {
+                const tagsFromApi = await fetchTags();
+                const tagNames = tagsFromApi.map(item => item.tag);
+                setAvailableTags(tagNames);
+            } catch (error) {
+                console.error('Erro ao carregar tags:', error);
+            } finally {
+                setLoadingTags(false);
+            }
+        };
+        loadTags();
+    }, []);
+
+    const handleAddNewTag = (tag) => {
+        const normalizedTag = tag.trim().toUpperCase();
+        if (normalizedTag && !formData.tags.includes(normalizedTag)) {
+            setFormData(prev => ({
+                ...prev,
+                tags: [...prev.tags, normalizedTag]
+            }));
+            if (!availableTags.includes(normalizedTag)) {
+                setAvailableTags(prev => [...prev, normalizedTag]);
+            }
+        }
+    };
 
     const isDirty = useMemo(() => {
         if (data.isNew) return true;
@@ -267,16 +303,25 @@ export default function SeiEditView({ tabId, data, onSave, onCancel, isSaving })
                         </div>
                         <InputField label="Descrição" name="descricao" value={descricao} onChange={handleChange} fullWidth type="textarea" />
 
-                        <div className="flex flex-col opacity-60">
-                            <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Tags Associadas <span className="text-[9px] font-normal lowercase">(leitura)</span></label>
-                            <div className="flex flex-wrap gap-2">
-                                {tags && tags.length > 0 ? tags.map((tag, idx) => (
-                                    <span key={idx} className="px-3 py-1.5 bg-surface-alt text-text-muted rounded-md text-xs font-semibold border border-border">
-                                        {tag}
-                                    </span>
-                                )) : (
-                                    <span className="text-text-muted text-sm italic">Sem tags associadas</span>
-                                )}
+                        <div className="flex flex-col">
+                            <label className="text-[10px] font-bold text-accent uppercase tracking-wider mb-2">Tags do Processo</label>
+                            <div className="bg-surface-alt/30 p-4 rounded-xl border border-border/50 space-y-4">
+                                <CustomSelect
+                                    multiple={true}
+                                    shouldGroup={false}
+                                    options={availableTags}
+                                    value={formData.tags || []}
+                                    onChange={(newTags) => setFormData(prev => ({ ...prev, tags: newTags }))}
+                                    placeholder="Pesquise ou crie novas tags..."
+                                    isLoading={loadingTags}
+                                    creatable={true}
+                                    onCreateOption={handleAddNewTag}
+                                    showSearch={true}
+                                    showClear={true}
+                                />
+                                <p className="text-[10px] text-text-muted italic mt-2 px-1">
+                                    Pesquise por tags existentes ou digite para criar uma nova.
+                                </p>
                             </div>
                         </div>
                     </div>

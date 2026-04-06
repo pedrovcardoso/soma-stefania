@@ -15,13 +15,17 @@ export default function SearchableList({
     surfaceColor,
     textColor,
     accentColor,
-    isLoading = false
+    isLoading = false,
+    creatable = false,
+    onCreateOption
 }) {
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredOptions = options.filter(option =>
         String(option).toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const showCreatable = creatable && searchTerm.trim() !== '' && !options.some(opt => opt.toLowerCase() === searchTerm.trim().toLowerCase());
 
     const toggleOption = (option) => {
         if (!multiple) {
@@ -111,9 +115,23 @@ export default function SearchableList({
                             </div>
                         );
                     })
-                ) : (
+                ) : !showCreatable ? (
                     <div className="px-4 py-8 text-center text-text-muted text-xs italic font-normal normal-case">
                         Nenhum resultado encontrado
+                    </div>
+                ) : null}
+
+                {showCreatable && (
+                    <div
+                        onClick={() => onCreateOption ? onCreateOption(searchTerm.trim()) : toggleOption(searchTerm.trim())}
+                        className="px-3 py-2 text-sm rounded-lg cursor-pointer transition-all flex items-center gap-2 mb-0.5 font-bold text-accent hover:bg-accent-soft group"
+                        style={{ color: accentColor }}
+                    >
+                        <div className="w-5 h-5 rounded-md bg-accent/10 flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-colors">
+                            <span className="text-lg leading-none">+</span>
+                        </div>
+                        <span className="truncate flex-grow">Criar "{searchTerm.trim()}"</span>
+                        <span className="text-[10px] opacity-60 font-medium bg-accent/10 px-1.5 py-0.5 rounded uppercase tracking-wider">Novo</span>
                     </div>
                 )}
             </div>

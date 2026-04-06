@@ -11,6 +11,8 @@ import DocumentsDetailView from './DocumentsDetailView';
 import SeiEditView from './SeiEditView';
 import { toast } from '@/components/ui/toast';
 import { fetchSeiProcessDetails, manterProcesso, prepararImportacao } from '@/services/seiService';
+import { manterTag, manterVinculacaoTag } from '@/services/tagService';
+import useAuthStore from '@/store/useAuthStore';
 import ProcessBasketTree from '@/components/ui/ProcessBasketTree';
 import Modal from '@/components/ui/Modal';
 import { MdWarning } from 'react-icons/md';
@@ -26,6 +28,7 @@ export default function SeiDetailView({ id, lastReload, data: tabData }) {
   const [isDeletingLoading, setIsDeletingLoading] = useState(false);
   const updateTab = useTabStore(state => state.updateTab);
   const closeTab = useTabStore(state => state.closeTab);
+  const { userEmail, selectedUnidade } = useAuthStore();
 
   const isNew = tabData?.isNew;
   const updateHistoryEntry = useHistoryStore(state => state.updateHistoryEntry);
@@ -49,6 +52,29 @@ export default function SeiDetailView({ id, lastReload, data: tabData }) {
     try {
       const operacao = isNew ? 'inserir' : 'alterar';
       await manterProcesso(operacao, newData);
+
+      const oldTags = processData?.tags || [];
+      const newTags = newData.tags || [];
+
+      const tagsToAdd = newTags.filter(t => !oldTags.includes(t));
+      const tagsToRemove = oldTags.filter(t => !newTags.includes(t));
+
+      for (const tag of tagsToAdd) {
+        try {
+          await manterTag('inserir', { tag, responsavel: userEmail }).catch(() => null);
+          await manterVinculacaoTag('inserir', { tag, processo: newData.sei, responsavel: userEmail });
+        } catch (err) {
+          console.error(`Erro ao vincular tag ${tag}:`, err);
+        }
+      }
+
+      for (const tag of tagsToRemove) {
+        try {
+          await manterVinculacaoTag('excluir', { tag, processo: newData.sei });
+        } catch (err) {
+          console.error(`Erro ao desvincular tag ${tag}:`, err);
+        }
+      }
 
       toast(`Processo ${operacao === 'inserir' ? 'criado' : 'atualizado'} com sucesso!`, 'success');
 

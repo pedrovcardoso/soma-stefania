@@ -4,23 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import { MdExpandMore, MdClose } from 'react-icons/md';
 import SearchableList from './SearchableList';
 
-/**
- * CustomSelect Component
- * 
- * @param {string} label - Input label
- * @param {Array} options - List of selectable options
- * @param {Array|string} value - Selected value(s)
- * @param {function} onChange - Change handler
- * @param {string} placeholder - Placeholder text
- * @param {boolean} multiple - If true, allows multi-selection (default: true)
- * @param {boolean} shouldGroup - If true, groups multi-selection (default: true)
- * @param {boolean} showSearch - If true, shows search box (default: true)
- * @param {boolean} showSelectAll - If true, shows "Selecionar tudo" in footer
- * @param {boolean} showClear - If true, shows "Limpar" in footer
- * @param {string} surfaceColor - Custom surface color (CSS value)
- * @param {string} textColor - Custom text color (CSS value)
- * @param {string} accentColor - Custom accent color (CSS value)
- */
 export default function CustomSelect({
     label,
     options = [],
@@ -35,12 +18,13 @@ export default function CustomSelect({
     surfaceColor,
     textColor,
     accentColor,
-    isLoading = false
+    isLoading = false,
+    creatable = false,
+    onCreateOption
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
 
-    // Normalize value to array for easier internal handling if multiple is true
     const normalizedValue = multiple ? (Array.isArray(value) ? value : []) : (value ? [value] : []);
 
     useEffect(() => {
@@ -56,7 +40,6 @@ export default function CustomSelect({
 
     const handleValueChange = (newValue) => {
         if (!multiple) {
-            // For single selection, newValue is typically an array with one item from SearchableList
             const selectedValue = Array.isArray(newValue) ? newValue[newValue.length - 1] : newValue;
             onChange(selectedValue);
             setIsOpen(false);
@@ -113,13 +96,10 @@ export default function CustomSelect({
                                 <span
                                     key={val}
                                     onClick={(e) => removeBadge(val, e)}
-                                    className="relative text-text pl-2 pr-2 hover:pr-5 py-0.5 rounded text-[11px] font-medium flex items-center whitespace-nowrap transition-all after:content-['\00d7'] after:absolute after:right-1.5 after:text-[14px] after:leading-none after:opacity-0 hover:after:opacity-100"
-                                    style={{
-                                        color: textColor,
-                                        backgroundColor: 'color-mix(in srgb, currentColor 8%, transparent)',
-                                    }}
+                                    className="relative bg-accent-soft text-accent pl-2 pr-5 py-0.5 rounded text-[11px] font-bold flex items-center whitespace-nowrap transition-all hover:bg-accent hover:text-white cursor-pointer group"
                                 >
                                     {val}
+                                    <MdClose className="absolute right-1 text-[12px] opacity-60 group-hover:opacity-100 transition-opacity" />
                                 </span>
                             ))
                         ) : (
@@ -150,6 +130,15 @@ export default function CustomSelect({
                             textColor={textColor}
                             accentColor={accentColor}
                             isLoading={isLoading}
+                            creatable={creatable}
+                            onCreateOption={(newOpt) => {
+                                if (onCreateOption) {
+                                    onCreateOption(newOpt);
+                                } else {
+                                    handleValueChange(multiple ? [...normalizedValue, newOpt] : [newOpt]);
+                                }
+                                setIsOpen(false);
+                            }}
                         />
                     </div>
                 )}

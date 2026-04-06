@@ -27,7 +27,9 @@ async function request(endpoint, { method = 'GET', data, headers: customHeaders 
     '/consultaDocumento',
     '/detalheProcesso',
     '/listaDocumentos',
-    '/validaProcessos'
+    '/validaProcesso',
+    '/prepararImportacao',
+    '/manterProcesso'
   ];
 
   let finalEndpoint = endpoint;
