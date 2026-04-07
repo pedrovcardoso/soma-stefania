@@ -147,15 +147,17 @@ export default function DocumentsDetailView({ processId, processUrl, lastReload 
 
     useEffect(() => {
         const handleMouseMove = (e) => {
-            if (resizing.type === 'list') {
-                const diff = e.clientX - resizing.startX;
-                const newWidth = Math.max(200, Math.min(500, resizing.startWidth + diff));
-                setListWidth(newWidth);
-            } else if (resizing.type === 'ai') {
-                const diff = resizing.startX - e.clientX;
-                const newWidth = Math.max(250, Math.min(600, resizing.startWidth + diff));
-                setAiWidth(newWidth);
-            }
+            requestAnimationFrame(() => {
+                if (resizing.type === 'list') {
+                    const diff = e.clientX - resizing.startX;
+                    const newWidth = Math.max(200, Math.min(500, resizing.startWidth + diff));
+                    setListWidth(newWidth);
+                } else if (resizing.type === 'ai') {
+                    const diff = resizing.startX - e.clientX;
+                    const newWidth = Math.max(250, Math.min(600, resizing.startWidth + diff));
+                    setAiWidth(newWidth);
+                }
+            });
         };
 
         const handleMouseUp = () => {
@@ -241,9 +243,8 @@ export default function DocumentsDetailView({ processId, processUrl, lastReload 
     }
 
     return (
-        <div className="flex flex-col font-sans">
-            <div className="max-w-full w-full mx-auto space-y-6 flex flex-col py-4 px-4">
-
+        <div className="flex flex-col font-sans h-full overflow-y-auto bg-surface-alt">
+            <div className="max-w-[1400px] mx-auto w-full flex flex-col p-6 gap-8">
                 <div className="flex flex-col">
                     <h3 className="text-md font-bold text-text-muted px-2">
                         Status dos documentos na Azure
@@ -288,7 +289,7 @@ export default function DocumentsDetailView({ processId, processUrl, lastReload 
                     </div>
                 </div>
 
-                <div className="flex gap-2 min-h-0 px-2 pb-4 overflow-hidden" style={{ height: 'calc(100vh - 100px)' }}>
+                <div className="flex gap-4 h-[55vh] min-h-[500px]">
                     <div
                         className="flex flex-col gap-4 min-h-0 shrink-0"
                         style={{ width: `${listWidth}px` }}
@@ -351,7 +352,7 @@ export default function DocumentsDetailView({ processId, processUrl, lastReload 
                         </div>
                     </div>
 
-                    <div
+                    <div 
                         onMouseDown={(e) => handleResizeStart(e, 'list')}
                         className={`w-4 -ml-2 -mr-2 z-10 cursor-col-resize flex items-center justify-center group outline-none shrink-0`}
                     >
@@ -409,20 +410,20 @@ export default function DocumentsDetailView({ processId, processUrl, lastReload 
                     )}
                 </div>
 
-                <div className="flex flex-col gap-6 pb-20 pt-8 border-t border-border px-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-surface rounded-2xl shadow-lg border border-border flex items-center justify-center text-accent">
-                                <MdModeEdit size={26} />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-lg font-bold text-text tracking-tight leading-none">Redigir Manifestação</h2>
-                            </div>
+                <div className="flex flex-col border-t border-border pt-8 h-[100vh] min-h-[600px] overflow-hidden">
+                    <div className="flex items-center gap-4 mb-4 shrink-0">
+                        <div className="w-12 h-12 bg-surface rounded-2xl shadow-sm border border-border flex items-center justify-center text-accent shrink-0">
+                            <MdModeEdit size={24} />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold text-text tracking-tight leading-none">Redigir Manifestação</h2>
                         </div>
                     </div>
 
-                    <div className="h-[80vh] relative">
-                        <StefanIAEditor documents={documents} processId={processId} />
+                    <div className="flex-1 relative min-h-0 w-full flex flex-col">
+                        <div className="absolute inset-0 flex flex-col min-h-0">
+                            <StefanIAEditor documents={documents} processId={processId} />
+                        </div>
                     </div>
                 </div>
             </div>

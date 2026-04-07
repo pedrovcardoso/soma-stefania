@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { useEditor, EditorContent, Extension } from '@tiptap/react';
 import { StarterKit } from '@tiptap/starter-kit';
 import { Color } from '@tiptap/extension-color';
@@ -19,10 +19,11 @@ import {
     MdFormatListBulleted, MdFormatListNumbered, MdImage, MdTableChart, MdDelete,
     MdAdd, MdRemove, MdKeyboardArrowDown, MdFormatClear,
     MdGridOn, MdMergeType, MdCallSplit, MdDeleteSweep,
-    MdVerticalAlignTop, MdVerticalAlignBottom, MdKeyboardArrowLeft, MdKeyboardArrowRight,
+    MdKeyboardArrowLeft, MdKeyboardArrowRight, MdOpenInFull,
     MdAutoAwesome, MdDescription, MdSend, MdFlashOn, MdQuestionAnswer,
     MdFormatColorFill, MdBorderColor, MdEdit, MdPlayArrow, MdClose, MdCheck, MdCompareArrows,
-    MdChevronRight, MdChevronLeft, MdFileDownload, MdViewSidebar
+    MdChevronRight, MdChevronLeft, MdFileDownload, MdViewSidebar, MdZoomIn, MdZoomOut, MdFitScreen,
+    MdVerticalAlignTop, MdVerticalAlignBottom
 } from 'react-icons/md';
 import { stefaniaService } from '@/services/stefaniaService';
 
@@ -50,6 +51,24 @@ const ToolbarButton = ({ onClick, active, icon: Icon, label, className = "", tit
         {Icon && <Icon size={20} />}
     </button>
 );
+
+const CustomTooltip = ({ children, content, subtitle, bg = "bg-surface text-text border border-border shadow-xl", width = "w-64" }) => {
+    return (
+        <div className="relative group flex items-center">
+            {children}
+            {content && (
+                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 p-3 rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-[999999] ${bg} ${width}`}>
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-accent uppercase tracking-wider">{subtitle || 'Prompt da IA'}</span>
+                        <p className="text-[11px] leading-relaxed text-text italic">"{content}"</p>
+                    </div>
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-border"></div>
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-6 border-transparent border-t-surface mt-[-1px]"></div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const Divider = () => <div className="h-5 w-px bg-border mx-1" />;
 
@@ -362,7 +381,7 @@ function SidebarLoadingCard() {
 
 // --- Main Component ---
 
-export default function StefaniaEditor({ documents = [], processId, disableSidebarToggle = false }) {
+const StefaniaEditor = forwardRef(function StefaniaEditor({ documents = [], processId, disableSidebarToggle = false, aiPosition = 'right', initialContent, onUpdateContent, className = '' }, ref) {
     // 1. All useState & useRef hooks at the top
     const [activeMenu, setActiveMenu] = useState(null);
     const [sidebarOpen, setSidebarOpen] = useState(true); // Initial state is true, useEffect will enforce if disableSidebarToggle is true
@@ -389,6 +408,39 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
     const [customPrompt, setCustomPrompt] = useState('');
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [previewModal, setPreviewModal] = useState({ visible: false, originalText: '', modifiedText: '', actionLabel: '', documentosUtilizados: [], pendingAction: null });
+    const [zoom, setZoom] = useState(1);
+    const editorContainerRef = useRef(null);
+
+    const handleFitToWidth = useCallback(() => {
+        if (editorContainerRef.current) {
+            const containerWidth = editorContainerRef.current.clientWidth - 64; // pad
+            const newZoom = containerWidth / 794;
+            setZoom(Math.min(Math.max(newZoom, 0.4), 2.5));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!editorContainerRef.current) return;
+        
+        let timeoutId;
+        const observer = new ResizeObserver(() => {
+            // Executa com delay (debounce) para rodar ao terminar de redimensionar
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                handleFitToWidth();
+            }, 100);
+        });
+        
+        observer.observe(editorContainerRef.current);
+        
+        // Aciona também no primeiro carregamento
+        setTimeout(() => handleFitToWidth(), 50);
+
+        return () => {
+            observer.disconnect();
+            clearTimeout(timeoutId);
+        };
+    }, [handleFitToWidth]);
 
     // 2. useEditor hook
     const editor = useEditor({
@@ -406,14 +458,26 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
             }),
             ResizableImage.configure({ inline: true, allowBase64: true, HTMLAttributes: { class: 'resizable-image' } }),
         ],
-        content: '',
+        content: initialContent || '',
         onUpdate: ({ editor }) => {
             const text = editor.getText();
+            const html = editor.getHTML();
             const words = text.trim() ? text.trim().split(/\s+/).length : 0;
             const paragraphs = editor.state.doc.childCount;
             setStats({ chars: text.length, words, lines: paragraphs, paragraphs });
+            if (onUpdateContent) onUpdateContent(html);
         },
     });
+
+    useImperativeHandle(ref, () => ({
+        insertText: (text) => {
+            if (editor) {
+                const formattedContent = text.split('\n').map(line => line.trim() ? `<p>${line}</p>` : '').filter(line => line !== '').join('');
+                editor.chain().focus().insertContent(formattedContent).run();
+            }
+        },
+        getEditor: () => editor
+    }), [editor]);
 
     // 3. useCallback & useEffect hooks
     const handleClickOutside = useCallback((event) => {
@@ -547,10 +611,10 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
     };
 
     return (
-        <div className="flex flex-col h-full w-full bg-neutral-200/50 items-center justify-center font-sans">
+        <div className={`flex flex-col flex-1 h-full w-full overflow-hidden transition-all duration-300 relative group/editor ${className || ''}`}>
             <style dangerouslySetInnerHTML={{ __html: `.tiptap { outline: none; font-size: 16px; line-height: 1.5; color: var(--color-text); min-height: 100%; } .tiptap p { margin-bottom: 0.2rem; } .tiptap h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--color-text); } .tiptap h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text); } .tiptap ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; } .tiptap ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; } .tiptap table { border-collapse: collapse; table-layout: fixed; width: auto; min-width: 100px; margin: 1rem 0; overflow: visible; } .tiptap table td, .tiptap table th { width: 200px; border: 1px solid var(--color-border); padding: 3px 3px; vertical-align: top; box-sizing: border-box; position: relative; word-break: break-word; overflow-wrap: break-word; white-space: normal; } .tiptap .selectedCell { outline: 2px solid var(--color-accent); outline-offset: -1px; } .tiptap .selectedCell:after { z-index: 2; content: ""; position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: rgba(var(--color-accent-rgb), 0.15); pointer-events: none; } .tiptap .column-resize-handle { position: absolute; right: -2px; top: 0; bottom: -2px; width: 4px; background-color: transparent; cursor: col-resize; z-index: 20; transition: background-color 0.2s; } .tiptap table:hover .column-resize-handle { background-color: rgba(156, 163, 175, 0.1); } .tiptap .column-resize-handle:hover { background-color: var(--color-text-muted) !important; } .tiptap .resize-cursor { cursor: col-resize; } .resizable-image-container { position: relative; display: inline-block; line-height: 0; margin: 0.5rem 0; vertical-align: top; } .resizable-image-container:hover .resize-handle { display: block; } .resize-handle { display: none; position: absolute; right: 0; bottom: 0; width: 12px; height: 12px; background-color: var(--color-accent); border: 2px solid white; border-radius: 2px; cursor: nwse-resize; z-index: 10; } .tiptap .ProseMirror-selectednode .resizable-image-container .resize-handle { display: block; } .tiptap .ProseMirror-selectednode img { outline: 3px solid var(--color-accent); } .image-upload-placeholder { width: 300px; height: 150px; border: 2px dashed var(--color-border); border-radius: 8px; background-color: var(--color-surface-alt); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; } .image-upload-placeholder:hover { border-color: var(--color-accent); background-color: var(--color-accent-soft); } .upload-box { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--color-text-muted); } .image-upload-placeholder:hover .upload-box { color: var(--color-accent); } .upload-box span { font-size: 12px; font-weight: 600; } .hidden-file-input { display: none; } .tiptap-pagination-page { background-color: white !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important; margin: 0 auto !important; border: 1px solid var(--color-border); } .tiptap-pagination-gap { background-color: transparent !important; height: 20px !important; } .ProseMirror:focus { outline: none !important; } .tiptap, .ProseMirror { background-color: white !important; color: black !important; } .tiptap *, .ProseMirror * { color: inherit; } .rm-page-footer, .rm-page-header { cursor: default !important; } .rm-page-footer *, .rm-page-header * { cursor: default !important; } .editor-page-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }` }} />
-            <div className="w-full bg-surface rounded-xl shadow-lg border border-border flex flex-col overflow-hidden h-full">
-                <div className="bg-surface border-b border-border p-2 flex flex-wrap items-center gap-1 z-50 shadow-sm relative">
+            <div className="w-full rounded-xl border border-border flex flex-col overflow-hidden flex-1 h-full">
+                <div className="bg-surface border-b border-border p-2 flex flex-wrap items-center gap-1 z-50 shadow-sm relative shrink-0">
                     <ToolbarButton onClick={() => editor.chain().focus().undo().run()} icon={MdUndo} title="Desfazer" />
                     <ToolbarButton onClick={() => editor.chain().focus().redo().run()} icon={MdRedo} title="Refazer" />
                     <Divider />
@@ -637,16 +701,34 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
                     {!disableSidebarToggle && <ToolbarButton onClick={() => setSidebarOpen(!sidebarOpen)} icon={sidebarOpen ? MdChevronRight : MdViewSidebar} title={sidebarOpen ? "Ocultar IA" : "Mostrar IA"} className="ml-auto" active={sidebarOpen} />}
                 </div>
 
-                <div className="flex-1 flex overflow-hidden relative">
-                    <div className="flex-1 overflow-y-auto bg-neutral-200/80 flex justify-center py-8 transition-colors duration-300 relative" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ visible: true, x: e.clientX, y: e.clientY }); }}>
-                        <EditorContent editor={editor} />
+                <div ref={editorContainerRef} className={`flex-1 flex ${aiPosition === 'bottom' ? 'flex-col' : ''} overflow-hidden relative`}>
+                    <div className="absolute top-3 right-3 flex flex-col items-center gap-1 z-30 pointer-events-auto">
+                        <button onClick={() => setZoom(Math.min(zoom + 0.1, 2.5))} className="p-1.5 bg-surface/80 backdrop-blur-md border border-border shadow-sm text-text-muted hover:text-accent rounded-lg transition-colors" title="Aumentar Zoom">
+                            <MdZoomIn size={16} />
+                        </button>
+                        <button onClick={handleFitToWidth} className="p-1.5 bg-surface/80 backdrop-blur-md border border-border shadow-sm text-text-muted hover:text-accent rounded-lg transition-colors" title="Ajustar à Largura">
+                            <MdOpenInFull size={14} />
+                        </button>
+                        <button onClick={() => setZoom(Math.max(zoom - 0.1, 0.4))} className="p-1.5 bg-surface/80 backdrop-blur-md border border-border shadow-sm text-text-muted hover:text-accent rounded-lg transition-colors" title="Diminuir Zoom">
+                            <MdZoomOut size={16} />
+                        </button>
                     </div>
 
-                    {sidebarOpen && (
+                    <div className="flex-1 overflow-x-auto overflow-y-auto bg-neutral-200/80 py-8 transition-colors duration-300 relative" onContextMenu={(e) => { e.preventDefault(); setContextMenu({ visible: true, x: e.clientX, y: e.clientY }); }}>
+                        <div style={{ width: `${794 * zoom}px`, margin: '0 auto', transition: 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                            <div style={{ width: '794px', transform: `scale(${zoom})`, transformOrigin: 'top left', transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                                <EditorContent editor={editor} />
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    {sidebarOpen && aiPosition !== 'bottom' && (
                         <>
                             <div className="w-1 bg-border hover:bg-accent cursor-col-resize z-30 transition-colors" onMouseDown={startResizing} />
                             <div style={{ width: sidebarWidth }} className="border-l border-border bg-surface flex flex-col z-20 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
-                                <div className="p-4 border-b border-border flex items-center gap-3 bg-surface">
+                                <div className="px-4 py-2 border-b border-border flex items-center gap-3 bg-surface">
                                     <div className="w-8 h-8 flex items-center justify-center bg-accent-soft rounded-lg text-accent border border-accent/20"><MdAutoAwesome className="text-accent" size={18} /></div>
                                     <div className="flex-1"><h4 className="font-bold text-text text-base leading-tight">StefanIA</h4><p className="text-[10px] text-text-muted">Assistente Inteligente</p></div>
                                     {!disableSidebarToggle && <button onClick={() => setSidebarOpen(false)} className="text-text-muted hover:text-text p-1 rounded-md hover:bg-surface-alt transition-colors"><MdClose size={16} /></button>}
@@ -663,16 +745,16 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
                                         <SidebarLoadingCard />
                                     ) : (
                                         <>
-                                            <button onClick={() => executeAIAction('generate_draft', 'Sugestão de Minuta', editor.getText(), false)} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group">
-                                                <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Sugestão de Minuta</h3></div>
+                                            <button onClick={() => executeAIAction('generate_draft', 'Sugestão de Minuta', editor.getText(), false)} className="text-left bg-surface p-3 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group">
+                                                <div className="flex items-center gap-2 mb-1"><h4 className="font-bold text-text group-hover:text-accent transition-colors">Sugestão de Minuta</h4></div>
                                                 <p className="text-xs text-text-muted">Estrutura básica para seu documento.</p>
                                             </button>
-                                            <button onClick={() => executeAIAction('adjust_language', 'Ajustar Linguagem', editor.getText(), false)} disabled={editor.getText().trim().length === 0} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
-                                                <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Ajustar Linguagem</h3></div>
+                                            <button onClick={() => executeAIAction('adjust_language', 'Ajustar Linguagem', editor.getText(), false)} disabled={editor.getText().trim().length === 0} className="text-left bg-surface p-3 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <div className="flex items-center gap-2 mb-1"><h4 className="font-bold text-text group-hover:text-accent transition-colors">Ajustar Linguagem</h4></div>
                                                 <p className="text-xs text-text-muted">Tornar mais formal e corrigir erros gramaticais.</p>
                                             </button>
-                                            <button onClick={() => executeAIAction('summarize', 'Resumo Executivo', editor.getText(), false)} disabled={editor.getText().trim().length === 0} className="text-left bg-surface p-4 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed hidden">
-                                                <div className="flex items-center gap-2 mb-1"><h3 className="font-bold text-text group-hover:text-accent transition-colors">Resumo Executivo</h3></div>
+                                            <button onClick={() => executeAIAction('summarize', 'Resumo Executivo', editor.getText(), false)} disabled={editor.getText().trim().length === 0} className="text-left bg-surface p-3 rounded-xl shadow-sm border border-border hover:shadow-md hover:border-accent-soft transition-all group disabled:opacity-50 disabled:cursor-not-allowed hidden">
+                                                <div className="flex items-center gap-2 mb-1"><h4 className="font-bold text-text group-hover:text-accent transition-colors">Resumo Executivo</h4></div>
                                                 <p className="text-xs text-text-muted">Extrair pontos principais.</p>
                                             </button>
                                             <div className="pt-2 border-t border-border">
@@ -691,13 +773,73 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
                             </div>
                         </>
                     )}
+
+                    {sidebarOpen && aiPosition === 'bottom' && (
+                        <div className="border-t border-border bg-surface flex flex-col z-20 flex-shrink-0 shadow-[0_-4px_15px_-3px_rgba(0,0,0,0.05)]">
+                            <div className="flex items-center justify-between px-4 py-2 bg-surface-alt/50 border-b border-border shadow-inner">
+                                <div className="flex items-center gap-3">
+                                    <div className="relative flex bg-surface-alt rounded-lg p-1 border border-border w-48 h-8">
+                                        <div 
+                                            className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-md shadow-sm border border-border transition-all duration-300 ${aiMode === 'ask' ? 'left-1' : 'left-[calc(50%)]'}`}
+                                        />
+                                        <button 
+                                            onClick={() => setAiMode('ask')} 
+                                            className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 text-[9px] uppercase tracking-wider font-bold transition-colors ${aiMode === 'ask' ? 'text-accent' : 'text-text-muted hover:text-text'}`}
+                                        >
+                                            <MdQuestionAnswer size={14} /> Validar
+                                        </button>
+                                        <button 
+                                            onClick={() => setAiMode('quick')} 
+                                            className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 text-[9px] uppercase tracking-wider font-bold transition-colors ${aiMode === 'quick' ? 'text-accent' : 'text-text-muted hover:text-text'}`}
+                                        >
+                                            <MdFlashOn size={14} /> Rápido
+                                        </button>
+                                    </div>
+                                    <div className="w-px h-4 bg-border mx-1"></div>
+                                    {isAILoading && (
+                                        <div className="flex items-center gap-2 text-accent font-semibold text-xs animate-pulse ml-4">
+                                            <MdAutoAwesome size={14}/> Gerando...
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <button onClick={handleDownloadPDF} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-text border border-border bg-surface hover:bg-surface-alt rounded-lg shadow-sm transition-all text-red-600 border-red-200 hover:border-red-300">
+                                        <MdFileDownload size={14} className="text-red-500" /> Exportar PDF
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {!isAILoading && (
+                                <div className="px-4 py-2 bg-surface">
+                                    <div className="flex items-center border border-accent/30 rounded-lg focus-within:border-accent focus-within:ring-1 focus-within:ring-accent-soft p-1">
+                                        <div className="pl-2 text-accent opacity-50"><MdAutoAwesome size={16}/></div>
+                                        <input type="text" value={customPrompt} onChange={(e) => setCustomPrompt(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && customPrompt.trim() && (executeAIAction('custom', 'Prompt Personalizado', editor.getText(), false), setCustomPrompt(''))} placeholder="Peça para a IA editar o texto do edito (Ex: Corrija a ortografia e torne menos redundante)" className="flex-1 px-3 py-1.5 text-sm bg-transparent text-text focus:outline-none" />
+                                        <button onClick={() => { if (!customPrompt.trim()) return; executeAIAction('custom', 'Prompt Personalizado', editor.getText(), false); setCustomPrompt(''); }} disabled={!customPrompt.trim()} className="h-8 px-4 flex items-center justify-center bg-accent text-accent-contrast rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-xs shadow-sm transition-all">Enviar</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
-                <div className="h-9 min-h-[36px] bg-surface border-t border-border px-4 flex items-center justify-start gap-8 text-[10px] uppercase font-bold text-text-muted tracking-wider">
-                    <span>{totalPages} PÁGINA{totalPages !== 1 ? 'S' : ''}</span>
-                    <span>{stats.paragraphs} PARÁGRAFO{stats.paragraphs !== 1 ? 'S' : ''}</span>
-                    <span>{stats.lines} LINHA{stats.lines !== 1 ? 'S' : ''}</span>
-                    <span>{stats.words} PALAVRA{stats.words !== 1 ? 'S' : ''}</span>
-                    <span>{stats.chars} CARACTERE{stats.chars !== 1 ? 'S' : ''}</span>
+                <div className="min-h-[40px] py-2 bg-surface-alt border-t border-border px-4 flex flex-wrap items-center justify-start gap-2 relative z-20">
+                    <span className="text-[9px] uppercase font-bold text-text-muted shrink-0 mr-1 opacity-70">Sugestões:</span>
+                    {[
+                        { label: 'Gerar Minuta', icon: MdDescription, type: 'generate_draft', prompt: 'Com base nas informações do notebook, gere uma minuta técnica inicial seguindo os padrões oficiais.' },
+                        { label: 'Linguagem Formal', icon: MdEdit, type: 'adjust_language', prompt: 'Ajuste o tom do texto para ser estritamente formal e técnico, adequado para documentos do SEI.' },
+                        { label: 'Corrigir Ortografia', prompt: 'Revise o texto corrigindo erros de ortografia e gramática sem alterar o sentido.' },
+                        { label: 'Resumir Conteúdo', prompt: 'Resuma os pontos principais do texto de forma concisa e direta.' },
+                        { label: 'Voz Ativa', prompt: 'Reescreva as sentenças para que utilizem predominantemente a voz ativa.' }
+                    ].map((sug, i) => (
+                        <CustomTooltip key={i} content={sug.prompt} subtitle={sug.label}>
+                            <button 
+                                onClick={() => executeAIAction(sug.type || 'custom', sug.label, editor.getText(), false, sug.prompt)}
+                                className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 bg-surface border border-border hover:border-accent/40 hover:text-accent rounded-lg text-[10px] font-semibold text-text-muted transition-all whitespace-nowrap shadow-sm hover:shadow-md"
+                            >
+                                {sug.icon && <sug.icon size={12} className="opacity-70 group-hover:opacity-100" />}
+                                {sug.label}
+                            </button>
+                        </CustomTooltip>
+                    ))}
                 </div>
             </div>
 
@@ -722,4 +864,6 @@ export default function StefaniaEditor({ documents = [], processId, disableSideb
             />
         </div>
     );
-}
+});
+
+export default StefaniaEditor;
