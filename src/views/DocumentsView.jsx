@@ -12,8 +12,9 @@ import StefanIAEditor from '@/components/ui/StefanIAEditor';
 import { stefaniaService } from '@/services/stefaniaService';
 import { fetchListaDocumentos, getDistinctProcesses } from '@/services/seiService';
 import UniversalDocumentViewer from '@/components/ui/UniversalDocumentViewer';
-import { useNotebookStore } from '@/store/notebookStore';
+import { useNotebookStore } from '@/store/useNotebookStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import CustomTooltip from '@/components/ui/CustomTooltip';
 
 // --- Shared Components ---
 
@@ -249,26 +250,33 @@ function ChatPanel({ sources, editorRef }) {
           </div>
         )}
         {messages.map((msg) => (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={msg.id} className={`max-w-[90%] p-3.5 rounded-2xl text-sm shadow-sm ${msg.role === 'user' ? 'bg-accent text-white self-end rounded-br-sm' : 'bg-surface border border-border/50 text-text self-start rounded-bl-sm group relative hover:border-accent/30 transition-colors'}`}>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={msg.id} className={`max-w-[85%] p-3 rounded-2xl text-[13px] shadow-sm ${msg.role === 'user' ? 'bg-accent text-white self-end rounded-br-sm' : 'bg-surface border border-border/50 text-text self-start rounded-bl-sm group relative hover:border-accent/30 transition-colors'}`}>
             <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+            
             {msg.role === 'assistant' && (
-              <button onClick={() => insertText(msg.content)} className="absolute -top-3 -right-3 p-2 bg-surface hover:bg-accent-soft border border-border/50 hover:border-accent/50 rounded-xl shadow-lg text-text-muted hover:text-accent opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100" title="Inserir no cursor do editor">
-                <MdCheck size={16}/>
-              </button>
-            )}
-            {msg.refs && msg.refs.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {msg.refs.map((r, i) => <span key={i} className="text-[9px] font-bold text-accent bg-accent-soft/50 border border-accent/20 px-1.5 py-0.5 rounded flex items-center gap-1"><MdDescription size={10}/> {r}</span>)}
+              <div className="mt-3 pt-2 border-t border-border/10 flex items-center justify-between gap-3">
+                <div className="flex flex-wrap gap-1">
+                  {msg.refs?.map((r, i) => (
+                    <span key={i} className="text-[9px] font-bold text-accent bg-accent-soft/50 border border-accent/20 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <MdDescription size={10}/> {r}
+                    </span>
+                  ))}
+                </div>
+                <CustomTooltip content="Adicionar ao texto" position="top">
+                  <button onClick={() => insertText(msg.content)} className="p-1.5 bg-surface-alt hover:bg-accent-soft text-text-muted hover:text-accent rounded-lg border border-border/50 transition-all active:scale-95 shrink-0">
+                    <MdCheck size={14}/>
+                  </button>
+                </CustomTooltip>
               </div>
             )}
           </motion.div>
         ))}
         {isTyping && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-surface border border-border/50 p-4 rounded-2xl max-w-fit self-start rounded-bl-sm shadow-sm">
-            <div className="flex gap-1.5 items-center">
-              <span className="w-1.5 h-1.5 bg-accent/60 rounded-full animate-bounce"></span>
-              <span className="w-1.5 h-1.5 bg-accent/60 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></span>
-              <span className="w-1.5 h-1.5 bg-accent/60 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 bg-text-muted rounded-full animate-pulse [animation-delay:-0.3s]" />
+              <div className="w-1.5 h-1.5 bg-text-muted rounded-full animate-pulse [animation-delay:-0.15s]" />
+              <div className="w-1.5 h-1.5 bg-text-muted rounded-full animate-pulse" />
             </div>
           </motion.div>
         )}
@@ -298,7 +306,7 @@ function ChatPanel({ sources, editorRef }) {
 
 export default function DocumentsView() {
   const { 
-    notebooks, currentNotebookId, createNotebook, setCurrentNotebook, deleteNotebook,
+    notebooks, currentNotebookId, createNotebook, setCurrentNotebook, deleteNotebook, renameNotebook,
     addSourceToCurrent, removeSourceFromCurrent, toggleSourceActive, updateEditorContent, getCurrentNotebook 
   } = useNotebookStore();
 
@@ -314,6 +322,9 @@ export default function DocumentsView() {
   const [previewDoc, setPreviewDoc] = useState(null);
   const [isNotebookMenuOpen, setIsNotebookMenuOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, onConfirm: () => {}, title: '', message: '' });
+  const [renamingId, setRenamingId] = useState(null);
+  const [renameValue, setRenameValue] = useState('');
+  const renameInputRef = useRef(null);
   
   // --- Custom Resizable Panel States ---
   const containerRef = useRef(null);
@@ -407,6 +418,20 @@ export default function DocumentsView() {
     setConfirmModal({ isOpen: true, title, message, onConfirm });
   };
 
+  const startRename = (e, notebook) => {
+    e.stopPropagation();
+    setRenamingId(notebook.id);
+    setRenameValue(notebook.name);
+    setTimeout(() => renameInputRef.current?.focus(), 10);
+  };
+
+  const commitRename = () => {
+    if (renamingId && renameValue.trim()) {
+      renameNotebook(renamingId, renameValue.trim());
+    }
+    setRenamingId(null);
+  };
+
   return (
     <div className="flex h-full w-full bg-surface-alt overflow-hidden font-sans relative" ref={containerRef}>
       
@@ -427,12 +452,30 @@ export default function DocumentsView() {
               </div>
               <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
                 {notebooks.map(n => (
-                  <div key={n.id} className={`group flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${n.id === currentNotebookId ? 'bg-accent-soft/30 border-accent/40 shadow-sm' : 'bg-surface hover:bg-surface-alt border-border/50 hover:border-border'}`} onClick={() => { setCurrentNotebook(n.id); setIsNotebookMenuOpen(false); }}>
-                    <div className="flex flex-col overflow-hidden">
-                      <span className={`text-sm font-bold truncate ${n.id === currentNotebookId ? 'text-accent' : 'text-text'}`}>{n.name}</span>
-                      <span className="text-[10px] text-text-muted mt-0.5">{new Date(n.updatedAt || Date.now()).toLocaleDateString() /* fallback */}</span>
+                  <div key={n.id} className={`group flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${n.id === currentNotebookId ? 'bg-accent-soft/30 border-accent/40 shadow-sm' : 'bg-surface hover:bg-surface-alt border-border/50 hover:border-border'}`} onClick={() => { if (renamingId !== n.id) { setCurrentNotebook(n.id); setIsNotebookMenuOpen(false); } }}>
+                    <div className="flex flex-col overflow-hidden flex-1">
+                      {renamingId === n.id ? (
+                        <input
+                          ref={renameInputRef}
+                          className="text-sm font-bold bg-transparent border-b border-accent outline-none text-text w-full"
+                          value={renameValue}
+                          onChange={(e) => setRenameValue(e.target.value)}
+                          onBlur={commitRename}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') commitRename();
+                            if (e.key === 'Escape') setRenamingId(null);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <span className={`text-sm font-bold truncate ${n.id === currentNotebookId ? 'text-accent' : 'text-text'}`}>{n.name}</span>
+                      )}
+                      <span className="text-[10px] text-text-muted mt-0.5">{new Date(n.updatedAt || Date.now()).toLocaleDateString('pt-BR')}</span>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); askConfirmation('Excluir Notebook', 'Isso apagará permanentemente esta sessão.', () => { deleteNotebook(n.id); if (n.id === currentNotebookId) setIsNotebookMenuOpen(false); }); }} className="p-2 text-text-muted hover:text-error opacity-0 group-hover:opacity-100 transition-all hover:bg-error/10 rounded-lg"><MdDelete size={16}/></button>
+                    <div className="flex items-center gap-1">
+                      <button onClick={(e) => startRename(e, n)} className="p-2 text-text-muted hover:text-accent opacity-0 group-hover:opacity-100 transition-all hover:bg-accent/10 rounded-lg"><MdEdit size={16}/></button>
+                      <button onClick={(e) => { e.stopPropagation(); askConfirmation('Excluir Notebook', 'Isso apagará permanentemente esta sessão.', () => { deleteNotebook(n.id); if (n.id === currentNotebookId) setIsNotebookMenuOpen(false); }); }} className="p-2 text-text-muted hover:text-error opacity-0 group-hover:opacity-100 transition-all hover:bg-error/10 rounded-lg"><MdDelete size={16}/></button>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -63,6 +63,14 @@ export const useNotebookStore = create(
         });
       },
 
+      renameNotebook: (id, name) => {
+        set((state) => ({
+          notebooks: state.notebooks.map((n) => 
+            n.id === id ? { ...n, name, updatedAt: Date.now() } : n
+          )
+        }));
+      },
+
       addSourceToCurrent: (source) => {
         const current = get().getCurrentNotebook();
         if (!current) return;
