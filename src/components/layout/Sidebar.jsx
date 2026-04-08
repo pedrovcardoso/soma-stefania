@@ -10,8 +10,9 @@ import { logout } from '@/services/authService'
 import {
   MdBarChart, MdLanguage, MdDescription, MdChat, MdFavorite,
   MdAddToPhotos, MdPushPin, MdSettings, MdLogout, MdChevronLeft,
-  MdChevronRight, MdMenu, MdDomain
+  MdChevronRight, MdMenu, MdDomain, MdMenuOpen
 } from 'react-icons/md'
+import CustomTooltip from '@/components/ui/CustomTooltip'
 
 const menuItems = [
   { id: 'dashboard', type: 'dashboard', title: 'Dashboard', icon: MdBarChart },
@@ -176,9 +177,14 @@ export default function Sidebar() {
         style={{ width: `${validWidth}px`, maxWidth: '100%' }}
       >
         <div className={`border-b border-border flex-shrink-0 bg-surface flex transition-all duration-300 ${isCollapsed ? 'flex-col items-center gap-1 py-1.5' : 'items-center justify-start px-4 h-16 gap-3'}`}>
-          <button onClick={toggleCollapse} className="p-1 rounded-lg text-text-muted hover:bg-surface-alt hover:text-text transition-colors flex-shrink-0">
-            <MdMenu className="w-6 h-6" />
-          </button>
+          <CustomTooltip content={isCollapsed ? 'Abrir menu' : 'Fechar menu'} position="right">
+            <button
+              onClick={toggleCollapse}
+              className="p-1.5 rounded-xl text-text-muted hover:bg-surface-alt hover:text-text transition-all duration-200 flex-shrink-0 active:scale-95"
+            >
+              {isCollapsed ? <MdMenu className="w-6 h-6" /> : <MdMenuOpen className="w-6 h-6" />}
+            </button>
+          </CustomTooltip>
           {isCollapsed ? (
             <img src="/logo-mini.png" alt="SEF Logo" className="h-8 w-auto object-contain animate-in fade-in zoom-in duration-300" />
           ) : (

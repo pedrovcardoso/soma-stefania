@@ -964,16 +964,6 @@ const RAW_DATA = [
         "ref_year": 2024
     },
     {
-        "id": "1495.01.0049586/2024-56",
-        "sei_number": "1495.01.0049586/2024-56",
-        "description": "Auditoria no processo de compras e dispensas emergenciais da Secretaria Estadual de Saúde.",
-        "assigned_to": "ana.julia",
-        "deadline": "2024-01-01",
-        "status": "Finalizado e Concluído",
-        "type": "Balanço Geral do Estado",
-        "ref_year": 2024
-    },
-    {
         "id": "1756.01.0038475/2024-67",
         "sei_number": "1756.01.0038475/2024-67",
         "description": "Verificação das garantias, fianças e avais prestados pelo ente federativo em operações de crédito.",
