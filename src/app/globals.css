@@ -234,7 +234,6 @@ html {
   font-family: 'OpenDyslexic', sans-serif !important;
 }
 
-/* Force VLibras below our Accessibility Menu */
 [vw].active,
 .vw-plugin-wrapper.active,
 .vw-access-button.active {

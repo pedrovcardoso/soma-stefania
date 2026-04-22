@@ -2,178 +2,224 @@
 
 import React, { useState, useEffect } from 'react';
 import useTabStore from '@/store/useTabStore';
+import useThemeStore from '@/store/useThemeStore';
 import {
-  MdBarChart,
-  MdLanguage,
-  MdDescription,
-  MdChat,
-  MdAddToPhotos,
-  MdArrowForward
+ MdBarChart,
+ MdLanguage,
+ MdDescription,
+ MdChat,
+ MdAddToPhotos,
+ MdArrowForward,
+ MdLightMode,
+ MdDarkMode,
+ MdSettings
 } from 'react-icons/md';
 import ParticleBackground from '@/components/ui/ParticleBackground';
 
 const StefanIaAnimation = () => {
-  const [svgContent, setSvgContent] = useState(null);
+ const [svgContent, setSvgContent] = useState(null);
 
-  useEffect(() => {
-    fetch('/stefan.svg')
-      .then((res) => res.text())
-      .then((text) => setSvgContent(text))
-      .catch((err) => console.error("Error fetching SVG:", err));
-  }, []);
+ useEffect(() => {
+  fetch('/stefan.svg')
+   .then((res) => res.text())
+   .then((text) => setSvgContent(text))
+   .catch((err) => console.error("Error fetching SVG:", err));
+ }, []);
 
-  if (!svgContent) {
-    return <div className="w-full h-full aspect-square" />;
-  }
+ if (!svgContent) {
+  return <div className="w-full h-full aspect-square" />;
+ }
 
-  return (
-    <div
-      className="relative z-10 w-full h-auto pointer-events-none drop-shadow-xl"
-      dangerouslySetInnerHTML={{ __html: svgContent }}
-    />
-  );
+ return (
+  <div
+   className="relative z-10 w-full h-auto pointer-events-none drop-shadow-xl"
+   dangerouslySetInnerHTML={{ __html: svgContent }}
+  />
+ );
 };
 
 const HomeView = () => {
-  const openTab = useTabStore((state) => state.openTab);
-  const switchTab = useTabStore((state) => state.switchTab);
+ const openTab = useTabStore((state) => state.openTab);
+ const switchTab = useTabStore((state) => state.switchTab);
+ const { theme, setTheme } = useThemeStore();
 
-  const features = [
-    { id: 'dashboard', type: 'dashboard', title: 'Dashboard', description: 'Métricas e dados estatísticos em tempo real.', icon: <MdBarChart size={24} className="text-accent" />, path: '/dashboard' },
-    { id: 'sei', type: 'sei_list', title: 'Processos SEI', description: 'Busca detalhada de processos e tramitações.', icon: <MdLanguage size={24} className="text-accent" />, path: '/sei' },
-    { id: 'documents', type: 'doc_list', title: 'Documentos', description: 'Análise e criação de documentos com IA.', icon: <MdDescription size={24} className="text-accent" />, path: '/documents' },
-    { id: 'stefania', type: 'stefania', title: 'StefanIA', description: 'Chatbot inteligente para insights processuais.', icon: <MdChat size={24} className="text-accent" />, path: '/stefania' },
-    { id: 'action-plans', type: 'action_plans', title: 'Planos de Ação', description: 'Gestão estruturada de grupos de trabalho.', icon: <MdAddToPhotos size={24} className="text-accent" />, path: '/action-plans' },
-  ];
+ const features = [
+  // { id: 'dashboard', type: 'dashboard', title: 'Dashboard', description: 'Métricas e dados estatísticos em tempo real.', icon: <MdBarChart size={24} className="text-accent" />, path: '/dashboard' },
+  { id: 'sei', type: 'sei_list', title: 'Processos SEI', description: 'Busca detalhada de processos e tramitações.', icon: <MdLanguage size={24} className="text-accent" />, path: '/sei' },
+  { id: 'documents', type: 'doc_list', title: 'Documentos', description: 'Análise e criação de documentos com IA.', icon: <MdDescription size={24} className="text-accent" />, path: '/documents' },
+  { id: 'stefania', type: 'stefania', title: 'StefanIA', description: 'Chatbot inteligente para insights processuais.', icon: <MdChat size={24} className="text-accent" />, path: '/stefania' },
+  { id: 'action-plans', type: 'action_plans', title: 'Planos de Ação', description: 'Gestão estruturada de grupos de trabalho.', icon: <MdAddToPhotos size={24} className="text-accent" />, path: '/action-plans' },
+ ];
 
-  const handleCardClick = (feature) => {
-    openTab({
-      id: feature.id,
-      type: feature.type,
-      title: feature.title
-    });
-  };
+ const handleCardClick = (feature) => {
+  openTab({
+   id: feature.id,
+   type: feature.type,
+   title: feature.title
+  });
+ };
 
-  return (
-    <>
-      <style jsx global>{`
-        #stefan-ia-container svg path {
-          stroke: rgba(var(--color-accent-rgb), 0.7);
-          stroke-width: 2.3px;
-          fill: transparent;
-          stroke-dasharray: 3000;
-          stroke-dashoffset: 3000;
-          animation: 
-            draw-in 4s cubic-bezier(0.25, 1, 0.5, 1) forwards,
-            pulse-fill 6s ease-in-out 4s infinite,
-            traveling-pulse 60s linear 2s infinite;
-        }
+ const [isMounted, setIsMounted] = useState(false);
 
-        @keyframes draw-in {
-          to { 
-            stroke-dashoffset: 0; 
-            fill: rgba(var(--color-accent-rgb), 0.15);
-          }
-        }
+ useEffect(() => {
+  setIsMounted(true);
+ }, []);
 
-        @keyframes pulse-fill {
-          0%, 100% { fill: rgba(var(--color-accent-rgb), 0.15); } 
-          50% { fill: rgba(var(--color-accent-rgb), 0.35); }
-        }
+ const toggleTheme = () => {
+  setTheme(theme === 'light' ? 'dark' : 'light');
+ };
 
-        @keyframes traveling-pulse {
-          from { stroke-dasharray: 2970 30; stroke-dashoffset: 0; }
-          to { stroke-dasharray: 2970 30; stroke-dashoffset: -3000; }
-        }
-        
-        @keyframes morph {
-          0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-          50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-          100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-        }
-      `}</style>
+ const openSettings = () => {
+  openTab({
+   id: 'settings',
+   type: 'settings',
+   title: 'Preferências'
+  });
+ };
 
-      <div className="flex h-full flex-col overflow-y-auto bg-surface-alt text-text font-sans">
-        <div className="w-full max-w-7xl mx-auto px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10">
+ const isDarkMode = theme !== 'light';
 
-          <section className="flex flex-col lg:flex-row items-center justify-between gap-10 mb-16 mt-4">
-            <div className="lg:w-1/2 flex flex-col text-center lg:text-left animate-fade-in-right z-10">
-              <h1 className="text-4xl md:text-5xl lg:text-5xl font-extrabold text-text tracking-tight leading-tight">
-                SOMA - Sistema de Orquestração de Manifestações ao TCE
-              </h1>
-              <p className="text-lg text-text-secondary mt-6 leading-relaxed max-w-lg mx-auto lg:mx-0">
-                Centralize processos, analise documentos e obtenha insights estratégicos com a
-                <span className="text-transparent font-bold bg-clip-text bg-gradient-to-r from-accent to-cyan-500"> StefanIA</span>
-                , a inteligência artificial do Tesouro.
-              </p>
-            </div>
+ return (
+  <>
+   <style jsx global>{`
+    #stefan-ia-container svg path {
+     stroke: rgba(var(--color-accent-rgb), 0.7);
+     stroke-width: 2.3px;
+     fill: transparent;
+     stroke-dasharray: 3000;
+     stroke-dashoffset: 3000;
+     animation: 
+      draw-in 4s cubic-bezier(0.25, 1, 0.5, 1) forwards,
+      pulse-fill 6s ease-in-out 4s infinite,
+      traveling-pulse 60s linear 2s infinite;
+    }
 
-            <div className="w-full lg:w-1/2 flex justify-center lg:justify-end animate-fade-in-left relative">
-              <div id="stefan-ia-container" className="relative flex items-center justify-center w-[350px] h-[350px] md:w-[450px] md:h-[450px]">
-                <div
-                  className="absolute inset-0 w-full h-full overflow-hidden"
-                  style={{
-                    animation: 'morph 15s ease-in-out infinite both',
-                    background: 'radial-gradient(circle, rgba(var(--color-accent-rgb), 0.35) 0%, rgba(var(--color-accent-rgb), 0.1) 40%, transparent 70%)',
-                    filter: 'blur(40px)',
-                    opacity: 1
-                  }}
-                />
+    @keyframes draw-in {
+     to { 
+      stroke-dashoffset: 0; 
+      fill: rgba(var(--color-accent-rgb), 0.15);
+     }
+    }
 
-                <div className="absolute inset-0 w-full h-full pointer-events-none">
-                  <ParticleBackground
-                    particleColor="var(--color-accent)"
-                    lineColorBase="var(--color-accent-rgb)"
-                  />
-                </div>
+    @keyframes pulse-fill {
+     0%, 100% { fill: rgba(var(--color-accent-rgb), 0.15); } 
+     50% { fill: rgba(var(--color-accent-rgb), 0.35); }
+    }
 
-                <StefanIaAnimation />
-              </div>
-            </div>
-          </section>
+    @keyframes traveling-pulse {
+     from { stroke-dasharray: 2970 30; stroke-dashoffset: 0; }
+     to { stroke-dasharray: 2970 30; stroke-dashoffset: -3000; }
+    }
+    
+    @keyframes morph {
+     0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+     50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+     100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+    }
+   `}</style>
 
-          <section>
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-text flex items-center gap-2">
-                <span className="w-2 h-8 bg-accent rounded-full inline-block"></span>
-                Funcionalidades
-              </h2>
-            </div>
+   <div className="flex h-full flex-col overflow-y-auto bg-surface-alt text-text font-sans">
+    <div className="w-full max-w-7xl mx-auto px-6 pt-2 pb-6 md:px-10 md:pt-4 md:pb-10">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {features.map((feature, index) => (
-                <button
-                  key={feature.id}
-                  onClick={() => handleCardClick(feature)}
-                  className="group relative flex flex-col items-start text-left bg-surface p-6 rounded-2xl border border-border shadow-sm hover:shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 overflow-hidden"
-                  style={{ animationDelay: `${100 * index}ms` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-surface-alt to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                  <div className="relative z-10 mb-4 flex items-center justify-center w-12 h-12 bg-accent-soft text-accent rounded-xl group-hover:bg-accent-100 transition-colors duration-300 shadow-inner">
-                    {feature.icon}
-                  </div>
-
-                  <h3 className="relative z-10 font-bold text-lg text-text mb-2 group-hover:text-accent transition-colors">
-                    {feature.title}
-                  </h3>
-
-                  <p className="relative z-10 text-text-secondary text-sm leading-relaxed mb-4">
-                    {feature.description}
-                  </p>
-
-                  <div className="relative z-10 mt-auto flex items-center text-xs font-bold text-accent opacity-0 transform translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                    ACESSAR <MdArrowForward className="ml-1" />
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-
-        </div>
+     {/* SEÇÃO HERO */}
+     <section className="flex flex-col lg:flex-row items-center justify-between gap-10 mb-16 mt-4">
+      <div className="lg:w-1/2 flex flex-col text-center lg:text-left animate-fade-in-right z-10">
+       <h1 className="text-4xl md:text-5xl lg:text-5xl font-extrabold text-text tracking-tight leading-tight">
+        SOMA - Sistema de Orquestração de Manifestações ao TCE
+       </h1>
+       <p className="text-lg text-text-secondary mt-6 leading-relaxed max-w-lg mx-auto lg:mx-0">
+        Centralize processos, analise documentos e obtenha insights estratégicos com a
+        <span className="text-transparent font-bold bg-clip-text bg-gradient-to-r from-accent to-cyan-500"> StefanIA</span>
+        , a inteligência artificial do Tesouro.
+       </p>
       </div>
-    </>
-  );
+
+      <div className="w-full lg:w-1/2 flex justify-center lg:justify-end animate-fade-in-left relative">
+       <div id="stefan-ia-container" className="relative flex items-center justify-center w-[350px] h-[350px] md:w-[450px] md:h-[450px]">
+        <div
+         className="absolute inset-0 w-full h-full overflow-hidden"
+         style={{
+          animation: 'morph 15s ease-in-out infinite both',
+          background: 'radial-gradient(circle, rgba(var(--color-accent-rgb), 0.35) 0%, rgba(var(--color-accent-rgb), 0.1) 40%, transparent 70%)',
+          filter: 'blur(40px)',
+          opacity: 1
+         }}
+        />
+
+        <div className="absolute inset-0 w-full h-full pointer-events-none">
+         <ParticleBackground
+          particleColor="var(--color-accent)"
+          lineColorBase="var(--color-accent-rgb)"
+         />
+        </div>
+
+        <StefanIaAnimation />
+       </div>
+      </div>
+     </section>
+
+     {/* SEÇÃO FUNCIONALIDADES E CONTROLES */}
+     <section>
+      <div className="flex items-center justify-between mb-8">
+       <h2 className="text-2xl font-bold text-text flex items-center gap-2">
+        <span className="w-2 h-8 bg-accent rounded-full inline-block"></span>
+        Funcionalidades
+       </h2>
+
+       <div className="flex items-center gap-3 animate-fade-in-right">
+        <button
+         onClick={toggleTheme}
+         title={isDarkMode ? 'Mudar para Tema Claro' : 'Mudar para Tema Escuro'}
+         className="flex items-center justify-center w-10 h-10 rounded-full bg-surface border border-border text-text-secondary hover:text-accent hover:border-accent hover:bg-accent/5 shadow-sm transition-all duration-300"
+        >
+         {/* 3. ALTERE AQUI PARA VERIFICAR O isMounted */}
+         {isMounted && isDarkMode ? <MdLightMode size={20} /> : <MdDarkMode size={20} />}
+        </button>
+        
+        <button
+         onClick={openSettings}
+         title="Preferências de Visualização"
+         className="flex items-center justify-center w-10 h-10 rounded-full bg-surface border border-border text-text-secondary hover:text-accent hover:border-accent hover:bg-accent/5 shadow-sm transition-all duration-300"
+        >
+         <MdSettings size={20} />
+        </button>
+       </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+       {features.map((feature, index) => (
+        <button
+         key={feature.id}
+         onClick={() => handleCardClick(feature)}
+         className="group relative flex flex-col items-start text-left bg-surface p-6 rounded-2xl border border-border shadow-sm hover:shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 overflow-hidden"
+         style={{ animationDelay: `${100 * index}ms` }}
+        >
+         <div className="absolute inset-0 bg-gradient-to-br from-surface-alt to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+         <div className="relative z-10 mb-4 flex items-center justify-center w-12 h-12 bg-accent-soft text-accent rounded-xl group-hover:bg-accent-100 transition-colors duration-300 shadow-inner">
+          {feature.icon}
+         </div>
+
+         <h3 className="relative z-10 font-bold text-lg text-text mb-2 group-hover:text-accent transition-colors">
+          {feature.title}
+         </h3>
+
+         <p className="relative z-10 text-text-secondary text-sm leading-relaxed mb-4">
+          {feature.description}
+         </p>
+
+         <div className="relative z-10 mt-auto flex items-center text-xs font-bold text-accent opacity-0 transform translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+          ACESSAR <MdArrowForward className="ml-1" />
+         </div>
+        </button>
+       ))}
+      </div>
+     </section>
+
+    </div>
+   </div>
+  </>
+ );
 };
 
 export default HomeView;

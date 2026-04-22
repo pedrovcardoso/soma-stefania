@@ -46,9 +46,6 @@ export default function AppShell() {
 
   useEffect(() => {
     setIsClient(true)
-    if (typeof window !== 'undefined') {
-      document.documentElement.setAttribute('data-theme', theme)
-    }
   }, [])
 
   useEffect(() => {
